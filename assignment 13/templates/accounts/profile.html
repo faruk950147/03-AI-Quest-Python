@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}User Profile{% endblock title %}
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h3>Welcome aiQuest</h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url 'profile' %}" class="btn btn-primary">Profile</a></li>
+                <li class="d-grid"><a href="{% url 'address' %}" class="btn">Address</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-8 offset-sm-1">
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="col-12">
+                    <label for="inputName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="inputEmail">
+                </div>
+                <div class="col-md-12">
+                    <label for="inputDivision" class="form-label">Division</label>
+                    <select id="inputDivision" class="form-select">
+                        <option selected>Choose...</option>
+                        <option>...</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label for="inputDistrict" class="form-label">District</label>
+                    <input type="text" class="form-control" id="inputDistrict">
+                </div>
+                <div class="col-12">
+                    <label for="inputThana" class="form-label">Thana</label>
+                    <input type="text" class="form-control" id="inputThana">
+                </div>
+                <div class="col-12">
+                    <label for="inputRoadno" class="form-label">Village / Road No.</label>
+                    <input type="text" class="form-control" id="inputRoadno" placeholder="floor">
+                </div>
+                <div class="col-12">
+                    <label for="inputContact" class="form-label">Contact No.</label>
+                    <input type="text" class="form-control" id="inputContact">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="inputZip" class="form-label">Zip</label>
+                    <input type="text" class="form-control" id="inputZip">
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

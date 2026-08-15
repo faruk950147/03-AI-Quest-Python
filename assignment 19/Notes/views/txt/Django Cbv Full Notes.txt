@@ -1,0 +1,131 @@
+1. as_view() — Entry Point
+
+এটা সবচেয়ে important method
+
+@classonlymethod
+def as_view(cls, **initkwargs):
+কাজ কী?
+
+Class কে function (callable view) বানায়
+
+Django URL dispatcher এটা call করে
+
+সহজভাবে:
+path('home/', MyView.as_view())
+
+এখানে as_view() return করে একটা function (view)
+
+2. ভিতরের view() function
+def view(request, *args, **kwargs):
+    self = cls(**initkwargs)
+    self.setup(request, *args, **kwargs)
+    return self.dispatch(request, *args, **kwargs)
+এখানে কী হচ্ছে?
+
+self = cls() → class এর object তৈরি
+
+setup() → request assign
+
+dispatch() → কোন method call হবে decide
+
+3. setup() — Initialization
+def setup(self, request, *args, **kwargs):
+    self.request = request
+    self.args = args
+    self.kwargs = kwargs
+কাজ:
+
+request object bind করে
+
+args, kwargs store করে
+
+Bonus:
+
+if hasattr(self, "get") and not hasattr(self, "head"):
+    self.head = self.get
+
+মানে:
+
+যদি head() না থাকে → get() use করবে
+
+4. dispatch() — Brain of CBV 
+def dispatch(self, request, *args, **kwargs):
+কাজ:
+
+HTTP method অনুযায়ী function call করা
+
+if request.method.lower() in self.http_method_names:
+    handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+Example:
+Request	Method call
+GET	self.get()
+POST	self.post()
+PUT	self.put()
+
+যদি method না থাকে:
+
+self.http_method_not_allowed
+5. http_method_not_allowed()
+return HttpResponseNotAllowed(...)
+কাজ:
+
+Invalid method এ error return করে
+
+Example:
+
+তুমি শুধু get() লিখছো
+
+user POST request দিল → error
+
+6. options() method
+def options(self, request, *args, **kwargs):
+কাজ:
+
+Allowed methods list return করে
+
+Response header:
+
+Allow: GET, POST
+7. _allowed_methods()
+return [m.upper() for m in self.http_method_names if hasattr(self, m)]
+কাজ:
+
+কোন method implement করা আছে detect করা
+
+Full Flow (Very Important)
+URL → as_view()
+        ↓
+    view()
+        ↓
+    setup()
+        ↓
+    dispatch()
+        ↓
+    get()/post()/...
+        ↓
+    Response
+Real Example
+class MyView(View):
+    def get(self, request):
+        return HttpResponse("GET request")
+
+    def post(self, request):
+        return HttpResponse("POST request")
+
+Request flow:
+
+GET request:
+dispatch() → get()
+POST request:
+dispatch() → post()
+Key Concept (Interview Level)
+
+as_view() → class → function বানায়
+dispatch() → method routing করে
+setup() → request bind করে
+http_method_not_allowed() → error handle
+
+Shortcut Understanding
+
+CBV =
+"Class + dispatch system"

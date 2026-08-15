@@ -1,0 +1,176 @@
+1. Database Models (A to Z)
+models.py
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# User Profile for Online/Offline status
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_online = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {'Online' if self.is_online else 'Offline'}"
+
+# Room Model
+class Room(models.Model):
+    ROOM_TYPE_CHOICES = (
+        ('private', 'Private'),
+        ('group', 'Group'),
+    )
+    name = models.CharField(max_length=255, blank=True, null=True)
+    room_type = models.CharField(max_length=10, choices=ROOM_TYPE_CHOICES)
+    participants = models.ManyToManyField(User, related_name='rooms')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        if self.room_type == 'private':
+            return f"Private Room ({self.id})"
+        return self.name or f"Group Room ({self.id})"
+
+# Message Model
+class Message(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    delivered = models.BooleanField(default=False)
+    seen = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username}: {self.content[:20]}"
+
+# Explanation:
+
+Room → Private (1-to-1) এবং Group chat handle করবে।
+participants → Room-এর সকল user থাকবে।
+Message → content, sender, delivered, seen, timestamp track করবে।
+Profile → online/offline status track করবে।
+2. Channels Routing
+routing.py
+from django.urls import re_path
+from . import consumers
+
+websocket_urlpatterns = [
+    re_path(r'ws/chat/(?P<room_name>\w+)/$', consumers.ChatConsumer.as_asgi()),
+]
+3. WebSocket Consumer (A to Z)
+consumers.py
+from channels.generic.websocket import AsyncWebsocketConsumer
+import json
+from channels.db import database_sync_to_async
+from .models import Room, Message, Profile
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class ChatConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'chat_{self.room_name}'
+        self.user = self.scope['user']
+
+        # Join room group
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add('online_users', self.user.username)
+        await self.accept()
+
+        # Set user online
+        await self.set_user_online(self.user)
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_discard('online_users', self.user.username)
+        await self.set_user_offline(self.user)
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        message_text = data['message']
+
+        # Save message in DB
+        message = await self.save_message(self.user, message_text, self.room_name)
+
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message_text,
+                'sender': self.user.username,
+                'message_id': message.id,
+            }
+        )
+
+    async def chat_message(self, event):
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': event['message'],
+            'sender': event['sender'],
+            'message_id': event['message_id'],
+        }))
+
+    # Database operations
+    @database_sync_to_async
+    def save_message(self, sender, message_text, room_name):
+        room = Room.objects.get(id=room_name)
+        return Message.objects.create(room=room, sender=sender, content=message_text)
+
+    @database_sync_to_async
+    def set_user_online(self, user):
+        profile, _ = Profile.objects.get_or_create(user=user)
+        profile.is_online = True
+        profile.save()
+
+    @database_sync_to_async
+    def set_user_offline(self, user):
+        profile, _ = Profile.objects.get_or_create(user=user)
+        profile.is_online = False
+        profile.save()
+
+# Explanation:
+
+Connect → user join করবে room এবং online_users group-এ add হবে।
+Disconnect → user leave করবে এবং offline set হবে।
+Receive → message DB-এ save করে room group-এ পাঠানো হবে।
+Seen / Delivered logic WebSocket মাধ্যমে real-time update করা যাবে।
+4. Frontend (JavaScript + WebSocket)
+<div id="chat-log"></div>
+<input id="chat-message-input" type="text">
+<button id="chat-message-send">Send</button>
+
+<script>
+let roomName = "{{ room.id }}";
+let ws = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+ws.onmessage = function(e) {
+    let data = JSON.parse(e.data);
+    let log = document.getElementById('chat-log');
+    log.innerHTML += `<b>${data.sender}:</b> ${data.message} <small id="msg_${data.message_id}">Delivered</small><br>`;
+};
+
+// Send message
+document.getElementById('chat-message-send').onclick = function() {
+    let input = document.getElementById('chat-message-input');
+    ws.send(JSON.stringify({'message': input.value}));
+    input.value = '';
+};
+</script>
+Give feedback
+
+# Explanation:
+
+নতুন message আসলে log update হবে।
+Delivered / Seen status track করা যাবে message ID দিয়ে।
+Online users আলাদা API/WebSocket group দিয়ে দেখানো যাবে।
+
+এইভাবে তুমি পুরো Private/Group chat system A to Z তৈরি করতে পারবে, যেটা WhatsApp-এর মতো:
+
+DB save
+Seen / Delivered
+Online / Offline
+Real-time WebSocket integration
+
+Faruk, চাইলে আমি পরবর্তী step-এ দেখাতে পারি Group chat admin, emojis, notifications, typing indicator, একেবারে pro WhatsApp style। 🔥

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Django Learning{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                {% if django_learning and machine_learning and Deap_learning %}
+                    <h1>{{ django_learning }}</h1>
+                    <h1>{{ machine_learning }}</h1>
+                    <h1>{{ Deap_learning }}</h1>
+                {% else %}
+                    <h1>Age is less than 18</h1>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

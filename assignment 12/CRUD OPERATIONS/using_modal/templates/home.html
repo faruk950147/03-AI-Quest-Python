@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+
+{% block main %}
+<div class="container mt-5">
+
+    <!-- Add Task Button -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="fas fa-plus"></i> Add New
+        </button>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{% url 'HomeView' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="name" class="form-control my-2" placeholder="Name" required>
+                        <input type="text" name="department" class="form-control my-2" placeholder="Department" required>
+                        <input type="text" name="phone" class="form-control my-2" placeholder="Phone" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success form-control">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Phone</th>
+                <th>Completed</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.name }}</td>
+                <td>{{ task.department }}</td>
+                <td>{{ task.phone }}</td>
+
+                <!-- Completed Checkbox -->
+                <td>
+                    <form action="{% url 'IsCompleteView' task.id %}" method="post">
+                        {% csrf_token %}
+
+                        <button class="btn {% if task.is_completed %}btn-success{% else %}btn-secondary{% endif %}">
+                            
+                            {% if task.is_completed %}
+                                Completed
+                            {% else %}
+                                Pending
+                            {% endif %}
+
+                        </button>
+
+                    </form>
+                </td>
+
+                <!-- Actions -->
+                <td class="d-flex gap-1">
+                    <!-- Edit Button -->
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ task.id }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal{{ task.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{% url 'EditedView' task.id %}" method="POST" 
+                                      onsubmit="return confirm('Are you sure you want to save changes?');">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Task</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="text" name="name" value="{{ task.name }}" class="form-control my-2" placeholder="Name" required>
+                                        <input type="text" name="department" value="{{ task.department }}" class="form-control my-2" placeholder="Department" required>
+                                        <input type="text" name="phone" value="{{ task.phone }}" class="form-control my-2" placeholder="Phone" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-success form-control" type="submit">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delete Button -->
+                    <form action="{% url 'DeletedView' task.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No tasks found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock main %}

@@ -1,0 +1,38 @@
+1. Base / Generic Views
+View - সব CBV-এর base। get(), post(), put() ইত্যাদি method override করতে হয়।
+TemplateView - static template render করে।
+RedirectView - redirect করে।
+FormView - form handle করে, কিন্তু সরাসরি model save করে না।
+2. CRUD / Model Views
+ListView - model-এর object list দেখায়।
+DetailView - single object show করে।
+CreateView - নতুন object তৈরি করে।
+UpdateView - existing object update করে।
+DeleteView - object delete করে।
+
+Related Mixins / Variations:
+
+ArchiveIndexView - date-based archive list।
+YearArchiveView - yearly archive।
+MonthArchiveView - monthly archive।
+WeekArchiveView - weekly archive।
+DayArchiveView - daily archive।
+TodayArchiveView - today-এর archive।
+
+এগুলো মূলত date-based content (blog, news, events) দেখানোর জন্য।
+
+3. Authentication Views (Django.contrib.auth.generic_views)
+LoginView - user login।
+LogoutView - logout।
+PasswordChangeView - password change form।
+PasswordChangeDoneView - password change success।
+PasswordResetView - password reset form।
+PasswordResetDoneView - password reset email sent।
+PasswordResetConfirmView - password reset confirm।
+PasswordResetCompleteView - reset complete।
+4. Mixins (Reusable Behaviors)
+LoginRequiredMixin - login ছাড়া access blocked।
+PermissionRequiredMixin - user permission check করে।
+UserPassesTestMixin - custom test method দিয়ে access control।
+MultipleObjectMixin - ListView এর জন্য ব্যবহার হয়।
+SingleObjectMixin - DetailView, UpdateView, DeleteView এর জন্য।

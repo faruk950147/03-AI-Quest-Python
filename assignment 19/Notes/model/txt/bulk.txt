@@ -1,0 +1,72 @@
+Bulk operation মানে হলো — একসাথে অনেকগুলো ডেটা নিয়ে কাজ করা।
+
+ডাটাবেসে যখন আপনি একসাথে একাধিক row বা record আপডেট, ডিলিট বা ইন্সার্ট করেন, তখন সেটাকে bulk operation বলে।
+
+উদাহরণ দিয়ে বোঝাই:
+সাধারণভাবে (loop করে):
+
+for p in Participant.objects.all():
+    p.is_winner = False
+    p.save()
+এখানে প্রতিটা পার্টিসিপেন্ট লুপ করে সেভ হচ্ছে = slow।
+
+Bulk operation ব্যবহার করে:
+Participant.objects.update(is_winner=False)
+এখানে সব পার্টিসিপেন্ট একসাথে আপডেট হচ্ছে = fast।
+
+
+bulk operation করার কিছু উদাহরণ:
+
+1. একসাথে অনেক ডেটা ইন্সার্ট করা:
+Participant.objects.bulk_create([
+    Participant(name='John', phone='123', email='john@example.com'),
+    Participant(name='Jane', phone='456', email='jane@example.com'),
+])
+
+2. একসাথে অনেক ডেটা আপডেট করা:
+Participant.objects.bulk_update([
+    Participant(id=1, name='John Updated'),
+    Participant(id=2, name='Jane Updated'), 
+])
+
+3. একসাথে অনেক ডেটা ডিলিট করা:
+Participant.objects.bulk_delete([
+    Participant(id=1),
+    Participant(id=2),
+])
+
+Bulk মানে কী?
+Bulk মানে হচ্ছে — একসাথে অনেকগুলা ডেটার ওপর কাজ করা।
+
+উদাহরণ দিয়ে বুঝুন:
+১. সাধারন ভাবে (একটা একটা করে):
+for participant in Participant.objects.all():
+    participant.is_winner = False
+    participant.save()
+এখানে প্রত্যেকটা ডেটা আলাদা করে save() হচ্ছে। অনেক গুলো SQL Query চলছে — ধীর কাজ।
+
+২. Bulk Update:
+Participant.objects.update(is_winner=False)
+এখানে একটাই SQL Query চলে:
+
+sql
+UPDATE participant SET is_winner = False;
+সবগুলা ডেটা একসাথে একবারেই আপডেট হয় — দ্রুত কাজ, কম লোড।
+
+সহজ ভাষায়:
+একটার পর একটা করলে = slow
+
+একসাথে সব করলে = fast (bulk operation)
+
+Django-তে যেগুলো Bulk হয়:
+update()
+
+delete()
+
+bulk_create()
+
+bulk_update()
+
+সবগুলোতেই অনেক ডেটা একবারে প্রসেস হয়।
+
+বোঝা গেছে? যদি চাইলে ছোট্ট প্র‍্যাক্টিকাল ডেমো দেখাতে পারি!

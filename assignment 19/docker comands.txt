@@ -1,0 +1,173 @@
+ Docker Hub push or Upload:
+docker tag ac6ff836d5ff faruk950147/docker-test:latest
+Than push:
+docker push faruk950147/docker-test:latest
+Simple Reminder:
+docker-test:latest	name + tag
+ac6ff836d5ff	IMAGE ID
+docker tag	rename / re-label image
+
+
+=========== All Commands ==============
+1. Version & Info
+docker --version
+docker version
+docker info
+
+2. Images
+Image download
+docker pull python
+docker pull python:3.12
+Image list
+docker images
+Image delete
+docker rmi image_id
+docker rmi image_name
+Unused image remove
+docker image prune
+
+3. Containers
+Run container
+docker run python
+docker run -it python
+Django run
+docker run -p 8000:8000 python-django
+Name দিয়ে run
+docker run -p 8000:8000 --name django-container django-image
+Running container list
+docker ps
+All containers
+docker ps -a
+Stop container
+docker stop container_id
+docker stop container_name
+Restart container
+docker restart container_id
+Remove container
+docker rm container_id
+Remove stopped containers
+docker container prune
+
+4. Build Image
+Build image
+docker build -t python-django .
+Version tag
+docker build -t python-django:v1 .
+
+5. Logs & Debug
+Logs
+docker logs container_id
+docker logs -f container_id
+Container shell
+docker exec -it container_id bash
+
+6. Docker Compose
+Run
+docker compose up
+Background run
+docker compose up -d
+Stop
+docker compose down
+
+7. Cleanup
+docker system prune
+docker system prune -a
+
+8. Network
+docker network ls
+docker network create mynetwork
+docker network inspect network_name
+
+9. Volume
+docker volume ls
+docker volume create myvolume
+docker volume inspect myvolume
+
+10. Save & Load Image
+docker save -o file.tar image_name
+docker load -i file.tar
+
+Django Docker basic flow
+docker build -t django-app .
+docker run -p 8000:8000 django-app
+
+Docker Compose All Important Commands
+1. Version check
+docker compose version
+
+2. Run containers (start project)
+docker compose up
+
+Background (detached mode)
+docker compose up -d
+
+Build + start
+docker compose up --build
+3. Stop containers
+docker compose down
+Remove volumes too
+docker compose down -v
+
+4. Restart services
+docker compose restart
+
+5. View running containers
+docker compose ps
+
+6. View logs
+docker compose logs
+
+Follow logs (real-time)
+docker compose logs -f
+Specific service logs
+docker compose logs service_name
+
+7. Execute command inside container
+docker compose exec service_name bash
+
+Example:
+
+docker compose exec web bash
+
+If bash not available:
+
+docker compose exec web sh
+
+8. Run one-time command
+docker compose run service_name command
+
+9. Build images only
+docker compose build
+
+10. Pull images
+docker compose pull
+
+11. Start / Stop specific service
+docker compose start service_name
+docker compose stop service_name
+
+12. Remove stopped containers
+docker compose rm
+
+13. Scale service (multiple containers)
+docker compose up --scale web=3
+
+14. View config
+docker compose config
+
+15. Check running processes inside compose
+docker compose top
+
+Bonus (Real-world workflow)
+docker compose up -d --build
+docker compose logs -f
+docker compose exec web bash
+docker compose down
+
+Quick Summary
+up → start
+down → stop & remove
+logs → debug
+exec → enter container
+build → build images
+ps → status

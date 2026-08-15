@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+<div class="container mt-5 bg-white p-4 rounded shadow-sm">
+    <h2 class="text-center mb-4">Registration Form</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+
+                        {# Text Input / Email / Number / Date #}
+                        {% if field.field.widget.input_type != "radio" and field.field.widget.input_type != "checkbox" %}
+                            {{ field }}
+                        {% endif %}
+
+                        {# Checkbox #}
+                        {% if field.field.widget.input_type == "checkbox" %}
+                            <div class="form-check">
+                                {{ field }}
+                                <label class="form-check-label">{{ field.label }}</label>
+                            </div>
+                        {% endif %}
+
+                        {# Radio Buttons #}
+                        {% if field.field.widget.input_type == "radio" %}
+                            <label class="form-label d-block">{{ field.label }}</label>
+                            {% for radio in field %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label">{{ radio.choice_label }}</label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {# Show Errors #}
+                        {% if field.errors %}
+                            <div class="text-danger small">
+                                {{ field.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary form-control">
+                    Submit
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

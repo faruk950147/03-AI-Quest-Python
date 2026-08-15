@@ -1,0 +1,344 @@
+Django-তে Paginator হল একটি built-in class যা queryset বা list কে page-wise ভাগ করার জন্য ব্যবহার করা হয়। 
+এটা ব্যবহার করলে আপনি অনেকগুলো item একসাথে দেখানোর পরিবর্তে ছোট ছোট পেজে দেখাতে পারেন, 
+যেমন e-commerce website-এ products বা blog posts।
+
+সাধারণভাবে workflow এমন:
+
+1 Import করা
+from django.core.paginator import Paginator
+2 Paginator তৈরি করা
+
+ধরে নাও আপনার কাছে 50 টা products আছে:
+
+products = Product.objects.all()  # সব product
+paginator = Paginator(products, 10)  # 10 টি product প্রতি page
+
+এখানে 10 মানে প্রতি পেজে 10টি item দেখানো হবে।
+
+3 কোন page দেখা
+page_number = request.GET.get('page')  # URL থেকে page number
+page_obj = paginator.get_page(page_number)
+
+page_obj এখন সেই page-এর items ধারণ করবে。
+
+orphans হল এমন একটি parameter যা শেষ page-এ খুব কম item থাকলে সেই item গুলোকে আগের page-এ 
+merge করে দেয়।
+from django.core.paginator import Paginator
+
+products = Product.objects.all()
+
+paginator = Paginator(products, 10, orphans=2)
+
+page_number = request.GET.get('page')
+
+page_obj = paginator.get_page(page_number)
+
+object_list → queryset বা list
+
+per_page → প্রতি page-এ কত item
+
+orphans → শেষ page-এ minimum item
+
+CBV (View) ব্যবহার করছো, তাই এর ভিতরে Paginator manually add করতে হবে। নিচে পুরো working code দেখানো হলো।
+
+1 View (views.py) — Pagination সহ
+from django.views import View
+from django.shortcuts import render
+from django.core.paginator import Paginator
+from .models import Product
+
+================================== CBV (Class Based View) ==================================
+from django.views.generic import ListView
+from .models import Product
+
+
+class ProductListView(ListView):
+    model = Product
+    template_name = 'products.html'
+    paginate_by = 10
+
+class ProductListView(View):
+
+    def get(self, request):
+        products = Product.objects.all()
+
+        paginator = Paginator(products, 10)  # প্রতি page এ 10 product
+
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = {
+            'page_obj': page_obj
+        }
+
+        return render(request, 'products.html', context)
+
+এখানে:
+
+Paginator(products, 10)
+
+মানে প্রতি page এ 10 টি product দেখাবে।
+
+================================== Template (products.html) ==================================
+<h2>Products</h2>
+
+<ul>
+    {% for product in page_obj %}
+        <li>{{ product.name }} - {{ product.price }}</li>
+    {% endfor %}
+</ul>
+
+
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+
+</div>
+
+================================== URL Example ==================================
+from django.urls import path
+from .views import ProductListView
+
+urlpatterns = [
+    path('products/', ProductListView.as_view(), name='product_list'),
+]
+================================== URL Example ==================================
+/products/        → Page 1
+/products/?page=2 → Page 2
+/products/?page=3 → Page 3
+================================== URL Example ==================================
+================================== URL Example ==================================
+5 Important
+
+page_obj এর ভিতরে অনেক useful attribute থাকে:
+
+Attribute	কাজ
+page_obj.has_next	next page আছে কিনা
+page_obj.has_previous	previous page আছে কিনা
+page_obj.number	current page
+page_obj.paginator.num_pages	total pages
+
+========================= Class Based View implementation ajax ============================
+CBV (View) + Pagination ব্যবহার করছো, সেটাকে AJAX দিয়ে dynamic pagination করা যায় যাতে page reload না হয়ে শুধু product list change হয়। নিচে complete example দিলাম।
+
+1 View (views.py) — CBV + AJAX Pagination
+from django.views import View
+from django.shortcuts import render
+from django.core.paginator import Paginator
+from .models import Product
+
+
+class ProductListView(View):
+
+    def get(self, request):
+
+        products = Product.objects.all()
+
+        paginator = Paginator(products, 10)
+
+        page_number = request.GET.get('page')
+
+        page_obj = paginator.get_page(page_number)
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return render(request, 'partials/product_list.html', {'page_obj': page_obj})
+
+        return render(request, 'products.html', {'page_obj': page_obj})
+
+এখানে:
+
+Normal request → products.html
+
+AJAX request → partials/product_list.html
+
+2 Main Template (products.html)
+<h2>Products</h2>
+
+<div id="product-container">
+    {% include 'partials/product_list.html' %}
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+$(document).on('click', '.page-btn', function(){
+
+    var page = $(this).data('page');
+
+    $.ajax({
+
+        url: "{% url 'product_list' %}",
+
+        data: {
+            'page': page
+        },
+
+        success: function(data){
+            $('#product-container').html(data);
+        }
+
+    });
+
+});
+
+</script>
+
+এখানে:
+
+#product-container
+
+এই div এর ভিতরের content AJAX দিয়ে update হবে।
+
+3 Partial Template (partials/product_list.html)
+<ul>
+    {% for product in page_obj %}
+        <li>{{ product.name }} - {{ product.price }}</li>
+    {% endfor %}
+</ul>
+
+
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+        <button class="page-btn" data-page="{{ page_obj.previous_page_number }}">
+            Previous
+        </button>
+    {% endif %}
+
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+    {% if page_obj.has_next %}
+        <button class="page-btn" data-page="{{ page_obj.next_page_number }}">
+            Next
+        </button>
+    {% endif %}
+
+</div>
+
+============================ without ajax pagination implementation ============================
+1 View (views.py)
+from django.shortcuts import render
+from django.core.paginator import Paginator
+from .models import Product
+
+def product_list(request):
+    products = Product.objects.all()  # সব product
+    paginator = Paginator(products, 10)  # প্রতি পেজে 10 products
+
+    page_number = request.GET.get('page')  # URL থেকে page number
+    page_obj = paginator.get_page(page_number)  # page object
+
+    return render(request, 'products.html', {'page_obj': page_obj})
+2 Template (products.html)
+<h1>Products</h1>
+
+<ul>
+  {% for product in page_obj %}
+    <li>{{ product.name }} - ${{ product.price }}</li>
+  {% endfor %}
+</ul>
+
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+
+  <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+এখানে যা হচ্ছে:
+
+Paginator দিয়ে সব products কে page-wise ভাগ করা হচ্ছে।
+
+get_page() দিয়ে request থেকে page number নিয়ে ঐ page-এর items নিয়ে আসা হচ্ছে।
+
+Template-এ loop করে page-এর items দেখানো হচ্ছে।
+
+Previous / Next link দিয়ে user সহজে navigate করতে পারবে।
+
+
+======================================== with ajax pagination implementation ========================
+
+1 View (views.py)
+from django.shortcuts import render
+from django.core.paginator import Paginator
+from .models import Product
+
+def product_list(request):
+    products = Product.objects.all()
+    paginator = Paginator(products, 5)  # প্রতি পেজে 5 items
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    {% comment %} if request.is_ajax():  # AJAX request হলে শুধু partial return 
+        return render(request, 'partials/product_list.html', {'page_obj': page_obj}) {% endcomment %}
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'partials/product_list.html', {'page_obj': page_obj})
+
+    return render(request, 'products.html', {'page_obj': page_obj})
+2 Main Template (products.html)
+<h1>Products</h1>
+
+<div id="product-container">
+  {% include 'partials/product_list.html' %}
+</div>
+What is this?
+3 Partial Template (partials/product_list.html)
+<ul>
+  {% for product in page_obj %}
+    <li>{{ product.name }} - ${{ product.price }}</li>
+  {% endfor %}
+</ul>
+
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <button class="page-btn" data-page="{{ page_obj.previous_page_number }}">Previous</button>
+  {% endif %}
+
+  <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <button class="page-btn" data-page="{{ page_obj.next_page_number }}">Next</button>
+  {% endif %}
+</div>
+
+4 AJAX Script (products.html এর নিচে)
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).on('click', '.page-btn', function(){
+    var page = $(this).data('page');
+
+    $.ajax({
+        url: "{% url 'product_list' %}",  // তোমার view URL
+        data: {
+            'page': page
+        },
+        success: function(data){
+            $('#product-container').html(data);  // container update
+        }
+    });
+});
+</script>
+এখানে যা হচ্ছে:
+
+প্রথমে main template load হয় এবং প্রথম page-এর products দেখানো হয়।
+
+Next/Previous button click করলে AJAX request যায়, নতুন page content আসে এবং 
+শুধুমাত্র #product-container update হয়।
+
+পুরো page reload হয় না, শুধুমাত্র product list change হয়।

@@ -1,0 +1,93 @@
+Django প্রজেক্টে লগ (log) ব্যবহারের জন্য তুমি চাইছো যাতে:
+
+    লগ আলাদা হয়, অর্থাৎ error, warning, info ইত্যাদি আলাদা ফাইলে লেখা হয়।
+
+    সহজে maintain ও debug করা যায়।
+
+এই কাজটা করার জন্য Django এর built-in logging system ব্যবহার করা হয়, যা Python এর logging মডিউল-এর উপর ভিত্তি করে। নিচে পূর্ণ কনফিগারেশনসহ ব্যাখ্যা দিলাম।
+ধাপে ধাপে Logging Setup
+1. settings.py এ Logging Configuration যোগ করো
+
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'file_info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/info.log'),
+            'formatter': 'verbose',
+        },
+        'file_warning': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/warning.log'),
+            'formatter': 'verbose',
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/error.log'),
+            'formatter': 'verbose',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['file_info', 'file_warning', 'file_error'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+2. logs/ নামের একটা ফোল্ডার বানাও
+
+mkdir logs
+
+এই ফোল্ডারে তিনটা আলাদা ফাইল হবে:
+
+    info.log → Info লেভেলের সবকিছু
+
+    warning.log → Warning লেভেল
+
+    error.log → Error লেভেল
+
+কোথায় Log করবে?
+
+Django views, models, বা যে কোনো Python ফাইলে তুমি লগ ব্যবহার করতে পারো এইভাবে:
+
+import logging
+
+logger = logging.getLogger('django')
+
+def my_view(request):
+    logger.info("This is an info message")
+    logger.warning("This is a warning message")
+    logger.error("This is an error message")
+    return HttpResponse("Check logs")
+
+সুবিধা
+
+    Info, Warning, Error আলাদা ফাইলে থাকবে
+
+    Debug করতে সহজ হবে
+
+    Production সার্ভারে error track করা যাবে

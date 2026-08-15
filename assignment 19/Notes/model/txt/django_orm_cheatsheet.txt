@@ -1,0 +1,69 @@
+Django ORM – Complete Cheat Sheet
+
+1.  Basic Queries Model.objects.all() Model.objects.get(id=1) obj =
+    get_object_or_404(Model, id=1)
+    Model.objects.filter(name=“X”).first()
+
+2.  Filtering Model.objects.filter(status=“active”)
+    Model.objects.exclude(status=“inactive”)
+    Model.objects.filter(status=“active”, stock__gt=0)
+
+3.  Lookups price__gt=100 price__lt=100 name__contains=“phone”
+    name__icontains=“phone” title__startswith=“Pro”
+
+4.  Order / Sort Model.objects.order_by(‘price’)
+    Model.objects.order_by(‘-price’) Model.objects.order_by(‘-price’,
+    ‘title’)
+
+5.  Values Model.objects.values(‘id’, ‘name’)
+    Model.objects.values_list(‘id’, flat=True)
+
+6.  Aggregation from django.db.models import Count, Sum, Avg, Max, Min
+    Model.objects.aggregate(total=Count(‘id’))
+    Model.objects.aggregate(average=Avg(‘price’))
+    Model.objects.aggregate(max_price=Max(‘price’))
+
+7.  Annotate Model.objects.annotate(avg_rating=Avg(’reviews__rating’))
+    Model.objects.annotate(review_count=Count(‘reviews’))
+
+8.  Select Related Model.objects.select_related(‘category’, ‘brand’)
+
+9.  Prefetch Related Model.objects.prefetch_related(‘reviews’, ‘images’)
+
+10. Create / Update / Delete Model.objects.create(name=“Phone”,
+    price=1000) Model.objects.filter(id=1).update(price=2000)
+    Model.objects.filter(id=1).delete()
+
+11. Q Objects (OR) from django.db.models import Q
+    Model.objects.filter(Q(price__gt=500) | Q(stock__gt=10))
+
+12. F Objects (Field Compare) from django.db.models import F
+    Model.objects.filter(sell_price__lt=F(‘regular_price’))
+
+13. Distinct Model.objects.values(‘brand’).distinct()
+
+14. Pagination from django.core.paginator import Paginator p =
+    Paginator(Product.objects.all(), 10) page_obj = p.get_page(1)
+
+15. Raw SQL Model.objects.raw(“SELECT * FROM table”)
+
+16. Exists Model.objects.filter(id=1).exists()
+
+17. Count Model.objects.count()
+
+18. Bulk Create Model.objects.bulk_create([ Model(name=“A”),
+    Model(name=“B”) ])
+
+19. Bulk Update Model.objects.bulk_update(objs, [‘price’])
+
+20. Date Filters
+    Model.objects.filter(created_at__date=timezone.now().date())
+
+21. IN lookup Model.objects.filter(id__in=[1,2,3])
+
+22. Range lookup Model.objects.filter(price__range=(500, 1000))
+
+23. Case / When (conditional annotate) from django.db.models import
+    Case, When, Value, IntegerField Model.objects.annotate(
+    is_discount=Case( When(discount_percent__gt=0, then=Value(1)),
+    default=Value(0), output_field=IntegerField() ) )

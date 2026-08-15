@@ -1,0 +1,27 @@
+{% for variant_color in colors %}
+<label style="cursor:pointer; display:inline-block; margin-right:10px; text-align:center;">
+
+    <input type="radio"
+        name="variant_radio"
+        id="variant_{{ variant_color.id }}"
+        value="{{ variant_color.id }}"
+        data-size="{{ variant_color.size.id }}"
+        data-price="{{ variant_color.variant_price }}"
+        {% if variant and variant_color.id == variant.id %}checked{% endif %}
+        hidden>
+
+    <span style="font-size:12px;">{{ variant_color.color.title }}</span><br>
+
+    {% if variant_color.image_url %}
+        <img src="{{ variant_color.image_url }}"
+            width="35"
+            height="35"
+            style="border:2px solid {% if variant and variant_color.id == variant.id %}black{% else %}#ccc{% endif %}; padding:2px;">
+    {% else %}
+        <div style="width:35px;height:35px;border:1px solid #ccc;line-height:35px;font-size:10px;">
+            No Img
+        </div>
+    {% endif %}
+
+</label>
+{% endfor %}

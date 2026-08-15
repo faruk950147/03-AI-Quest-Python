@@ -1,0 +1,48 @@
+Linux commands বলতে চেয়েছেন। কিছু দরকারি Linux command নিচে দিলাম:
+
+File & Directory
+pwd        # বর্তমান directory দেখায়
+ls         # ফাইল/ফোল্ডার লিস্ট
+ls -la     # hidden files সহ details
+cd folder  # folder এ ঢোকা
+cd ..      # এক ধাপ পিছনে যাওয়া
+mkdir test # নতুন folder তৈরি
+rmdir test # empty folder delete
+rm file.txt # file delete
+rm -r test  # folder delete
+cp a.txt b.txt # copy
+mv a.txt new.txt # rename/move
+File Content
+cat file.txt      # file content দেখায়
+nano file.txt     # edit
+touch file.txt    # new file create
+head file.txt     # প্রথম 10 line
+tail file.txt     # শেষ 10 line
+Search
+find . -name "*.py"
+grep "hello" file.txt
+Permissions
+chmod 755 file.sh
+chmod +x file.sh
+chown user:user file.txt
+System Info
+whoami
+uname -a
+top
+df -h
+free -m
+Process
+ps
+kill PID
+Package Management (Ubuntu/Debian)
+sudo apt update
+sudo apt upgrade
+sudo apt install python3
+Network
+ping google.com
+ifconfig
+ip a
+Django/Python এর জন্য useful
+python manage.py runserver
+python manage.py migrate
+python manage.py createsuperuser

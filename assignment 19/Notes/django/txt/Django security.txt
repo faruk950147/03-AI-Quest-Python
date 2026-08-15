@@ -1,0 +1,125 @@
+Django Security এর গুরুত্বপূর্ণ কিছু বিষয় দেখানো হয়েছে। আমি প্রতিটা পয়েন্ট সহজ বাংলায় বুঝিয়ে দিচ্ছি যাতে আপনি Django project-এ এগুলো ঠিকভাবে ব্যবহার করতে পারেন। 🔐
+
+1 Cross Site Scripting (XSS) Protection
+
+XSS তখন হয় যখন attacker আপনার ওয়েবসাইটে malicious JavaScript ঢুকিয়ে দেয়।
+
+Example
+<script>alert("Hacked")</script>
+
+Django কীভাবে রক্ষা করে
+
+Django template engine automatic HTML escape করে।
+
+{{ request.user.username }}
+
+এটা render হবে:
+
+&lt;script&gt;alert("Hacked")&lt;/script&gt;
+
+Warning
+
+এইটা ব্যবহার করলে protection বন্ধ হয়ে যায় 
+
+{{ request.user.username|safe }}
+
+2 Cross Site Request Forgery (CSRF) Protection
+
+CSRF attack তখন হয় যখন attacker user login থাকা অবস্থায় fake request পাঠায়।
+
+Solution (Django)
+
+Template form এ CSRF token ব্যবহার করতে হবে।
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="name">
+    <button type="submit">Submit</button>
+</form>
+
+Django middleware automatically check করে।
+
+3 SQL Injection Protection
+
+SQL Injection হয় যখন attacker SQL query manipulate করে।
+
+Bad Example
+query = "SELECT * FROM users WHERE name='%s'" % username
+Good Example (Django ORM)
+User.objects.filter(username=username)
+
+Django ORM automatically sanitize করে।
+
+4 Clickjacking Protection
+
+Clickjacking মানে attacker আপনার site কে iframe এর ভিতরে লোড করে user কে trick করা।
+
+Django protection
+X_FRAME_OPTIONS = 'DENY'
+
+অথবা
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+5 SSL / HTTPS
+
+HTTPS ব্যবহার করলে browser এবং server এর data encrypted থাকে।
+
+Setting
+SECURE_SSL_REDIRECT = True
+
+Production এ সবসময় HTTPS ব্যবহার করা উচিত।
+
+6 Host Header Validation
+
+Attacker fake host header পাঠাতে পারে।
+
+Django protection
+ALLOWED_HOSTS = [
+    "example.com",
+    "www.example.com"
+]
+7 Referrer Policy
+
+Browser অন্য site এ যাওয়ার সময় referrer information পাঠায়।
+
+Django Setting
+SECURE_REFERRER_POLICY = "same-origin"
+8 Session Security
+
+User login session secure রাখা গুরুত্বপূর্ণ।
+
+Important settings
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+9 User Uploaded Content
+
+User file upload করলে security risk থাকে।
+
+Rules
+
+✔ File type validation
+✔ File size limit
+✔ Media folder আলাদা রাখা
+
+Example:
+
+FileExtensionValidator(['jpg','png','pdf'])
+
+Summary
+
+Django default ভাবে অনেক security provide করে:
+
+XSS Protection
+
+CSRF Protection
+
+SQL Injection Protection
+
+Clickjacking Protection
+
+HTTPS Support
+
+Secure Sessions
+
+তাই Django কে secure web framework বলা হয়।

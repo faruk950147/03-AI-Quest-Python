@@ -1,0 +1,138 @@
+1. Project Structure
+myproject/
+│── myproject/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+│── core/
+│── manage.py
+│── requirements.txt
+│── Dockerfile
+│── docker-compose.yml
+│── .env
+
+2. requirements.txt
+
+3. Dockerfile
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+4. docker-compose.yml (Django + PostgreSQL)
+services:
+  web:
+    build: .
+    container_name: django-app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  celery:
+    build: .
+    container_name: celery-worker
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+5. .env file
+# ============================== Database Configuration ==========================
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=portfolio
+DB_USER=postgres
+DB_PASSWORD=admin
+DB_HOST=db
+DB_PORT=5432
+
+6. settings.py (important part)
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(",")
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+    }
+}
+
+
+7. Run Project (Step by Step)
+Build
+docker-compose build
+Run
+docker compose up
+
+Background run
+docker compose up -d
+
+Migrate DB
+docker compose run web python manage.py migrate
+Create admin
+docker compose run web python manage.py createsuperuser
+
+8. Stop Project
+docker compose down
+
+9. Useful Extra Commands
+logs
+docker-compose logs -f
+rebuild
+docker-compose up --build

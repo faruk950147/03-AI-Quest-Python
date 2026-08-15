@@ -1,0 +1,66 @@
+Django-এর Permission System-এর A-Z কাভার করছে। আমি এগুলো বাংলায় একটু বিস্তারিতভাবে সংক্ষেপ করে ব্যাখ্যা করবো যাতে পুরো সিস্টেমটি সহজে বোঝা যায়।
+
+Permission কি?
+
+Permission হলো Django-তে ব্যবহারকারীর জন্য নির্দিষ্ট কাজ করার অনুমতি।
+
+
+
+1️ models.py
+কাজ: Custom permission তৈরি করা এবং User/Group সম্পর্কিত মডেল সংজ্ঞা করা।
+উদাহরণ:
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
+
+content_type = ContentType.objects.get_for_model(User)
+permission = Permission.objects.create(
+    codename='can_publish',
+    name='Can Publish Articles',
+    content_type=content_type
+)
+2️ views.py
+কাজ: Permission enforce করা (FBV বা CBV) এবং access control করা।
+উদাহরণ (FBV):
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render
+
+@permission_required('yourapp.can_publish', raise_exception=True)
+def publish_article(request):
+    return render(request, 'publish.html')
+উদাহরণ (CBV):
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import TemplateView
+
+class PublishView(PermissionRequiredMixin, TemplateView):
+    template_name = 'publish.html'
+    permission_required = 'yourapp.can_publish'
+    raise_exception = True
+3️ admin.py
+কাজ: Admin panel থেকে User, Group, Permission management করা।
+উদাহরণ:
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import User
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'phone', 'is_verified', 'is_staff', 'is_active')
+    search_fields = ('username', 'email', 'phone')
+4️ urls.py
+কাজ: Permission-required views-এর URL define করা।
+from django.urls import path
+from .views import PublishView
+
+urlpatterns = [
+    path('publish/', PublishView.as_view(), name='publish'),
+]
+5️ templates/publish.html
+কাজ: যেসব user permission পেয়েছে, তাদের জন্য page render করা।
+<h1>Publish Article Page</h1>
+<p>Only users with 'can_publish' permission can see this.</p>
+What is this?
+6️ utils.py (Optional)
+কাজ: OTP verification বা permission integration function রাখা।
+উদাহরণ:
+def can_access_publish(user):
+    return user.is_verified and user.has_perm('yourapp.can_publish')

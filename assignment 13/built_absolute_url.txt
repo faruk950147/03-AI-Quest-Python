@@ -1,0 +1,31 @@
+1. Relative URL
+
+A Relative URL is a URL that specifies the path to a page on the website without including the domain name.
+
+It only tells the browser where the page is within the site.
+
+Example:
+
+/about/
+
+
+Suppose your website is https://www.example.com
+
+This relative URL points to: https://www.example.com/about/
+
+But if you only write /about/, the browser doesn’t know the domain, so it’s relative.
+
+2. Absolute URL
+
+An Absolute URL is a full URL, including the protocol (http/https) and domain name.
+
+It tells exactly where to go, so it works anywhere, like in emails or other websites.
+
+Example:
+
+https://www.example.com/about/
+
+
+Here, https://www.example.com + /about/ → full address
+
+This is an absolute URL because it explicitly states the complete location.

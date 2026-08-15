@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Address{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h3>Welcome E-Shop</h3>
+
+        <!-- Sidebar -->
+        <div class="col-12 col-md-2 border-end mb-3 mb-md-0">
+            <ul class="list-unstyled">
+                <li class="d-grid mb-2">
+                    <a href="{% url 'profile' %}" class="btn {% if request.resolver_match.url_name == 'profile' %}btn-success{% else %}btn-outline-success{% endif %}">Profile</a>
+                </li>
+                <li class="d-grid mb-2">
+                    <a href="{% url 'address' %}" class="btn {% if request.resolver_match.url_name == 'address' %}btn-success{% else %}btn-outline-success{% endif %}">Address</a>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-12 col-md-10">
+            <div class="row">
+                <h4 class="mb-4">My Addresses</h4>
+                {% if profiles %}
+                    {% for profile in profiles %}
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5>Address {{forloop.counter}}</h5>
+                                    <p><strong>Name:</strong> {{profile.name}}</p>
+                                    <p><strong>Division:</strong> {{profile.division}}</p>
+                                    <p><strong>District:</strong> {{profile.district}}</p>
+                                    <p><strong>Thana:</strong> {{profile.thana}}</p>
+                                    <p><strong>Vill/Road No:</strong> {{profile.villorroad}}</p>
+                                    <p><strong>Phone No:</strong> {{profile.phone}}</p>
+                                    <p><strong>Zipcode:</strong> {{profile.zipcode}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <p>No addresses found. Please add one.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

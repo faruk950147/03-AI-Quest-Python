@@ -1,0 +1,155 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Searching Results{% endblock title %} 
+{% block main_content %}
+<!-- breadcrumb__area-start -->
+<section class="breadcrumb__area box-plr-75">
+    <div class="container">
+        <div class="row">
+            <div class="col-xxl-12">
+                <div class="breadcrumb__wrapper">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb__area-end -->
+
+
+<!-- Searching-product-area-start -->
+<div class="search-area mb-20">
+    <div class="container">
+        <div class="row">
+            <!-- right side: product list area -->
+            <div class="col-xl-12 col-lg-12">
+                <!-- Product List -->
+                <div class="product__show-list">
+                    <div class="row g-0">
+                    {% if products %}
+                        {% for product in products %}
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-30">
+                                <div class="product__item product__item-d">
+
+                                    <!-- Product Thumbnail -->
+                                    <div class="product__thumb fix">
+                                        <div class="product-image w-img">
+                                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                                <img src="{{ product.images.first.image.url }}"
+                                                    alt="{{ product.title|title }}"
+                                                    style="width: 310px; height: 350px; object-fit: cover;">
+                                            </a>
+                                        </div>
+
+                                        <!-- Countdown -->
+                                        {% if product.deadline %}
+                                            <div class="countdown countdown-small mt-5">
+                                                <div class="countdown-inner b-radius"
+                                                    data-countdown=""
+                                                    data-date="{{ product.deadline|date:'c' }}">
+                                                    <ul class="text-center"
+                                                        style="padding:0; list-style:none; display:flex; justify-content:center; gap:10px;">
+                                                        <li><span data-days="">0</span>d</li>
+                                                        <li><span data-hours="">0</span>h</li>
+                                                        <li><span data-minutes="">0</span>m</li>
+                                                        <li><span data-seconds="">0</span>s</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Discount -->
+                                        <div class="product__offer">
+                                            <span class="discount">-{{ product.discount_percent }}%</span>
+                                        </div>
+
+                                        <!-- Product Actions -->
+                                        <div class="product-action">
+                                            <a href="#"
+                                                class="icon-box icon-box-1 quick-view-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#productModalId"
+
+                                                data-title="{{ product.title }}"
+                                                data-price="{{ product.sale_price }}"
+                                                data-image="{{ product.images.first.image.url }}"
+                                                data-desc="{{ product.description|truncatechars:120 }}"
+                                                data-stock="{{ product.available_stock }}">
+                                                    <i class="fal fa-eye"></i>
+                                                    <i class="fal fa-eye"></i>
+                                            </a>
+
+                                            <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                                <i class="fal fa-heart"></i>
+                                                <i class="fal fa-heart"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Product Content -->
+                                    <div class="product__content">
+                                        <h6>
+                                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                                {{ product.title|title|truncatewords:5 }}
+                                            </a>
+                                        </h6>
+
+                                        <!-- Rating -->
+                                        <div class="rating mb-5">
+                                            <ul>
+                                                <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color:#FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color:#FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color:#FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color:#FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color:#FFD700;"></i>
+                                            </ul>
+                                            <span>
+                                                ({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})
+                                            </span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="price mb-10">
+                                            <span>
+                                                {{ product.sale_price }}
+                                                {% if product.old_price %} TK
+                                                    <del class="text-danger">{{ product.old_price }} TK</del>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+
+                                        <!-- Progress -->
+                                        <div class="progress mb-5">
+                                            <div class="progress-bar bg-primary" style="width: {{ product.sold }}%;"></div>
+                                        </div>
+
+                                        <div class="progress-rate">
+                                            <span>Sold {{ product.sold }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No products found!</p>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- right side end -->
+
+        </div>
+    </div>
+</div>
+<!-- shop-area-end -->
+
+<!-- shop modal start -->
+{% include 'store/components/product-modals.html' %}
+<!-- shop modal end -->
+<!-- Searching-product-area-end -->
+{% endblock main_content %}

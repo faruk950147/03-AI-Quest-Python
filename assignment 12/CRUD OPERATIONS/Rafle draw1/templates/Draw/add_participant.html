@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Add Participant{% endblock title %}
+{% block main %}
+    <main class="main">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-6">
+                    <form method="post" action="{% url 'add_participant' %}">
+                        {% csrf_token %}
+                        <label for="name">Name:</label>
+                        <input class="form-control" type="text" id="name" name="name" required placeholder="Enter name">
+                        <br>
+                        <label for="phone">Phone:</label>
+                        <input class="form-control" type="text" id="phone" name="phone" required placeholder="Enter phone">
+                        <br>
+                        <label for="email">Email:</label>
+                        <input class="form-control" type="email" id="email" name="email" required placeholder="Enter email">
+                        <br>
+                        <button class="btn btn-primary btn-lg form-control" type="submit">Add Participant</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock main %}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title> {% block title %}To Do List{% endblock title %} </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <!-- data table  -->
+    <link rel="stylesheet" href="//cdn.datatables.net/2.3.5/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body> 
+    <header id="header">
+        <div class="header container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+                <div class="container-fluid">
+                    <!-- Brand -->
+                    <a class="navbar-brand" href="{% url 'HomeView' %}">Self Help</a>
+
+                    <!-- Toggler -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Menu Items -->
+                    <div class="collapse navbar-collapse" id="navbarScroll">
+                        <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="{% url 'HomeView' %}">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    user
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    {% block main %}
+    
+    {% endblock main %}
+
+   <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+   <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+   <!-- data table  -->
+   <script src="//cdn.datatables.net/2.3.5/js/dataTables.min.js"></script>
+   <script>
+    new DataTable('#datatable');
+   </script>
+</body>
+</html>

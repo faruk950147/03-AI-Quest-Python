@@ -1,0 +1,87 @@
+এবার একদম পরিষ্কারভাবে, কোনো ইমোজি ছাড়া computer ON থেকে পুরো working flow দেওয়া হলো।
+
+Computer ON থেকে Working Flow
+1. Power ON
+
+তুমি power button চাপলে power supply সব hardware component (CPU, RAM, motherboard) এ বিদ্যুৎ সরবরাহ করে।
+
+2. BIOS / UEFI শুরু হয়
+
+Motherboard-এর firmware চালু হয় (BIOS বা UEFI)।
+
+কাজ:
+
+RAM, CPU, keyboard ঠিক আছে কিনা চেক করে
+এটাকে বলা হয় POST (Power-On Self Test)
+3. Bootloader Load হয়
+
+BIOS storage device (HDD/SSD) থেকে bootloader খুঁজে বের করে।
+
+Bootloader-এর কাজ:
+
+Operating System কে load করা
+4. Operating System Load হয়
+
+Operating System RAM-এ load হয়।
+
+উদাহরণ:
+
+Windows
+Linux
+
+এই সময়:
+
+Kernel load হয়
+Device driver load হয়
+5. Login / Desktop Screen
+
+OS user interface দেখায়।
+তুমি login করলে user session শুরু হয়।
+
+Program Execution Flow
+6. Program Open করা
+
+তুমি কোনো software open করো (যেমন browser, VS Code)।
+
+7. Program RAM-এ Load হয়
+
+Storage থেকে program RAM-এ আসে, কারণ RAM দ্রুত কাজ করে।
+
+8. Process তৈরি হয়
+
+Operating System program কে process হিসেবে run করে।
+
+এখানে:
+
+Process ID assign হয়
+Memory allocate হয়
+CPU time assign হয়
+9. CPU Execution শুরু করে
+
+CPU তিনটি ধাপে কাজ করে:
+
+Fetch → Decode → Execute
+
+Fetch: instruction memory থেকে নেয়
+Decode: instruction বুঝে
+Execute: কাজ সম্পন্ন করে
+10. Scheduling
+
+একাধিক process থাকলে OS ঠিক করে কোন process কখন CPU ব্যবহার করবে।
+
+11. Output
+
+Result monitor-এ দেখানো হয় এবং user interaction চলতে থাকে।
+
+Full Flow (সংক্ষেপে)
+
+Power ON → BIOS/UEFI → Bootloader → OS Load → Login → Program Load → Process → CPU Execution → Output
+
+Developer Perspective
+
+যখন তুমি Django project run করো:
+
+OS Python interpreter চালায়
+Process তৈরি হয়
+CPU code execute করে
+Browser-এ output দেখানো হয়

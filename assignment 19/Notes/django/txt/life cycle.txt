@@ -1,0 +1,170 @@
+Django Request Lifecycle (Step by Step)
+
+একজন ইউজার যখন ব্রাউজার থেকে কোনো URL এ যায়, তখন Django-তে নিচের ধাপগুলো ঘটে:
+
+1 User Request (Browser → Server)
+
+ইউজার ব্রাউজারে লিখল:
+
+https://example.com/products/5/
+
+
+Browser একটি HTTP Request পাঠায় Django Server এ
+(Request এর মধ্যে থাকে: method, headers, cookies, data ইত্যাদি)
+
+2 Web Server (WSGI / ASGI)
+
+Django সাধারণত চলে:
+
+WSGI → Sync request
+
+ASGI → Async / WebSocket
+
+Web server (Gunicorn, Daphne ইত্যাদি)
+এই request Django app-এ পাঠায়
+
+3 Django Middleware (Request Phase)
+
+এখন request ঢোকে Middleware pipeline এ।
+
+Middleware হলো filter এর মতো।
+
+উদাহরণ:
+
+AuthenticationMiddleware
+
+SessionMiddleware
+
+CsrfViewMiddleware
+
+Flow:
+
+Request → Middleware 1 → Middleware 2 → Middleware 3
+
+Middleware পারে:
+
+request block করতে
+
+request modify করতে
+
+user attach করতে (request.user)
+
+4 URL Resolver (urls.py)
+
+Middleware পার হলে Django দেখে:
+
+# urls.py
+path('products/<int:id>/', product_detail)
+
+
+Django URL match করে
+ঠিক করে কোন View কল হবে
+
+যদি URL না মেলে:
+404 Error
+
+5 View Function / Class
+
+এখন View execute হয়:
+
+def product_detail(request, id):
+    product = Product.objects.get(id=id)
+    return render(request, 'product.html', {'product': product})
+
+
+View এর কাজ:
+
+Business logic
+
+DB query
+
+Data process
+
+Response তৈরি করা
+
+6 Model & Database (যদি দরকার হয়)
+
+View যদি database ব্যবহার করে:
+
+View → Model → ORM → Database
+
+
+Query চলে
+Result ফিরে আসে
+
+7 Template Rendering (যদি HTML হয়)
+
+যদি render() ব্যবহার করা হয়:
+
+render(request, 'product.html', context)
+
+
+Django Template Engine
+
+HTML + context data merge করে
+
+Final HTML বানায়
+
+8 HttpResponse তৈরি
+
+View থেকে Django পায়:
+
+HttpResponse
+
+JsonResponse
+
+RedirectResponse
+
+Example:
+
+HttpResponse("<h1>Hello</h1>")
+
+9 Middleware (Response Phase)
+
+এখন response আবার middleware দিয়ে ফিরে যায়:
+
+Middleware 3 → Middleware 2 → Middleware 1 → Browser
+
+
+Middleware পারে:
+
+headers add করতে
+
+cookies set করতে
+
+response modify করতে
+
+10 HttpResponse → Browser
+
+শেষে:
+Django → Web Server → Browser
+User output দেখে
+
+Complete Flow Diagram (Easy)
+Browser
+  ↓
+WSGI/ASGI
+  ↓
+Middleware (request)
+  ↓
+URL Resolver
+  ↓
+View
+  ↓
+Model / DB
+  ↓
+Template
+  ↓
+HttpResponse
+  ↓
+Middleware (response)
+  ↓
+Browser
+
+Interview Important Points
+
+Middleware order matters
+Request আগে middleware → পরে response middleware
+urls.py শুধু routing করে
+View হলো main brain
+✔ ORM database handle করে

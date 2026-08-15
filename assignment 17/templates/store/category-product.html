@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Category Products{% endblock title %}
+
+{% block main_content %}
+<!-- breadcrumb__area-start -->
+<section class="breadcrumb__area box-plr-75">
+    <div class="container">
+        <div class="row">
+            <div class="col-xxl-12">
+                <div class="breadcrumb__wrapper">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb__area-end -->
+ 
+<!-- shop area -->
+<div class="shop-area mb-10">
+    <div class="container">
+        <div class="row">
+        
+            <!-- Left Sidebar -->
+            <div class="col-xl-3 col-lg-3">
+                {% include 'store/components/filter.html' %}
+            </div>
+            <!-- Left Sidebar End -->
+
+            <!-- right side: product list area -->
+            <div class="col-xl-9 col-lg-9">
+
+                <!-- Banner -->
+                <div class="shop-banner mb-30">
+                    {% if banners %}
+                    {% for banner in banners %}
+                    <div class="banner-image">  
+                        <img class="banner-l" src="{{ banner.image.url }}" alt="{{ banner.title|title }}" style="width:100%;height:30px;">
+                        <div class="banner-content text-center">
+                            <h6>{{ banner.title|title }}</h6>
+                            <p class="banner-text mb-30">
+                                {{ banner.sub_title|truncatewords:10 }}
+                            </p>
+                            <a href="{% url 'shop' %}" class="st-btn-d b-radius">Discover now</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p>No banner found</p>
+                    {% endif %}
+                </div>
+
+                <!-- Product Filter Top -->
+                <div class="product-lists-top">
+                    <div class="product__filter-wrap">
+                        <div class="row align-items-center">
+
+                            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                <div class="product__filter d-sm-flex align-items-center">
+                                    <div class="product__col">
+                                        <i class="fal fa-th"></i>
+                                        <span>Total products: {{ page_obj.paginator.count }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                <div class="product__filter-right d-flex align-items-center justify-content-md-end">
+                                    <!-- Per Page Select -->
+                                    <div class="product__sorting product__show-no">
+                                        <select name="per_page" id="per_page">
+                                            {% for page in per_page_options %}
+                                                <option value="{{ page }}" {% if page == selected_per_page %}selected{% endif %}>
+                                                    {{ page }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <!-- Sort Select -->
+                                    <div class="product__sorting product__show-position ml-20">
+                                        <select name="sort" id="sort">
+                                            {% for sort in sort_options %}
+                                                <option value="{{ sort }}" {% if sort == selected_sort %}selected{% endif %}>
+                                                    {{ sort|title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product List -->
+                <div class="product__show-list">
+                    <div class="row g-0" id="product-grid">
+                        {% include 'store/components/grid.html' %}
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="basic-pagination pt-30 pb-30" id="pagination">
+                            {% include 'store/components/pagination.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- right side end -->
+
+        </div>
+    </div>
+</div>
+<!-- shop-area-end -->
+
+<!-- shop modal start -->
+{% include 'store/components/product-modals.html' %}
+<!-- shop modal end -->
+{% endblock main_content %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Phone Map Tracker{% endblock title %}
+
+{% block main %}
+<main>
+    <div class="container">
+        <h1 class="mt-4 mb-4 text-center">Phone Map Tracker</h1>
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-6">
+                <!-- Form -->
+                <form action="" method="POST" enctype="multipart/form-data" id="phoneForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary form-control">Submit</button>
+                </form>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mt-2">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <hr>
+
+                <!-- Phone Info & Map -->
+                {% if location %}
+                    <div class="phone-info mt-3">
+                        <h4><strong>Location:</strong> {{ location }}</h4>
+                        <p><strong>Time Zone:</strong> {{ time_zone }}</p>
+                        <p><strong>Service Provider:</strong> {{ provider }}</p>
+                    </div>
+
+                    {% if map %}
+                        <div id="folium-map" style="max-width: 800px; max-height: 600px; margin: 0 auto;">
+                            {{ map|safe }}
+                        </div>
+                    {% else %}
+                        <p>No map available.</p>
+                    {% endif %}
+                {% else %}
+                    <p>No location available.</p>
+                {% endif %}
+            </div>
+
+            <!-- Right Column: Recent Searches -->
+            <div class="col-6">
+                <h4>Recent Searches</h4>
+                <ul id="recentList">
+                    {% for p in phones %}
+                        <li class="recent-phone" data-lat="{{ p.latitude }}" data-lng="{{ p.longitude }}" 
+                            data-location="{{ p.location }}" data-provider="{{ p.provider }}">
+                            {{ p.number }} - {{ p.location }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#recentList').on('click', '.recent-phone', function(){
+        var lat = $(this).data('lat');
+        var lng = $(this).data('lng');
+        var location = $(this).data('location');
+        var provider = $(this).data('provider');
+
+        var mapHTML = '<iframe width="100%" height="500" frameborder="0" scrolling="no" ' +
+            'src="https://www.openstreetmap.org/export/embed.html?bbox=' +
+            (lng-0.05) + '%2C' + (lat-0.05) + '%2C' + (lng+0.05) + '%2C' + (lat+0.05) +
+            '&layer=mapnik&marker=' + lat + '%2C' + lng + '">' +
+            '</iframe>';
+
+        $('#folium-map').html(mapHTML);
+
+        // Update phone info
+        $('.phone-info h4').text("Location: " + location);
+        $('.phone-info p:nth-of-type(1)').text("Time Zone: N/A");
+        $('.phone-info p:nth-of-type(2)').text("Service Provider: " + provider);
+    });
+});
+</script>
+{% endblock main %}

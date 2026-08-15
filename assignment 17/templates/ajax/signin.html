@@ -1,0 +1,62 @@
+{% load static %}
+<script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
+<script>
+$(document).ready(function(){    
+
+    // CSRF token setup
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string starts with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $("#form #id_username").on("keyup input", function(e){
+        e.preventDefault();
+
+        const username = $(this).val().trim();
+        if(username.length > 0){
+            $.ajax({
+                url: "{% url 'validate-signin' %}",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ 'username': username }),
+                dataType: 'json',
+                headers: { "X-CSRFToken": csrftoken },  // <-- CSRF token added here
+                success: function(res){
+                    if(res.status === 'success'){
+                        $("#id_username").removeClass("is-invalid");
+                        $("#id_username").addClass("is-valid");
+                        $(".alert-error").css("display", "none");
+                        $(".alert-success").html(res.message);
+                        $(".alert-success").css("display", "block");
+                        $("#sign-in-btn").attr('disabled', false);
+                    }
+                    else if(res.status === 'error'){
+                        $("#id_username").addClass("is-invalid");
+                        $("#id_username").removeClass("is-valid");
+                        $(".alert-success").css("display", "none");
+                        $(".alert-error").html(res.message);
+                        $(".alert-error").css("display", "block");
+                        $("#sign-in-btn").attr('disabled', true);
+                    }
+                },
+                error: function(err){
+                    console.error("AJAX Error:", error);
+                    alert("Something went wrong. Please try again.");
+                }
+            });
+        }
+    });
+});
+</script>

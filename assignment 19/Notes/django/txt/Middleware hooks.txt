@@ -1,0 +1,722 @@
+Django-তে Middleware hooks হলো এমন কিছু special methods যেগুলো request এবং response lifecycle-এর বিভিন্ন stage-এ run হয়। অর্থাৎ browser → server → view → response এই flow-এর মাঝে middleware code execute করা যায়।
+
+সহজভাবে বললে:
+Middleware = request এবং response এর মাঝখানে কাজ করা layer.
+
+Django Middleware Hooks
+
+Django middleware-এ সাধারণত কয়েকটি hook method ব্যবহার করা হয়।
+
+1️⃣ __init__(self, get_response)
+
+Middleware প্রথমবার load হলে এই method run হয়।
+
+class MyMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+📌 কাজ
+
+middleware initialize করা
+
+config load করা
+
+⚠️ এটা server start হলে একবারই run হয়।
+
+2️⃣ __call__(self, request)
+
+প্রতিটি request এ এই method run হয়।
+
+class MyMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # request এর আগে code
+        print("Before view")
+
+        response = self.get_response(request)
+
+        # response এর পরে code
+        print("After view")
+
+        return response
+
+📌 Flow
+
+Browser Request
+      ↓
+Middleware (__call__)
+      ↓
+View
+      ↓
+Middleware (__call__)
+      ↓
+Response
+Old Style Middleware Hooks (process methods)
+
+Django-তে আগে কিছু extra hook ছিল (এখনও optional ভাবে ব্যবহার করা যায়)।
+
+3️⃣ process_view()
+
+View execute হওয়ার আগে run হয়।
+
+def process_view(self, request, view_func, view_args, view_kwargs):
+    print("View execute হওয়ার আগে")
+
+📌 ব্যবহার
+
+permission check
+
+logging
+
+rate limiting
+
+4️⃣ process_exception()
+
+View error দিলে run হয়।
+
+def process_exception(self, request, exception):
+    print("Exception occurred")
+
+📌 ব্যবহার
+
+custom error handling
+
+error logging
+
+5️⃣ process_template_response()
+
+Template response render হওয়ার আগে run হয়।
+
+def process_template_response(self, request, response):
+    print("Template response")
+    return response
+
+📌 ব্যবহার
+
+response modify করা
+
+Django Middleware Flow Diagram
+Request
+  ↓
+process_request
+  ↓
+process_view
+  ↓
+View
+  ↓
+process_exception (if error)
+  ↓
+process_template_response
+  ↓
+process_response
+  ↓
+Response
+Example Middleware
+class LogMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print("Request path:", request.path)
+
+        response = self.get_response(request)
+
+        print("Response status:", response.status_code)
+
+        return response
+
+settings.py
+
+MIDDLEWARE = [
+    'myapp.middleware.LogMiddleware',
+]
+Real Use Cases
+
+Middleware সাধারণত ব্যবহার হয়:
+
+✔ Authentication
+✔ Logging
+✔ Rate limiting
+✔ CORS handling
+✔ Security checking
+✔ Request timing
+
+Django-তে Middleware hooks সাধারণত এমন কাজের জন্য ব্যবহার করা হয় যেগুলো সব request বা response-এর উপর globally apply করতে হবে। নিচে গুরুত্বপূর্ণ use cases সহজভাবে দেখানো হলো।
+
+Django Middleware Hooks – Real Use Cases
+1️⃣ Request Logging
+
+সব user কোন URL visit করছে তা log করার জন্য।
+
+class LogMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print("User IP:", request.META.get("REMOTE_ADDR"))
+        print("URL:", request.path)
+
+        response = self.get_response(request)
+
+        return response
+
+📌 ব্যবহার
+
+analytics
+
+debugging
+
+monitoring
+
+2️⃣ Authentication / Token Checking
+
+API request-এ JWT token বা API key check করার জন্য।
+
+class TokenMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        token = request.headers.get("Authorization")
+
+        if not token:
+            from django.http import JsonResponse
+            return JsonResponse({"error": "Token required"}, status=401)
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+REST API
+
+microservices
+
+JWT authentication
+
+3️⃣ Rate Limiting (API Security)
+
+একজন user বেশি request করলে block করা।
+
+import time
+
+class RateLimitMiddleware:
+
+    last_request = {}
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        ip = request.META.get("REMOTE_ADDR")
+        now = time.time()
+
+        if ip in self.last_request and now - self.last_request[ip] < 1:
+            from django.http import HttpResponse
+            return HttpResponse("Too many requests")
+
+        self.last_request[ip] = now
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+API protection
+
+DDOS protection
+
+4️⃣ Maintenance Mode
+
+Website maintenance mode চালু করতে।
+
+class MaintenanceMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        maintenance = True
+
+        if maintenance:
+            from django.http import HttpResponse
+            return HttpResponse("Site under maintenance")
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+server update
+
+database migration
+
+5️⃣ Response Time Measurement
+
+একটি request process হতে কত সময় লাগছে তা measure করা।
+
+import time
+
+class TimerMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        start = time.time()
+
+        response = self.get_response(request)
+
+        end = time.time()
+
+        print("Response time:", end - start)
+
+        return response
+
+📌 ব্যবহার
+
+performance optimization
+
+slow views detect করা
+
+6️⃣ Custom Header Add করা
+class CustomHeaderMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        response["X-App-Name"] = "My Django App"
+
+        return response
+
+📌 ব্যবহার
+
+security headers
+
+API metadata
+
+Summary
+
+Middleware সাধারণত ব্যবহার হয়:
+
+Use Case	Purpose
+Logging	user activity track
+Authentication	token validation
+Rate limiting	API protection
+Maintenance mode	site temporary block
+Performance check	response time
+Security headers	protection
+
+💡 Pro tip (Real Django Projects):
+বেশিরভাগ বড় Django project-এ middleware ব্যবহার হয়:
+
+Request logging system
+
+JWT authentication
+
+Rate limiting
+
+Custom security headers
+
+Multi-tenant applications
+
+Django দিয়ে CRM / E-commerce project বানাচ্ছেন, নিচে কিছু Advanced Middleware Examples (Real Project Use Case) দিলাম। এগুলো বড় Django project-এ খুব ব্যবহার হয়।
+
+1️⃣ JWT Authentication Middleware
+
+এই middleware Authorization header থেকে JWT token check করে user authenticate করতে পারে।
+
+import jwt
+from django.conf import settings
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class JWTAuthMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        token = request.headers.get("Authorization")
+
+        if token:
+            token = token.replace("Bearer ", "")
+
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+            user_id = payload.get("user_id")
+
+            user = User.objects.filter(id=user_id).first()
+
+            request.user = user
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+REST API
+
+Mobile app backend
+
+SPA (React / Vue)
+
+2️⃣ Request Tracking Middleware (Analytics)
+
+সব request database-এ save করা যায়।
+
+from django.utils import timezone
+
+class RequestTrackingMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        ip = request.META.get("REMOTE_ADDR")
+        url = request.path
+        method = request.method
+
+        print(ip, url, method, timezone.now())
+
+        response = self.get_response(request)
+
+        return response
+
+📌 ব্যবহার
+
+user activity tracking
+
+admin analytics
+
+3️⃣ Role Permission Middleware
+
+User role অনুযায়ী page access control করা।
+
+from django.http import HttpResponseForbidden
+
+class RoleMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        if request.path.startswith("/admin-panel"):
+
+            if not request.user.is_authenticated:
+                return HttpResponseForbidden("Login required")
+
+            if request.user.role != "admin":
+                return HttpResponseForbidden("Access denied")
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+CRM dashboard
+
+Admin panel security
+
+4️⃣ Multi-Tenant Middleware
+
+একই Django project-এ multiple company/tenant support।
+
+class TenantMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        host = request.get_host()
+
+        subdomain = host.split(".")[0]
+
+        request.tenant = subdomain
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+SaaS apps
+
+CRM systems
+
+Example:
+
+company1.example.com
+company2.example.com
+5️⃣ API Rate Limiting Middleware
+
+একজন user বেশি request করলে block করা।
+
+import time
+from django.http import JsonResponse
+
+class APIRateLimitMiddleware:
+
+    requests = {}
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        ip = request.META.get("REMOTE_ADDR")
+        now = time.time()
+
+        if ip in self.requests:
+
+            if now - self.requests[ip] < 1:
+                return JsonResponse({"error": "Too many requests"}, status=429)
+
+        self.requests[ip] = now
+
+        return self.get_response(request)
+
+📌 ব্যবহার
+
+API protection
+
+bot protection
+
+settings.py এ middleware add
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'myapp.middleware.JWTAuthMiddleware',
+    'myapp.middleware.RequestTrackingMiddleware',
+]
+Real Django Production Middleware Stack
+
+Production Django project-এ সাধারণত থাকে:
+
+SecurityMiddleware
+SessionMiddleware
+AuthenticationMiddleware
+CorsMiddleware
+JWTMiddleware
+RequestLoggingMiddleware
+RateLimitMiddleware
+
+আপনি যেগুলো জানতে চেয়েছেন সেগুলো Advanced Django Topics। আমি একে একে সহজভাবে ব্যাখ্যা করছি।
+
+1️⃣ Middleware vs Decorator vs Signals
+Feature	Middleware	Decorator	Signals
+কোথায় কাজ করে	Global (সব request)	Specific view	Event based
+কখন run হয়	Request/Response cycle	View call এর আগে/পরে	নির্দিষ্ট event হলে
+Scope	পুরো project	নির্দিষ্ট view	Model/Framework events
+Example	Authentication	Login required	Post save
+Middleware Example
+
+সব request এ run হয়।
+
+class LogMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        print("Request:", request.path)
+        return self.get_response(request)
+Decorator Example
+
+শুধু নির্দিষ্ট view-এ কাজ করে।
+
+from django.http import HttpResponse
+
+def my_decorator(view_func):
+
+    def wrapper(request, *args, **kwargs):
+        print("Before view")
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+@my_decorator
+def home(request):
+    return HttpResponse("Home")
+Signal Example
+
+Model save হলে run হয়।
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Product
+
+@receiver(post_save, sender=Product)
+def product_created(sender, instance, created, **kwargs):
+
+    if created:
+        print("New product created:", instance.name)
+2️⃣ Production Level Logging Middleware
+
+Production project এ request log + response time track করা হয়।
+
+import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+class LoggingMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        start = time.time()
+
+        response = self.get_response(request)
+
+        duration = time.time() - start
+
+        logger.info(
+            f"{request.method} {request.path} {response.status_code} {duration:.2f}s"
+        )
+
+        return response
+
+📌 Example Log
+
+GET /products/ 200 0.32s
+POST /checkout/ 201 0.85s
+3️⃣ Async Middleware (Django 4+)
+
+Django 4+ এ async middleware ব্যবহার করা যায়।
+
+class AsyncMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    async def __call__(self, request):
+
+        print("Before async view")
+
+        response = await self.get_response(request)
+
+        print("After async view")
+
+        return response
+
+📌 ব্যবহার
+
+WebSocket
+
+async views
+
+high performance APIs
+
+4️⃣ Custom Security Middleware
+
+Security header add করার জন্য।
+
+class SecurityHeadersMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        response["X-Frame-Options"] = "DENY"
+        response["X-Content-Type-Options"] = "nosniff"
+        response["X-XSS-Protection"] = "1; mode=block"
+
+        return response
+
+📌 এটি Clickjacking + XSS protection দেয়।
+
+5️⃣ Django Middleware Complete Flow
+Browser Request
+      ↓
+SecurityMiddleware
+      ↓
+SessionMiddleware
+      ↓
+AuthenticationMiddleware
+      ↓
+Custom Middleware
+      ↓
+URL Resolver
+      ↓
+View
+      ↓
+Template
+      ↓
+Response
+      ↓
+Middleware Response Phase
+      ↓
+Browser
+6️⃣ Django Middleware Interview Questions
+1️⃣ Middleware কী?
+
+Middleware হলো request এবং response এর মাঝখানে কাজ করা layer।
+
+2️⃣ Django middleware lifecycle কী?
+Request
+ ↓
+Middleware
+ ↓
+View
+ ↓
+Middleware
+ ↓
+Response
+3️⃣ Middleware কোথায় define করা হয়?
+settings.py
+4️⃣ Django middleware methods কি কি?
+
+__init__
+
+__call__
+
+process_view
+
+process_exception
+
+process_template_response
+
+5️⃣ Middleware use cases?
+
+Authentication
+
+Logging
+
+Rate limiting
+
+Security headers
+
+Request tracking
+
+💡 Advanced Django Tip
+
+বড় Django project-এ middleware দিয়ে করা হয়:
+
+Request tracing
+
+Multi-tenant system
+
+API throttling
+
+Security monitoring
+

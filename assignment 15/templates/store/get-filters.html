@@ -1,0 +1,38 @@
+<div class="card p-3 shadow-sm">
+    <h6 class="fw-bold mb-2">All Filters</h6>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item p-0 border-0">
+            <a href="{% url 'category-product' category.slug category.id %}" class="filter-link text-decoration-none text-muted">
+                All Products
+            </a>
+        </li>
+    </ul>
+
+    <h6 class="fw-bold mb-2 mt-3">Brands</h6>
+    <ul class="list-group list-group-flush">
+        {% for brand in brands %}
+        <li class="list-group-item p-0 border-0">
+            <a href="{% url 'category-product' category.slug category.id %}?brand={{ brand.id }}{% if price_filter %}&price={{ price_filter }}{% endif %}" 
+               class="filter-link text-decoration-none text-muted {% if selected_brand == brand.id %}fw-bold text-primary{% endif %}">
+                {{ brand.title|title }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h6 class="fw-bold mb-2 mt-3">Prices</h6>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item p-0 border-0">
+            <a href="{% url 'category-product' category.slug category.id %}?price=below_20k{% if selected_brand %}&brand={{ selected_brand }}{% endif %}" 
+               class="filter-link text-decoration-none text-muted {% if price_filter == 'below_20k' %}fw-bold text-primary{% endif %}">
+                Below 20k
+            </a>
+        </li>
+        <li class="list-group-item p-0 border-0">
+            <a href="{% url 'category-product' category.slug category.id %}?price=above_20k{% if selected_brand %}&brand={{ selected_brand }}{% endif %}" 
+               class="filter-link text-decoration-none text-muted {% if price_filter == 'above_20k' %}fw-bold text-primary{% endif %}">
+                Above 20k
+            </a>
+        </li>
+    </ul>
+</div>

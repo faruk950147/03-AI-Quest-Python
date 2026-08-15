@@ -1,0 +1,48 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Sign In{% endblock title %} 
+{% block main_content %}
+  <!-- ============================ COMPONENT Sign up   ================================= -->
+    <main>
+        <!-- account-area-start -->
+        <div class="account-area mt-70 mb-70">
+            <div class="container">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-lg-6">
+                        <div class="basic-login mb-50">
+                            <h5>Sign In</h5>
+                            <form id="form" method="post" action="" class="border p-4 rounded shadow-sm bg-light" novalidate>
+                                {% csrf_token %}
+                                <div class="alert alert-success alert-success mb-3" style="display: none;"></div> 
+                                <div class="alert alert-danger alert-error mb-3" style="display: none;"></div>
+
+                                <div class="form-group mb-3">
+                                    {{ form.username }}
+                                    {{form.errors.username}}
+                                </div>
+                                <div class="form-group mb-3">
+                                    {{ form.password }}
+                                    {{form.errors.password}}
+                                </div>
+                                <div class="login-action mb-10 fix">
+                                    <span class="log-rem f-left">
+                                       <input id="remember" type="checkbox">
+                                       <label for="remember">Remember me</label>
+                                    </span>
+                                    <span class="forgot-login f-right">
+                                       <a href="{% url "reset-password" %}">Lost your password?</a>
+                                    </span>
+                                </div>
+                                <button type="submit" id="sign-in-btn" class="tp-in-btn w-100">Sign In Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- account-area-end -->
+
+    </main>
+  <!-- ============================ COMPONENT sign in  END.// ================================= -->
+{% include "ajax/signin.html" %}
+{% endblock main_content %}

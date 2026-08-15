@@ -1,0 +1,251 @@
+from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.db import transaction
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from decimal import Decimal
+
+from store.models import Product, ProductVariant
+from cart.models import Cart, Wishlist
+
+SHIPPING_COST = Decimal('150.00')
+
+import logging
+logger = logging.getLogger('project')
+
+
+# ===========================
+# Add to Cart
+# ===========================
+@method_decorator(never_cache, name='dispatch')
+class AddToCartView(LoginRequiredMixin, generic.View):
+    login_url = reverse_lazy('sign-in')
+
+    def post(self, request):
+        try:
+            product_id = request.POST.get("product_id")
+            product_slug = request.POST.get("product_slug")
+            variant_id = request.POST.get("variant_id")
+            quantity = int(request.POST.get("quantity", "1"))
+
+            if not product_id or quantity < 1:
+                return JsonResponse({"status": "error", "message": "Invalid input."})
+
+            with transaction.atomic():
+
+                product = get_object_or_404(
+                    Product.objects.select_for_update().prefetch_related('images'),
+                    id=product_id,
+                    slug=product_slug,
+                    status='active'
+                )
+
+                variant = None
+                if product.variant != 'none':
+                    if not variant_id:
+                        return JsonResponse({"status": "error", "message": "Please select variant"})
+                    variant = get_object_or_404(
+                        ProductVariant.objects.select_for_update(),
+                        id=variant_id,
+                        product=product,
+                        status='active'
+                    )
+
+                max_stock = variant.available_stock if variant else product.available_stock
+
+                if max_stock <= 0:
+                    return JsonResponse({"status": "error", "message": "Out of stock"})
+
+                temp_cart = Cart(user=request.user, product=product, variant=variant)
+                unit_price = temp_cart.unit_price
+
+                cart_item, created = Cart.objects.get_or_create(
+                    user=request.user,
+                    product=product,
+                    variant=variant,
+                    paid=False,
+                    defaults={
+                        "quantity": quantity,
+                        "stored_unit_price": unit_price
+                    }
+                )
+
+                if not created:
+                    new_qty = cart_item.quantity + quantity
+
+                    if new_qty > max_stock:
+                        return JsonResponse({
+                            "status": "error",
+                            "message": f"Cannot exceed stock ({max_stock})"
+                        })
+
+                    cart_item.quantity = new_qty
+                    cart_item.save()
+                    final_quantity = new_qty
+                else:
+                    final_quantity = quantity
+
+                # LOOP subtotal calculation
+                cart_items = Cart.objects.filter(user=request.user, paid=False)
+
+                subtotal = Decimal('0.00')
+                cart_count = 0
+
+                for item in cart_items:
+                    subtotal += item.quantity * item.stored_unit_price
+                    cart_count += 1
+
+                subtotal = subtotal.quantize(Decimal('0.01'))
+                grand_total = (subtotal + SHIPPING_COST).quantize(Decimal('0.01'))
+
+                return JsonResponse({
+                    "status": "success",
+                    "quantity": final_quantity,
+                    "cart_count": cart_count,
+                    "subtotal": str(subtotal),
+                    "grand_total": str(grand_total),
+                })
+
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({"status": "error", "message": "Something went wrong"})
+
+
+# ===========================
+# Cart Detail View
+# ===========================
+@method_decorator(never_cache, name='dispatch')
+class CartDetailView(LoginRequiredMixin, generic.View):
+
+    def get(self, request):
+
+        cart_items = Cart.objects.filter(
+            user=request.user,
+            paid=False
+        ).select_related(
+            'product',
+            'variant'
+        ).prefetch_related(
+            'product__images'
+        )
+
+        subtotal = Decimal('0.00')
+
+        for item in cart_items:
+            subtotal += item.quantity * item.stored_unit_price
+
+        subtotal = subtotal.quantize(Decimal('0.01'))
+        grand_total = (subtotal + SHIPPING_COST).quantize(Decimal('0.01'))
+
+        return render(request, "cart/cart-detail.html", {
+            "cart_items": cart_items,
+            "subtotal": subtotal,
+            "grand_total": grand_total
+        })
+
+
+# ===========================
+# Quantity Increment / Decrement
+# ===========================
+@method_decorator(never_cache, name='dispatch')
+class QuantityIncDec(LoginRequiredMixin, generic.View):
+
+    def post(self, request):
+
+        try:
+
+            cart_id = request.POST.get("cart_id")
+            action = request.POST.get("action")
+
+            with transaction.atomic():
+
+                cart_item = get_object_or_404(
+                    Cart.objects.select_for_update(),
+                    id=cart_id,
+                    user=request.user,
+                    paid=False
+                )
+
+                max_stock = cart_item.variant.available_stock if cart_item.variant else cart_item.product.available_stock
+
+                if action == "inc":
+
+                    if cart_item.quantity < max_stock:
+                        cart_item.quantity += 1
+                    else:
+                        return JsonResponse({'status': 'error', 'message': 'Max stock reached'})
+
+                elif action == "dec":
+
+                    if cart_item.quantity > 1:
+                        cart_item.quantity -= 1
+                    else:
+                        return JsonResponse({'status': 'error', 'message': 'Minimum quantity is 1'})
+
+                cart_item.save()
+
+                # LOOP subtotal
+                cart_items = Cart.objects.filter(user=request.user, paid=False)
+
+                subtotal = Decimal('0.00')
+                cart_count = 0
+
+                for item in cart_items:
+                    subtotal += item.quantity * item.stored_unit_price
+                    cart_count += 1
+
+                subtotal = subtotal.quantize(Decimal('0.01'))
+                grand_total = (subtotal + SHIPPING_COST).quantize(Decimal('0.01'))
+
+                return JsonResponse({
+                    "status": "success",
+                    "quantity": cart_item.quantity,
+                    "item_total": str(cart_item.quantity * cart_item.stored_unit_price),
+                    "subtotal": str(subtotal),
+                    "grand_total": str(grand_total),
+                    "cart_count": cart_count
+                })
+
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({"status": "error"})
+
+
+# ===========================
+# Remove Cart Item
+# ===========================
+@method_decorator(never_cache, name='dispatch')
+class CartRemoveView(LoginRequiredMixin, generic.View):
+
+    def post(self, request):
+
+        cart_item = get_object_or_404(
+            Cart,
+            id=request.POST.get("cart_id"),
+            user=request.user,
+            paid=False
+        )
+
+        cart_item.delete()
+
+        cart_items = Cart.objects.filter(user=request.user, paid=False)
+
+        subtotal = Decimal('0.00')
+        cart_count = 0
+
+        for item in cart_items:
+            subtotal += item.quantity * item.stored_unit_price
+            cart_count += 1
+
+        subtotal = subtotal.quantize(Decimal('0.01'))
+        grand_total = (subtotal + SHIPPING_COST).quantize(Decimal('0.01'))
+
+        return JsonResponse({
+            "status": "success",
+            "subtotal": str(subtotal),
+            "grand_total": str(grand_total),
+            "cart_count": cart_count
+        })

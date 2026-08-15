@@ -1,0 +1,93 @@
+forms.py
+from django import forms
+from django.core.exceptions import ValidationError
+
+class UploadImageForm(forms.Form):
+    image = forms.ImageField()
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            max_size = 2 * 1024 * 1024  # 2MB
+            if image.size > max_size:
+                raise ValidationError("File size must be under 2MB!")
+        return image
+
+views.py
+from django.shortcuts import render
+from .forms import UploadImageForm
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data['image']
+            # ফাইল সেভ করার জন্য
+            with open('uploads/' + image.name, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+            return render(request, 'success.html', {'filename': image.name})
+    else:
+        form = UploadImageForm()
+    return render(request, 'upload.html', {'form': form})
+
+
+নোট: uploads/ ফোল্ডার আগে থেকে তৈরি করতে হবে প্রোজেক্ট রুটে।
+
+upload.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Image</title>
+</head>
+<body>
+    <h1>Upload Image (Max 2MB)</h1>
+    {% if form.errors %}
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+
+success.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Success</title>
+</head>
+<body>
+    <h1>File uploaded successfully!</h1>
+    <p>Filename: {{ filename }}</p>
+</body>
+</html>
+
+✅ Step to run
+
+uploads/ ফোল্ডার তৈরি করো।
+
+urls.py-এ view যোগ করো:
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('upload/', views.upload_file, name='upload_file'),
+]
+
+
+Run server: python manage.py runserver
+
+ব্রাউজারে: http://127.0.0.1:8000/upload/
+
+Maximum 2MB ফাইল আপলোড করবে, বড় হলে error দেখাবে।

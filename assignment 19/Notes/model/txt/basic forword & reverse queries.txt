@@ -1,0 +1,74 @@
+1. ForeignKey এর reverse
+
+ধরা যাক, আপনার Author model এর সাথে Post model linked আছে:
+
+class Post(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
+
+এখানে related_name="posts" দেওয়া আছে। এর মানে হলো:
+
+যদি আপনার কাছে কোনো Author instance থাকে:
+
+author = Author.objects.first()
+
+আপনি সেই author এর সব posts পাই:
+
+author.posts.all()  # reverse query
+
+যদি related_name না দেওয়া হতো, তখন Django default হিসেবে ব্যবহার করতো post_set:
+
+author.post_set.all()
+2. ManyToManyField এর reverse
+
+Post model এর সাথে Tag linked আছে:
+
+tags = models.ManyToManyField(Tag, blank=True)
+
+ধরুন আপনার কাছে একটি Tag instance আছে:
+
+tag = Tag.objects.first()
+
+এই tag কে যে সব post ব্যবহার করেছে, সেটা পাওয়া যায়:
+
+tag.post_set.all()  # default reverse query
+
+আপনি চাইলে related_name দিতে পারতেন, যেমন:
+
+tags = models.ManyToManyField(Tag, related_name="posts")
+
+তাহলে:
+
+tag.posts.all()
+3. Nested reverse query
+
+Comment model linked আছে Post এর সাথে:
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+
+ধরুন আপনার কাছে একটি Post instance আছে:
+
+post = Post.objects.first()
+
+ওই post এর সব comments:
+
+post.comments.all()  # reverse query
+
+যদি author এর সব comments দেখতে চান, প্রথমে posts, তারপর comments:
+
+author = Author.objects.first()
+all_comments = Comment.objects.filter(post__author=author)
+4. Shortcut: lookups
+
+post__author type lookups দিয়ে chain করা যায়।
+
+যেমন: সব comments যেগুলো author John এর লেখা post এ আছে:
+
+comments = Comment.objects.filter(post__author__name="John")
+
+Summary Table
+
+Model	Field	Reverse query
+Author → Post	ForeignKey	author.posts.all()
+Post → Comment	ForeignKey	post.comments.all()
+Tag → Post	ManyToMany	tag.post_set.all() (default) বা tag.posts.all() (related_name)

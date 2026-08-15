@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account{% endblock title %}
+
+{% block main_content %}
+<main>
+    <div class="account-area mt-70 mb-70">
+        <div class="container">
+            <div class="row">
+
+                <!-- LEFT Account PANEL -->
+                <div class="col-3 mb-4">
+                    {% include "account/sidebar.html" %}
+                </div>
+
+                <!-- RIGHT PROFILE INFO -->
+                <div class="col-9 mx-auto">
+                    <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            {{ form.username }}
+                            {{ form.username.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.country }}                           
+                            {{ form.country.errors }}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.city }}
+                            {{ form.city.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.home_city }}
+                            {{ form.home_city.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.zip_code }}
+                            {{ form.zip_code.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.address }}
+                            {{ form.address.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {% if user.image %}
+                                <img src="{{ user.image.url }}" alt="User Image" style="width: 50px; height: 50px;" class="mb-2"/>
+                            {% else %}
+                                <img src="{% static 'media/defaults/default.jpg' %}" alt="No Image" style="width: 50px; height: 50px;" class="mb-2"/>
+                            {% endif %}
+                            {{ form.image }}
+                            {{ form.image.errors }}
+                        </div>
+                        <button type="submit" class="tp-in-btn w-100">Changes Now</button>  
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock main_content %}

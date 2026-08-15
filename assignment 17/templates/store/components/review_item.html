@@ -1,0 +1,22 @@
+<div class="review-details-des">
+    <div class="author-image mr-15">
+        <img src="{{ review.user.image.url }}" alt="{{ review.user.username }}" style="width: 50px; height: 50px">
+    </div>
+    <div class="review-details-content">
+        <h5>{{ review.rating|floatformat:2 }}</h5>
+        <div class="str-info">
+            <div class="review-star mr-15">
+                <i class="text-warning fa {% if review.rating >= 1 %}fa-star{% else %}fa-star-o{% endif %}"></i>
+                <i class="text-warning fa {% if review.rating >= 2 %}fa-star{% else %}fa-star-o{% endif %}"></i>
+                <i class="text-warning fa {% if review.rating >= 3 %}fa-star{% else %}fa-star-o{% endif %}"></i>
+                <i class="text-warning fa {% if review.rating >= 4 %}fa-star{% else %}fa-star-o{% endif %}"></i>
+                <i class="text-warning fa {% if review.rating >= 5 %}fa-star{% else %}fa-star-o{% endif %}"></i>
+            </div>
+        </div>
+        <div class="name-date mb-30">
+            <h6>{{ review.user.username }} – <span>{{ review.created_at|date:"Y-m-d H:i" }}</span></h6>
+        </div>
+        <p>{{ review.subject }}</p>
+        <p>{{ review.comment }}</p>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+WebSocket দিয়ে Live Chat ও Subscription—এই দুইটা বিষয় বুঝতে একটু সহজভাবে দেখি।
+
+1. WebSocket কী?
+
+WebSocket হলো এমন একটি protocol যা দিয়ে client (browser/app) এবং server এর মধ্যে real-time দুইদিকে data পাঠানো যায়।
+
+HTTP request এর মত বারবার request করতে হয় না।
+একবার connection হলে server নিজে থেকেই message পাঠাতে পারে।
+
+উদাহরণ:
+
+Facebook Messenger
+WhatsApp Web
+Live sports score
+Stock market price
+
+এসব জায়গায় WebSocket ব্যবহার হয়।
+
+2. Live Chat কীভাবে কাজ করে
+
+ধরো ২ জন user আছে:
+
+User A
+User B
+Step
+
+1. User A message পাঠায়
+2. Message server এ যায়
+3. Server WebSocket দিয়ে সাথে সাথে User B কে পাঠিয়ে দেয়
+4. User B সাথে সাথে message দেখে
+
+কোন page reload লাগে না।
+
+3. Subscription কী?
+
+Subscription মানে হলো:
+
+কোনো specific event বা channel এর update পাওয়ার জন্য subscribe করা।
+
+মানে user বলে:
+
+"এই topic এ কিছু হলে আমাকে জানাও"
+
+Example
+
+ধরো একটা chat room আছে।
+
+Room name: room1
+
+User যদি এই room এর message পেতে চায় তাহলে:
+
+subscribe: room1
+
+এখন room1 এ কেউ message পাঠালে server সব subscriber কে পাঠাবে।
+
+Real Example
+System	Subscription Example
+Chat app	room subscribe
+YouTube	channel subscribe
+Stock app	stock price subscribe
+News app	topic subscribe
+4. WebSocket + Subscription (Chat example)
+User A ---> subscribe room1
+User B ---> subscribe room1
+User C ---> subscribe room2
+
+যদি A message দেয়:
+
+room1: Hello
+
+Server পাঠাবে:
+
+User B <-- Hello
+
+User C কিছুই পাবে না (কারণ সে room2 তে আছে)।
+
+5. Django তে এটা কীভাবে করা হয়
+
+Django তে WebSocket সাধারণত করা হয়:
+
+Django Channels
+
+এটা দিয়ে করা যায়:
+
+Live chat
+Notification
+Live game
+Live dashboard
+6. সহজভাবে পার্থক্য
+Concept	মানে
+WebSocket	Real-time connection
+Live Chat	WebSocket দিয়ে message exchange
+Subscription	কোন channel/topic এর update পাওয়ার জন্য join করা
+
+সংক্ষেপে:
+
+WebSocket = Real-time connection
+Subscription = কোন channel এ join করা
+Live Chat = WebSocket দিয়ে message আদান-প্রদান
+
+চাও যদি আমি দেখাতে পারি:
+
+Django Channels দিয়ে Live Chat কীভাবে বানাতে হয়
+WebSocket + Subscription full example (code সহ)
+WhatsApp এর মত chat system architecture
+
+বললেই আমি step-by-step বুঝিয়ে দেব।

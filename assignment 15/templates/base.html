@@ -1,0 +1,184 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!--Owl Carousel-->
+    <link rel="stylesheet" href="{% static 'assets/css/owl.carousel.min.css' %}">
+
+    <!--FontAwesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!--Custom CSS-->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+
+    <title>E-Shop | {% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <!--==================== NAVBAR START ====================-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+        <div class="container">
+
+            <!-- Brand -->
+            <a class="navbar-brand" href="{% url 'home' %}">E-Shop</a>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+
+                <!-- LEFT LINKS -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                        href="{% url 'home' %}">Home</a>
+                    </li>
+
+                    <!-- Categories Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white
+                            {% if request.resolver_match.url_name == 'category-product' %}active{% endif %}"
+                            href="#" id="catDrop" role="button" data-bs-toggle="dropdown">
+                            Categories
+                        </a>
+
+                        <ul class="dropdown-menu" aria-labelledby="catDrop">
+                            {% if categories %}
+                                {% for category in categories %}
+                                    <li>
+                                        <a class="dropdown-item 
+                                            {% if request.resolver_match.kwargs.id == category.id %}active{% endif %}"
+                                        href="{% url 'category-product' category.slug category.id %}">
+                                            {{ category.title|title }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li><span class="dropdown-item text-muted">No Categories</span></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <!-- SEARCH -->
+                <form class="d-flex me-3" method="POST" action="{% url 'search-product' %}">
+                    {% csrf_token %}
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search">
+                    <button class="btn btn-warning" type="submit">Search</button>
+                </form>
+
+                <!-- RIGHT SIDE -->
+                <ul class="navbar-nav mb-2 mb-lg-0">
+
+                    <!-- Profile -->
+                    <li class="nav-item dropdown mx-2">
+                        <a class="nav-link dropdown-toggle text-white
+                            {% if request.resolver_match.url_name in 'profile order password-change sign-in sign-up' %}active{% endif %}"
+                        href="#" id="profileDrop" role="button" data-bs-toggle="dropdown">
+
+                            {{ request.user.username|default:"Profile" }}
+                        </a>
+
+                        <ul class="dropdown-menu" aria-labelledby="profileDrop">
+                            {% if request.user.is_authenticated %}
+
+                                <li>
+                                    <a class="dropdown-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+                                    href="{% url 'profile' %}">Profile</a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item {% if request.resolver_match.url_name == 'checkout-list' %}active{% endif %}"
+                                    href="{% url 'checkout-list' %}">Checkout lists</a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item {% if request.resolver_match.url_name == 'password-change' %}active{% endif %}"
+                                    href="{% url 'password-change' %}">Change Password</a>
+                                </li>
+
+                                <li>
+                                    <form method="post" action="{% url 'sign-out' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-decoration-none btn btn-link w-100 text-start text-dark">
+                                            Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+
+                            {% else %}
+
+                                <li>
+                                    <a class="dropdown-item {% if request.resolver_match.url_name == 'sign-in' %}active{% endif %}"
+                                    href="{% url 'sign-in' %}">Sign In</a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item {% if request.resolver_match.url_name == 'sign-up' %}active{% endif %}"
+                                    href="{% url 'sign-up' %}">Sign Up</a>
+                                </li>
+
+                            {% endif %}
+                        </ul>
+                    </li>
+
+                    <!-- Cart -->
+                    <li class="nav-item mx-2">
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'cart-detail' %}" class="nav-link text-white 
+                                {% if request.resolver_match.url_name == 'cart-detail' %}active{% endif %}">
+                                <span class="badge bg-danger" id="cart-count">{{ cart_count|default:"0" }}</span>
+                                Cart
+                            </a>
+                        {% else %}
+                            <a href="{% url 'sign-in' %}" class="nav-link text-white">
+                                <span class="badge bg-danger">0</span> Cart
+                            </a>
+                        {% endif %}
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+    <!--==================== NAVBAR END ====================-->
+
+    {% block slider %}{% endblock %}
+    {% block live_sale %}{% endblock %}
+    {% block main_content %}{% endblock %}
+
+    <!-- FOOTER -->
+    <footer class="container-fluid bg-success text-center p-2 mt-5">
+        <small class="text-white">Copyright &copy; 2023 || Designed By aiQuest</small>
+        <img src="{% static 'assets/images/paymentlogo.png' %}" class="img-fluid" height="2px">
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'assets/js/all.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

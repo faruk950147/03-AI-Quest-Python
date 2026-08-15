@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<main class="registration-form">
+    <div class="container">
+        <div class="row justify-content-center align-items-start">
+
+            <!-- Teacher Form -->
+            <div class="col-md-4">
+                <h2>Teacher Registration</h2>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ teacher_form.as_p }}
+
+                    <button type="submit" name="teacher_submit" class="btn btn-primary form-control">
+                        Submit
+                    </button>
+                </form>
+            </div>
+
+
+            <!-- Student Form -->
+            <div class="col-md-4">
+                <h2>Student Registration</h2>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ student_form.as_p }}
+
+                    <button type="submit" name="student_submit" class="btn btn-primary form-control">
+                        Submit
+                    </button>
+                </form>
+            </div>
+
+
+            <!-- Student List -->
+            <div class="col-md-12 mt-4">
+                <h2 class="text-center">Student List</h2>
+
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>SL</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Roll</th>
+                            <th>Department</th>
+                            <th>Passed In</th>
+                            <th>Passed Out</th>
+                            <th>Marks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <!-- All Students -->
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.age }}</td>
+                            <td>{{ student.roll }}</td>
+                            <td>{{ student.get_department_display }}</td>
+                            <td>{{ student.passed_in_year|date:"Y-m-d" }}</td>
+                            <td>{{ student.passed_out_year|date:"Y-m-d" }}</td>
+                            <td>{{ student.marks }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-danger">
+                                No Student Found
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+
+                        <!-- Specific Query Result -->
+                        {% if student %}
+                        <tr class="table-info">
+                            <th colspan="8" class="text-center">
+                                Specific Query Result
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td>#</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.age }}</td>
+                            <td>{{ student.roll }}</td>
+                            <td>{{ student.get_department_display }}</td>
+                            <td>{{ student.passed_in_year|date:"Y-m-d" }}</td>
+                            <td>{{ student.passed_out_year|date:"Y-m-d" }}</td>
+                            <td>{{ student.marks }}</td>
+                        </tr>
+                        {% endif %}
+
+
+                        <!-- Total Students -->
+                        <tr class="table-warning">
+                            <td colspan="8" class="text-center">
+                                Total Students : {{ total_students }}
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+{% endblock %}

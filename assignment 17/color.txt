@@ -1,0 +1,128 @@
+Color Name	Hex Code
+Silver Pink	#C2ACA5
+Dark Navy	#040812
+Cool Slate Gray	#84878F
+Slate Gray	#918A80
+Dark Red	#8C081B
+Green	#518680
+Dark Spring Green	#0D693C
+Rosy Brown	#C59478
+Ocean Blue	#1E8BBB
+Sweet Pink	#EF616A
+Verdigris	#50B0A4
+Brownish Orange	#895B3A
+Muted Purple	#714B74
+Warm Grey	#D5CBC5
+Raisin Black	#1C1F23
+Cold Purple	#8473B4
+Shadow Aqua	#91ACAF
+Ash Grey	#C5C0BA
+Bright Red	#DD011E
+Black	#000000
+
+==========================================================
+***** Lehenga************
+Paithani Lehenga Dark Red
+
+Banarasi Lehenga Bright Red
+
+Rajasthani Lehenga Silver Pink
+
+Kanjeevaram Lehenga Cool Slate Gray
+
+Fabric-Based Lehengas Dark Navy
+
+Gujarati (Chaniya Choli Ocean Blue)
+
+Paithani Lehenga Shadow Aqua
+
+Banarasi Lehenga Raisin Black
+
+Rajasthani Lehenga Sweet Pink
+
+Kanjeevaram Lehenga Verdigris
+
+Fabric-Based Lehengas Ash Grey
+
+Gujarati Chaniya Choli Green
+
+Paithani Lehenga Muted Purple
+
+Banarasi Lehenga Cold Purple
+
+Rajasthani Lehenga Rosy Brown
+
+Kanjeevaram Lehenga Slate Gray
+
+Fabric-Based Lehengas Brownish Orange
+
+Gujarati Chaniya Choli Dark Spring Green
+
+Paithani Lehenga Warm Grey
+
+Rajasthani Lehenga Black
+
+===========================================
+### **Basic T-Shirt Types**
+
+Crew Neck T-Shirt Sweet Pink
+
+V-Neck T-Shirt Dark Navy
+
+Round Neck T-Shirt Cool Slate Gray
+
+Polo T-Shirt Dark Red
+
+Scoop Neck T-Shirt Ocean Blue
+
+Regular Fit T-Shirt Green
+
+Slim Fit T-Shirt Shadow Aqua
+
+Oversized T-Shirt Ash Grey
+
+Boxy Fit T-Shirt Bright Red
+
+Relaxed Fit T-Shirt Black
+
+Crew Neck T-Shirt Silver Pink
+
+V-Neck T-Shirt Slate Gray
+
+Round Neck T-Shirt Rosy Brown
+
+Polo T-Shirt Muted Purple
+
+Scoop Neck T-Shirt Cold Purple
+
+Regular Fit T-Shirt Warm Grey
+
+Slim Fit T-Shirt Verdigris
+
+Oversized T-Shirt Dark Spring Green
+
+Boxy Fit T-Shirt Brownish Orange
+
+Relaxed Fit T-Shirt Raisin Black
+
+=********************Laptop
+MacBook Pro 14” / 16”
+
+Dell XPS 15
+
+HP Spectre x360
+
+Lenovo Yoga 9i
+
+Microsoft Surface Laptop
+
+**********phone
+Samsung Galaxy A54
+
+Xiaomi Redmi Note 13 / Note 12
+
+Realme 12 / 11
+
+Vivo V30 / Y100
+
+OPPO Reno 10 / OPPO A Series

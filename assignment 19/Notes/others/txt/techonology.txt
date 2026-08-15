@@ -1,0 +1,24 @@
+1. Core Web Development (Django & Website)
+Django Introduction
+Django ORM Deep Dive
+Django & HTMX
+Django REST Framework
+Django-allauth (Login / Social Signup)
+Django-filter & Forms
+2. API & Modern Frameworks
+FastAPI Fundamentals
+Django Ninja
+3. Data Engineering & Science
+PandasAI & OpenAI
+dbt for Data Engineers
+Marimo Notebooks
+Plotly & Leaflet
+4. Python Mastery
+Python Standard Library
+Walrus Operator (:=)
+Itertools & Collections
+Refactor Clinic (Clean Code)
+5. Special Tools & AI
+Pydantic AI Agents
+spaCy (NLP)
+BeautifulSoup (Web Scraping)

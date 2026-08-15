@@ -1,0 +1,109 @@
+<script>
+    //Data Saved function
+    $('#SavedChanges').click(function(event){
+        event.preventDefault()
+        let sid = $('#stuid').val()
+        let name = $('#name').val()
+        let department = $('#department').val()
+        let phone = $('#phone').val()
+        let csr = $('input[name=csrfmiddlewaretoken]').val()
+        let output = ''
+        //console.log(name, department, phone);
+        console.log('Saved button is clicked')
+
+        if(name && department && phone){
+            data = {stuid: sid, name:name, department:department, phone:phone, csrfmiddlewaretoken: csr}
+            $.ajax({
+                url: "{% url 'SavedView' %}",
+                method: "POST",
+                dataType: "json",
+                data: data,
+                success:function(data){
+                    //console.log('I\'m form data ===', data)
+                    if(data.status == 1){
+                        let x = data.studentData
+                        x.forEach((e)=>{
+                        output += `
+                            <tr>
+                                <td scope="row"> ${e.id } </td>
+                                 <td scope="row"> ${e.name } </td>
+                                 <td scope="row"> ${e.department } </td>
+                                 <td scope="row"> ${e.phone } </td>
+                                 <td scope="row">
+                                    <input type="button" data-sid=" ${e.id} " value="Edit" class="btn btn-warning btn-sm btn-edit">
+                                    <input type="button" data-sid=" ${e.id} " value="Del" class="btn btn-danger btn-sm btn-del">
+                                </td>
+                            </tr>
+                        `
+                        })
+                        //console.log('I\'m form x ===', x)
+                        $('#tbody').html(output)
+                        //$('#tbody').innerHTML = output
+                        console.log('Form submited successfull')
+                        $('#stuid').val('')
+                        $('form')[0].reset()
+                    }
+                    else{
+                        alert('Form submited unsuccessfull')
+                        $('#stuid').val('')
+                        $('form')[0].reset()
+                    }
+                }
+            })
+        }
+        else{
+            //console.log('Kindly fill up this fields')
+            alert('Kindly fill up this fields')
+        }
+    });
+
+    //Data deleted function
+    $('tbody').on('click', '.btn-del', function(event){
+        event.preventDefault()
+        let id = $(this).attr('data-sid')
+        let csr = $('input[name=csrfmiddlewaretoken]').val()
+        selfThis = this
+        //console.log(id)
+        console.log('Deleted button is clicked')
+        data = {sid: id, csrfmiddlewaretoken: csr}
+        $.ajax({
+            url: "{% url 'DeletedView' %}",
+            method: "POST",
+            dataType: "json",
+            data: data,
+            success: function(data){
+                //console.log(data)
+                if(data.status == 1){
+                    console.log('Data Deleted successfull')
+                    $(selfThis).closest('tr').fadeOut()
+                }
+                else{
+                    console.log('Data Deleted unsuccessfull')
+                }
+            }
+        });
+    });
+
+    //Data edited function
+    $('tbody').on('click', '.btn-edit', function(event){
+        event.preventDefault()
+        let id = $(this).attr('data-sid')
+        let csr = $('input[name=csrfmiddlewaretoken]').val()
+        //console.log(id)
+        console.log('Edited button is clicked')
+        data = {sid: id, csrfmiddlewaretoken: csr}
+        $.ajax({
+            url: "{% url 'EditedView' %}",
+            method: "POST",
+            dataType: "json",
+            data: data,
+            success:function(data){
+                //console.log(data)
+                $('#stuid').val(data.id)
+                $('#name').val(data.name)
+                $('#department').val(data.department)
+                $('#phone').val(data.phone)
+            }
+        })
+    })
+</script> 

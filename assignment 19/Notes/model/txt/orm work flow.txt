@@ -1,0 +1,155 @@
+ORM Proper Notes (Django Focused)
+
+1️ **ORM কী?**
+
+* ORM = Object-Relational Mapping
+* Database table কে Python class হিসেবে map করে
+* SQL না লিখে database query ও manipulation সম্ভব
+* Python objects ব্যবহার করে CRUD করা যায়
+
+**Example:**
+
+```python
+from django.db import models
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.FloatField()
+```
+
+2️ **ORM Workflow Steps**
+
+**Step 1: Model Definition**
+
+* Class define করা যা table represent করে
+* Fields = columns
+
+```python
+class Category(models.Model):
+    title = models.CharField(max_length=50)
+```
+
+**Step 2: Migrations**
+
+* Database update করার জন্য migrations তৈরি ও apply করা হয়
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+**Step 3: Manager**
+
+* প্রতিটি model এর সাথে Manager থাকে (`objects`)
+* Query execution ও object retrieval handle করে
+
+```python
+# Retrieve all products
+Product.objects.all()
+
+# Filter products with price > 100
+Product.objects.filter(price__gt=100)
+```
+
+* **Custom Manager Example:**
+
+```python
+class ProductManager(models.Manager):
+    def expensive_products(self):
+        return self.filter(price__gt=500)
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.FloatField()
+    objects = ProductManager()
+```
+
+**Usage:**
+
+```python
+expensive = Product.objects.expensive_products()
+```
+
+**Step 4: ORM Query Execution**
+
+* Python code → ORM → SQL → Database → Python objects returned
+
+**Example:**
+
+```python
+expensive_products = Product.objects.expensive_products()
+```
+
+**Generated SQL:**
+
+```sql
+SELECT * FROM product WHERE price > 500;
+```
+
+**Step 5: Object Manipulation (CRUD)**
+
+```python
+# Create
+p = Product(name="Laptop", price=1200)
+p.save()
+
+# Update
+p.price = 1300
+p.save()
+
+# Delete
+p.delete()
+```
+
+**Step 6: Relationships**
+
+* ORM supports relationships: ForeignKey, ManyToManyField, OneToOneField
+
+```python
+class Category(models.Model):
+    title = models.CharField(max_length=50)
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+```
+
+**Query related objects:**
+
+```python
+cat = Category.objects.get(id=1)
+cat_products = cat.product_set.all()
+```
+
+3️ **ORM Workflow Diagram (Conceptual)**
+
+```
+Python Code (Model & Query)
+        │
+        ▼
+ORM Manager (objects)
+        │
+        ▼
+SQL Query Generated
+        │
+        ▼
+Database (CRUD operation)
+        │
+        ▼
+Python Objects Returned
+```
+
+4️ **Key Points**
+
+* ORM = Python ↔ Database Bridge
+* Manager = Gateway for queries
+* Objects = Table rows as Python instances
+* Workflow = Define Model → Migration → Query → Manipulate → Save
+* ORM workflow = Pythonic way to handle database
+
+**Extra Tips**
+
+* ORM knowledge = essential for Django developers
+* Understanding migrations = crucial
+* Custom managers = reusable query logic
+* Relationships = powerful feature for complex data

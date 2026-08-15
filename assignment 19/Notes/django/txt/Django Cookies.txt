@@ -1,0 +1,95 @@
+🍪 Django Cookies কী?
+
+Cookie হলো ছোট ডেটা যা browser-এ store থাকে।
+
+👉 Client side storage
+👉 Size limit থাকে (~4KB)
+👉 Sensitive data রাখার জন্য নিরাপদ না
+
+Django-তে Cookie Set করা
+from django.http import HttpResponse
+
+def set_cookie(request):
+    response = HttpResponse("Cookie set")
+    response.set_cookie('username', 'Faruk')
+    return response
+
+Cookie Read করা
+def get_cookie(request):
+    username = request.COOKIES.get('username')
+    return HttpResponse(username)
+
+Cookie Delete করা
+def delete_cookie(request):
+    response = HttpResponse("Cookie deleted")
+    response.delete_cookie('username')
+    return response
+
+🧠 Django Session কী?
+
+Session হলো server-side storage।
+Browser-এ শুধু session ID থাকে, আসল ডেটা থাকে server-এ।
+
+👉 Server side storage
+👉 Secure
+👉 Login system, cart, user data ইত্যাদির জন্য ব্যবহার হয়
+
+⚙️ Django Session কিভাবে কাজ করে?
+
+User request পাঠায়
+
+Django session create করে
+
+Session ID cookie হিসেবে browser-এ পাঠায়
+
+পরবর্তী request-এ Django session ID দিয়ে data retrieve করে
+
+🗄️ Django Session Store হয় কোথায়?
+
+By default → Database
+(table: django_session)
+
+(চাইলে cache / file / redis ব্যবহার করা যায়)
+
+✅ Django Session Set
+def set_session(request):
+    request.session['username'] = 'Faruk'
+    request.session['role'] = 'admin'
+    return HttpResponse("Session set")
+
+🔍 Django Session Get
+def get_session(request):
+    username = request.session.get('username')
+    return HttpResponse(username)
+
+❌ Django Session Delete
+def delete_session(request):
+    request.session.flush()
+    return HttpResponse("Session deleted")
+
+⏱️ Session Expiry Set
+request.session.set_expiry(300)  # 5 minutes
+
+
+Browser close হলে session শেষ করতে চাইলে:
+
+request.session.set_expiry(0)
+
+🔐 Cookie vs Session (Comparison)
+Feature	Cookie	Session
+Storage	Browser	Server
+Security	❌ Low	✅ High
+Size	Limited	Large
+Sensitive Data	❌ No	✅ Yes
+Speed	Fast	Slightly slower
+🔑 Django Authentication-এ Session
+
+Django login() ব্যবহার করলে automatically session তৈরি হয়।
+
+from django.contrib.auth import authenticate, login
+
+user = authenticate(username=u, password=p)
+if user:
+    login(request, user)  # session created
+
+🛒 Real Use Cases

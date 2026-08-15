@@ -1,0 +1,461 @@
+Explicit AppConfig ব্যবহার করার সুবিধা ('account.apps.AccountConfig')
+
+Custom Behavior Support
+
+যদি apps.py-এ কাস্টম কোড থাকে (যেমন signals attach করা, ready() method এ কিছু কাজ করা), explicit path দিলে সেটা নিশ্চিতভাবে চালু হবে।
+
+উদাহরণ:
+
+class AccountConfig(AppConfig):
+    name = 'account'
+    def ready(self):
+        import account.signals  # এখানে signal load হবে
+
+
+Avoid Ambiguity
+
+কোনো সময় যদি project-এ একই নামের module থাকে (যেমন multiple “account”), explicit path দেওয়া নিশ্চিত করে Django ঠিক সেই app load করবে।
+
+Future Proof
+
+বড় project বা reusable apps-এ explicit AppConfig ব্যবহার করলে পরে conflicts বা errors কম হয়।
+
+Module name use করার সুবিধা ('store')
+
+Short & Simple
+
+কোড ছোট হয়, সহজে পড়া যায়।
+
+ছোট personal projects-এ module name দেওয়াই যথেষ্ট।
+
+Automatic AppConfig Loading
+
+Django নিজেই apps.py থেকে AppConfig খুঁজে নেবে।
+
+যদি কোনো custom behavior না থাকে, এটি একেবারে ঠিক কাজ করে।
+Product Detail Image Gallery - 3 Methods Notes
+
+---
+
+# Method 1: Using related_name (Best Practice)
+
+## Model
+
+class ProductImage(models.Model):
+product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+image = models.ImageField(upload_to='products/gallery/')
+
+## Template
+
+{% for img in product.images.all %} <img src="{{ img.image.url }}">
+{% endfor %}
+
+## Advantages
+
+* Clean & readable
+* Easy to understand
+* Professional approach
+
+## Disadvantages
+
+* Requires extra config in the Model
+
+---
+
+# Method 2: Without related_name (Django default reverse relation)
+
+## Model
+
+class ProductImage(models.Model):
+product = models.ForeignKey(Product, on_delete=models.CASCADE)
+image = models.ImageField(upload_to='products/gallery/')
+
+## Template
+
+{% for img in product.productimage_set.all %} <img src="{{ img.image.url }}">
+{% endfor %}
+
+## Note
+
+smallmodelname_set (ProductImage -> productimage_set)
+
+## Advantages
+
+* No extra config required
+
+## Disadvantages
+
+* The name looks awkward
+* Can be confusing in large projects
+
+---
+
+# Method 3: Passing Images from View (Clean Template Method)
+
+## View
+
+```python
+def product_detail(request, id):
+    product = Product.objects.get(id=id)
+    images = ProductImage.objects.filter(product=product)
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'images': images
+    })
+```
+
+## Template
+
+{% for img in images %} <img src="{{ img.image.url }}">
+{% endfor %}
+
+## Advantages
+
+* Template is super clean
+* Logic stays in the view (Best structure)
+* Easy to maintain in large projects
+
+## Disadvantages
+
+* Requires an extra query in the view
+
+---
+
+# Final Comparison
+
+| Method            | Location         | Clean Code | Recommended      |
+| ----------------- | ---------------- | ---------- | ---------------- |
+| related_name      | Model + Template | ⭐⭐⭐⭐       | Best           |
+| Default _set      | Template only    | ⭐⭐         | Small project |
+| Passing from View | View + Template  | ⭐⭐⭐⭐⭐      | Large project  |
+
+---
+
+# Recommendation
+
+* For large projects & clean templates, use **Method 3 (Passing Images from View)
+
+================================== variants ===========================================
+# =========================================================
+# Variants shows
+# =========================================================
+featured_products = Product.objects.filter(
+    status='active',
+    is_featured=True,
+    available_stock__gt=0
+).select_related('category', 'brand').prefetch_related('reviews', 'variants') \
+ .annotate(avg_rate=Avg('reviews__rating', filter=Q(reviews__status='active')))[:5]
+
+
+
+{% for product in featured_products %}
+    <h3>{{ product.title }}</h3>
+    <p>Average Rating: {{ product.avg_rate }}</p>
+    <p>Variants:</p>
+    <ul>
+        {% for variant in product.variants.all %}
+            <li>
+                {{ variant.size.title if variant.size }} - {{ variant.color.title if variant.color }} - Price: {{ variant.final_price }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endfor %}
+
+# =========================================================
+# PRODUCT DETAIL VIEW
+# =========================================================
+@method_decorator(never_cache, name='dispatch')
+class ProductDetailView(generic.View):
+    def get(self, request, slug, id):
+
+        product = get_object_or_404(
+            Product.objects
+            .select_related('category', 'brand')
+            .prefetch_related('images', 'reviews', 'variants__color', 'variants__size')
+            .annotate(
+                avg_rate=Avg(
+                    'reviews__rating',
+                    filter=Q(reviews__status='active')
+                )
+            ),
+            slug=slug,
+            id=id,
+            status='active',
+            available_stock__gt=0
+        )
+
+        related_products = Product.objects.select_related('brand').prefetch_related('images').filter(
+            category=product.category,
+            status='active',
+            available_stock__gt=0
+        ).exclude(id=product.id)[:4]
+
+        context = {
+            'product': product,
+            'related_products': related_products,
+        }
+
+        # ================= Variant Handling =================
+        if product.variant != "None":
+
+            variants = ProductVariant.objects.filter(
+                product_id=id,
+                status='active',
+                available_stock__gt=0
+            ).select_related('size', 'color').order_by('id').distinct()
+
+            if variants.exists():
+
+                # default variant
+                variant = variants[0]
+
+                # row-wise unique sizes
+                sizes = variants.values(
+                    'size__id',
+                    'size__title'
+                ).distinct()
+
+                # colors for default size
+                colors = variants.filter(
+                    size_id=variant.size_id
+                ).values(
+                    'color__id',
+                    'color__title'
+                ).distinct()
+
+                context.update({
+                    'variant': variant,
+                    'sizes': sizes,
+                    'colors': colors,
+                })
+            else:
+                context.update({
+                    'variant': None,
+                    'sizes': [],
+                    'colors': [],
+                })
+
+        return render(request, 'store/product-detail.html', context)
+
+# ==============================
+# AJAX endpoint for variant selection
+# ==============================
+@method_decorator(never_cache, name='dispatch')
+class GetProductVariantView(generic.View):
+    def post(self, request, *args, **kwargs):
+        product_id = request.POST.get('product_id')
+        size_id = request.POST.get('size_id')
+        variant_id = request.POST.get('variant_id')
+
+        response_data = {}
+
+        # ================= SIZE CHANGE =================
+        if size_id and not variant_id:
+            variant = ProductVariant.objects.filter(
+                product_id=product_id,
+                size_id=size_id,
+                available_stock__gt=0
+            ).order_by('id').first()
+
+            colors = ProductVariant.objects.filter(
+                product_id=product_id,
+                size_id=size_id,
+                available_stock__gt=0
+            )
+
+            rendered_colors = render_to_string(
+                'store/color_options.html',
+                {'colors': colors, 'variant': variant},
+                request=request
+            )
+
+            response_data = {
+                'rendered_colors': rendered_colors,
+                'variant_id': variant.id if variant else None,
+                'variant_price': str(variant.variant_price) if variant else None,
+                'variant_image': variant.image_url if variant else None,
+                'variant_stock': variant.available_stock if variant else 0,
+            }
+
+        # ================= COLOR/VARIANT CHANGE =================
+        elif variant_id:
+            variant = get_object_or_404(
+                ProductVariant.objects.select_related('color', 'size', 'product'),
+                id=variant_id,
+                status='active',
+                available_stock__gt=0
+            )
+
+            response_data = {
+                'variant_id': variant.id,
+                'price': str(variant.final_price),
+                'stock': variant.available_stock,
+                'color': variant.color.title if variant.color else '',
+                'size': variant.size.title if variant.size else '',
+                'image': variant.image_url,
+            }
+
+        return JsonResponse(response_data)
+
+# PRODUCT DETAIL VIEW
+# =========================================================
+@method_decorator(never_cache, name='dispatch')
+class ProductDetailView(generic.View):
+
+    def get(self, request, slug, id):
+        product = get_object_or_404(
+            Product.objects.select_related('category', 'brand')
+            .prefetch_related('images', 'reviews', 'variants__color', 'variants__size')
+            .annotate(avg_rate=Avg('reviews__rating', filter=Q(reviews__status='active'))),
+            slug=slug, id=id, status='active', available_stock__gte=0
+        )
+
+        related_products = Product.objects.filter(
+            category=product.category, status='active', available_stock__gte=0
+        ).exclude(id=product.id)[:4]
+
+        context = {
+            'product': product,
+            'related_products': related_products,
+        }
+
+        if product.variant != "None":  # Product have variants
+            variants = ProductVariant.objects.filter(product_id=id, status='active', available_stock__gte=0).order_by('id')
+            if variants.exists():
+                # default variant
+                variant = ProductVariant.objects.get(id=variants[0].id)
+
+                # sizes (GROUP BY size)
+                sizes = ProductVariant.objects.raw(
+                    'SELECT * FROM store_productvariant WHERE product_id=%s GROUP BY size_id',
+                    [id]
+                )
+
+                # colors for default size
+                colors = ProductVariant.objects.filter(
+                    product_id=id,
+                    size_id=variant.size_id,
+                    available_stock__gte=0
+                )
+                
+                # variants available 
+                context.update({
+                    'sizes': sizes,
+                    'colors': colors,
+                    'variant': variant,
+                })
+                
+            else:
+                # No variants available
+                context.update({
+                    'sizes': [],
+                    'colors': [],
+                    'variant': None,
+                })
+        return render(request, 'store/product-detail.html', context)
+
+// ================== SIZE CHANGE ==================
+$(document).on('change', '.size-select', function (){
+    let size_id = $(this).val();
+    let product_id = $('#product_id').val(); 
+
+    $.ajax({
+        url: '/get-variant-by-size/',  
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: {
+            size_id: size_id,
+            product_id: product_id,
+        },
+        success: function (res) {
+            console.log(res);
+            $("#variant_id").val(res.variant_id);
+            $('#colors-show').html(res.rendered_colors);
+            $("#product-price").text(res.variant_price || '0');
+            $("#display-color").text(res.color || '');
+            $("#display-size").text(res.size || '');
+            $("#variant-image").attr("src", res.variant_image);
+            $("#display-variant-stock").text('Availability (Variant Stock): ' + (res.available_stock || 0));
+            $("#sku").text(res.sku);
+
+            bindColorEvents(); // color radio button bind
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText);
+        }
+    });
+});
+
+// ================== COLOR SELECT ==================
+function bindColorEvents() {
+    $('input[name="variant_radio"]').off('change').on('change', function () {
+        let variant_id = $(this).val();
+
+        $.ajax({
+            url: '/get-variant-by-color/',
+            type: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            data: {
+                variant_id: variant_id
+            },
+            success: function (res) {
+                console.log(res);
+                $("#variant_id").val(res.variant_id);
+                $("#product-price").text(res.variant_price || '0');
+                $("#display-color").text(res.color || '');
+                $("#display-size").text(res.size || '');
+                $("#variant-image").attr("src", res.variant_image);
+                $("#sku").text(res.sku);
+                $("#display-variant-stock").text('Availability (Variant Stock): ' + (res.available_stock || 0));
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    });
+}
+
+// Initial color binding
+bindColorEvents();
+
+// ================== REVIEW FORM ==================
+$('#review-form').on('submit', function (e) {
+    e.preventDefault();
+
+    let form = $(this);
+    let data = new FormData(this);
+
+    // Validation
+    if (!$('input[name="rating"]:checked').length) {
+        alertify.error("Please select a rating");
+        return;
+    }
+    if (!$('#subject').val().trim() || !$('#comment').val().trim()) {
+        alertify.error("Please fill in subject and comment");
+        return;
+    }
+
+    $.ajax({
+        url: '/product-review/',  // Django URL
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: data,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+            if (res.status === 'success') {
+                alertify.success(res.message);
+                form[0].reset();
+                $('#review_count').text('Reviews (' + res.review_count + ')');
+                $('#reviews-items').prepend(res.review_html);
+            } else {
+                alertify.error(res.message);
+            }
+        },
+        error: function (xhr) {
+            alertify.error("Something went wrong.");
+            console.error(xhr.responseText);
+        }
+    });
+});

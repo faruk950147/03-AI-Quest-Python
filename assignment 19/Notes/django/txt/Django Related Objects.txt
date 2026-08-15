@@ -1,0 +1,150 @@
+Django Related Objects, Prefetch & Select Notes
+1. Related Objects কি?
+
+Related objects হলো সেই objects যা একটি model অন্য model এর সাথে link রাখে।
+
+Django relationship types:
+
+ForeignKey → এক-to-many
+
+OneToOneField → এক-to-one
+
+ManyToManyField → many-to-many
+
+উদাহরণ:
+
+class Post(models.Model):
+    tags = models.ManyToManyField(Tag)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+post.tags.all() → related objects (ManyToMany)
+
+post.author → related object (ForeignKey, single object)
+
+2. Forward vs Reverse Relation
+Relation	Access Example	Forward/Reverse	Query Method
+Post → Author	post.author	Forward	select_related('author')
+Author → Post	author.posts.all()	Reverse	prefetch_related('posts')
+Post → Comment	post.comments.all()	Reverse	prefetch_related('comments')
+Comment → Post	comment.post	Forward	select_related('post')
+
+Forward: ForeignKey/OneToOneField → single object
+
+Reverse: ForeignKey/ManyToManyField → multiple objects
+
+3. Prefetch vs Select Related
+Method	Use Case	Example
+select_related('author')	Forward ForeignKey / OneToOneField (single object)	Post.objects.select_related('author')
+prefetch_related('tags', 'comments')	ManyToManyField / reverse ForeignKey (multiple objects)	Post.objects.prefetch_related('tags', 'comments')
+
+select_related: SQL JOIN করে, একবারে fetch করে → single object
+
+prefetch_related: আলাদা query চালিয়ে memory তে attach করে → multiple objects
+
+4. Example with Post, Tag, Comment, Author   
+posts = Post.objects.select_related('author').prefetch_related('tags', 'comments')
+
+for post in posts:
+    print(post.title)
+    print(post.author.name)  # select_related ব্যবহার করা হয়েছে → extra query নেই
+
+    for tag in post.tags.all():
+        print(tag.name)      # prefetch_related → extra query নেই
+
+    for comment in post.comments.all():
+        print(comment.content)  # prefetch_related → extra query নেই
+
+Tags → ManyToMany → prefetch_related
+
+Comments → Reverse FK → prefetch_related
+
+Author → ForeignKey → select_related
+
+5. N+1 Problem Example
+
+10 Post, প্রতিটিতে 5 Comment
+
+Without optimization:
+
+1 query for posts
+
+10 queries for authors (forward FK)
+
+10 queries for comments (reverse FK)
+→ 21 queries
+
+With select_related + prefetch_related:
+
+1 query for posts + JOINed authors
+
+1 query for all tags
+
+1 query for all comments
+→ 3 queries
+
+6. Key Points   
+
+======================================== forward relation reverse relation ========================================
+
+related_name use করে reverse access সহজ হয়
+
+Forward relation → select_related
+
+Reverse / ManyToMany → prefetch_related
+
+7. Forward vs Reverse Relation
+Relation	Access Example	Forward/Reverse
+Post → Author	post.author	Forward
+Author → Post	author.posts.all()	Reverse
+Post → Comment	post.comments.all()	Reverse
+Comment → Post	comment.post	Forward
+
+Forward: ForeignKey/OneToOneField ব্যবহার করে access করা
+
+Reverse: ForeignKey/ManyToManyField এর opposite direction → multiple objects
+
+8. Prefetch vs Select Related
+Method	Use Case
+select_related('author')	Forward ForeignKey / OneToOneField (single object)
+prefetch_related('tags', 'comments')	ManyToManyField / reverse ForeignKey (multiple objects)
+
+Prefetch করা objects memory তে load হয় → loop এ access করতে extra query লাগে না
+
+Without prefetch → N+1 problem (প্রতি object এর জন্য extra query)
+
+9. Example with Post, Tag, Comment
+posts = Post.objects.prefetch_related('tags', 'comments')
+for post in posts:
+    print(post.title)
+    for tag in post.tags.all():
+        print(tag.name)      # extra query নেই
+    for comment in post.comments.all():
+        print(comment.content)  # extra query নেই
+
+Tags → ManyToMany → prefetch_related
+
+Comments → Reverse FK → prefetch_related
+
+Benefits:
+
+Query সংখ্যা কমে
+
+Page load / loop দ্রুত হয়
+
+10. N+1 Problem Example
+
+10 Post, প্রতিটিতে 5 Comment
+
+Without prefetch: 1 query for posts + 10 queries for comments = 11 queries
+
+With prefetch: 1 query for posts + 1 query for all comments = 2 queries
+
+11. Key Points
+
+related_name use করে reverse access সহজ হয়
+
+ForeignKey / OneToOne → select_related
+
+ManyToMany / reverse FK → prefetch_related
+
+post.comments.all() → reverse query

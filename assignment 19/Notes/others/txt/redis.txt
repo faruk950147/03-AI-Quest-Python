@@ -1,0 +1,23 @@
+Message broker হলো একটি middleware system যা দুটি বা তার বেশি অ্যাপ্লিকেশন বা সার্ভিসের মধ্যে message পাঠানো এবং গ্রহণ করা সহজ করে। সহজভাবে বললে, এটি হলো “মেসেজ ডেলিভারি সার্ভিস”।
+
+১️⃣ Message Broker কি
+এটি একটি বিচ্ছিন্ন (decoupling) layer যেখানে producer (যিনি message পাঠান) এবং consumer (যিনি message গ্রহণ করেন) একে অপরকে সরাসরি জানে না।
+Broker messages কে receive, store, এবং forward করে।
+২️⃣ Message Broker-এর কাজ
+Receive messages – producer থেকে message নেয়।
+Queue messages – যদি consumer এখন busy থাকে, message temporary store হয়।
+Deliver messages – consumer ready হলে message পৌঁছে দেয়।
+Manage reliability – delivery confirmation, retry, ordered delivery ইত্যাদি handle করে।
+৩️⃣ কেন ব্যবহার করা হয়
+Systems loosely coupled থাকে। মানে, producer আর consumer একে অপরের timing বা location নিয়ে চিন্তা করে না।
+Asynchronous processing সম্ভব হয়।
+উদাহরণ: user signup → welcome email পাঠানো। Email sending delay করলে main app slow হবে না।
+Scalability সহজ হয়। অনেক producer এবং consumer সহজে add করা যায়।
+৪️⃣ Example Message Brokers
+RabbitMQ – Advanced features, supports multiple protocols।
+Redis Pub/Sub – Simple real-time messaging।
+Kafka – High throughput, stream processing।
+৫️⃣ ব্যবহার উদাহরণ
+Web application: User comment submit করলে background task worker comment moderation করবে।
+E-commerce: Order placed → payment processor এবং inventory update একসাথে handle হবে।
+Chat application: Real-time message delivery।

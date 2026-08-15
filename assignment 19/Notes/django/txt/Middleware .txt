@@ -1,0 +1,428 @@
+Django-তে Middleware কী?
+
+Django-তে Middleware হলো এমন কিছু Python class বা function যা request এবং response এর মাঝখানে কাজ করে। অর্থাৎ, যখন user browser থেকে request পাঠায় এবং server response পাঠায়—এই দুইটার মাঝখানে middleware processing করতে পারে।
+
+সহজভাবে বললে:
+
+Browser Request → Middleware → View → Middleware → Response → Browser
+
+Middleware দিয়ে আপনি request বা response modify, check বা control করতে পারেন।
+
+Middleware কোথায় থাকে
+
+Django project-এ middleware গুলো থাকে settings.py ফাইলে।
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+]
+
+এগুলো Django-এর built-in middleware।
+
+কিছু গুরুত্বপূর্ণ Built-in Middleware
+1️⃣ SecurityMiddleware
+
+Security related কাজ করে।
+
+উদাহরণ:
+
+HTTPS redirect
+
+Security headers
+
+django.middleware.security.SecurityMiddleware
+2️⃣ SessionMiddleware
+
+User session handle করে।
+
+django.contrib.sessions.middleware.SessionMiddleware
+
+এটা দিয়ে:
+
+request.session['name'] = 'Faruk'
+
+এই ধরনের data রাখা যায়।
+
+3️⃣ CsrfViewMiddleware
+
+CSRF attack থেকে protection দেয়।
+
+django.middleware.csrf.CsrfViewMiddleware
+
+Form এ ব্যবহার হয়:
+
+{% csrf_token %}
+4️⃣ AuthenticationMiddleware
+
+Logged-in user কে access করার জন্য।
+
+django.contrib.auth.middleware.AuthenticationMiddleware
+
+View এ:
+
+request.user
+5️⃣ MessageMiddleware
+
+Django messages system handle করে।
+
+django.contrib.messages.middleware.MessageMiddleware
+Custom Middleware কিভাবে তৈরি করবেন
+
+ধরুন আপনি সব request print করতে চান।
+
+Step 1: middleware file
+app/
+   middleware.py
+class MyMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print("Request received")
+
+        response = self.get_response(request)
+
+        print("Response sent")
+
+        return response
+Step 2: settings.py এ add করা
+MIDDLEWARE = [
+    'app.middleware.MyMiddleware',
+]
+Middleware Workflow
+Request → Middleware1 → Middleware2 → View
+View → Middleware2 → Middleware1 → Response
+
+অর্থাৎ:
+
+Request সময় উপর থেকে নিচে
+
+Response সময় নিচ থেকে উপরে
+
+Middleware কোথায় ব্যবহার করা হয়
+
+Middleware সাধারণত ব্যবহার হয়:
+
+✔ Authentication check
+✔ Request logging
+✔ IP blocking
+✔ Rate limiting
+✔ API key verification
+✔ Custom headers add করা
+
+Example: IP Block Middleware
+class BlockIPMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        ip = request.META.get('REMOTE_ADDR')
+
+        if ip == '192.168.1.10':
+            from django.http import HttpResponse
+            return HttpResponse("Access Denied")
+
+        response = self.get_response(request)
+
+        return response
+Middleware vs View
+Middleware	View
+Request/Response level	Business logic
+Global	Specific URL
+Before & After processing	Main processing
+
+✅ আপনি চাইলে আমি আরো advanced বিষয় দেখাতে পারি:
+
+process_view middleware
+
+process_exception
+
+process_template_response
+
+JWT authentication middleware
+
+API logging middleware
+
+যা professional Django developer দের খুব দরকার হয়।
+
+
+আপনি Django Middleware সম্পর্কে আরও advanced বিষয় জানতে চেয়েছেন। নিচে গুরুত্বপূর্ণ middleware hooks গুলো সহজভাবে বুঝানো হলো।
+
+Django Middleware Advanced Concepts
+1️⃣ process_view()
+
+এই method view execute হওয়ার আগে run হয়।
+
+এটা দিয়ে আপনি view call হওয়ার আগে কিছু check করতে পারেন।
+
+Example
+class MyMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        print("View will run now:", view_func.__name__)
+Parameters
+Parameter	কাজ
+request	current request
+view_func	কোন view call হবে
+view_args	view arguments
+view_kwargs	view keyword arguments
+2️⃣ process_exception()
+
+যখন view এ error / exception হয় তখন এই middleware run হয়।
+
+Example
+class ExceptionMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        return response
+
+    def process_exception(self, request, exception):
+
+        print("Error happened:", exception)
+
+এটা দিয়ে আপনি:
+
+error logging
+
+custom error page
+
+monitoring
+
+করতে পারবেন।
+
+3️⃣ process_template_response()
+
+যখন view TemplateResponse return করে তখন এই method run হয়।
+
+Example
+class TemplateMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        return response
+
+    def process_template_response(self, request, response):
+
+        response.context_data['site_name'] = "My Website"
+
+        return response
+
+এভাবে সব template এ variable inject করা যায়।
+
+Middleware Execution Flow
+
+Django middleware onion layer এর মতো কাজ করে।
+
+Request
+   ↓
+Middleware 1
+   ↓
+Middleware 2
+   ↓
+View
+   ↑
+Middleware 2
+   ↑
+Middleware 1
+   ↑
+Response
+Real Life Middleware Examples
+1️⃣ Request Logger Middleware
+class RequestLogMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print("Path:", request.path)
+        print("Method:", request.method)
+
+        response = self.get_response(request)
+
+        return response
+2️⃣ Login Required Middleware
+
+সব page login ছাড়া access করতে পারবে না।
+
+from django.shortcuts import redirect
+
+class LoginRequiredMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        if not request.user.is_authenticated and request.path != "/login/":
+            return redirect("login")
+
+        response = self.get_response(request)
+
+        return response
+3️⃣ Custom Header Middleware
+class CustomHeaderMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        response["X-Site-Name"] = "Faruk Project"
+
+        return response
+Custom Middleware Project Structure
+project/
+    app/
+        middleware.py
+        views.py
+        models.py
+settings.py এ Middleware Add
+MIDDLEWARE = [
+    'app.middleware.RequestLogMiddleware',
+]
+Django Middleware কবে ব্যবহার করা হয়
+Use Case	Example
+Logging	Request log
+Security	IP blocking
+Authentication	Login check
+API	Token verification
+Performance	Cache
+
+================================= hooks ===========================================
+Django Middleware Hooks
+
+Middleware Hooks হলো Django middleware-এর special method যেগুলো request-response lifecycle এর বিভিন্ন stage এ run হয়। এগুলোর মাধ্যমে আপনি request, view execution, exception, এবং response control করতে পারেন।
+
+1️⃣ __call__() Hook
+
+এটা middleware-এর main hook। সব request এই method দিয়ে যায়।
+
+Example
+class MyMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print("Before View")
+
+        response = self.get_response(request)
+
+        print("After View")
+
+        return response
+Workflow
+Request → __call__ → View → __call__ → Response
+2️⃣ process_view()
+
+এই hook view execute হওয়ার আগে run হয়।
+
+Example
+class ViewMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+
+        print("View name:", view_func.__name__)
+Parameters
+Parameter	Description
+request	Current request
+view_func	কোন view run হবে
+view_args	View arguments
+view_kwargs	View keyword arguments
+3️⃣ process_exception()
+
+যখন view এর মধ্যে exception হয়, তখন এই hook run হয়।
+
+Example
+class ExceptionMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_exception(self, request, exception):
+
+        print("Exception:", exception)
+
+এটা দিয়ে আপনি error log বা custom error response দিতে পারেন।
+
+4️⃣ process_template_response()
+
+যখন view TemplateResponse return করে, তখন এই hook run হয়।
+
+Example
+class TemplateMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_template_response(self, request, response):
+
+        response.context_data["site_name"] = "My Website"
+
+        return response
+
+এটা দিয়ে সব template-এ extra context add করা যায়।
+
+Django Middleware Hooks Flow
+Request
+  ↓
+process_view()
+  ↓
+View
+  ↓
+process_exception() (if error)
+  ↓
+process_template_response()
+  ↓
+Response
+Middleware Hooks Summary
+Hook	কখন run হয়
+__call__	Request ও Response সময়
+process_view	View run হওয়ার আগে
+process_exception	View error হলে
+process_template_response	TemplateResponse return হলে

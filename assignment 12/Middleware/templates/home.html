@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<main class="registration-form">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+
+            <div class="col-md-6">
+                <h2>Registration</h2>
+
+                <form action="" method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <button type="submit" class="btn btn-primary form-control">
+                        Submit
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-md-6">
+                <h2>Student List</h2>
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Name</th>
+                            <th>Roll</th>
+                            <th>Department</th>
+                            <th>Passed In</th>
+                            <th>Passed Out</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.roll }}</td>
+                            <td>{{ student.department }}</td>
+                            <td>{{ student.passed_in_year|date:"Y-m-d" }}</td>
+                            <td>{{ student.passed_out_year|date:"Y-m-d" }}</td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No Student Found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <title>CRUD</title>
+</head>
+<body> 
+    <header id="header">
+        <div class="header container">
+            <div class="navBar">
+                <div class="brand"><a href="#hero"><h1><span>O</span>ma<span>r</span> F<span>a</span>ru<span>k</span></h1></a>
+                </div>
+                <div class="navList">
+                    <div class="humberger">
+                        <div class="bar"></div>
+                    </div>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Project</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div id="hero">
+        <div class="container">
+            <div class="row my-5">
+                <div class="col-lg-3">
+                    <h4 class="text-center">Student Add</h4>
+                    <hr>
+                    <div class="student">
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="stuid" id="stuid">
+                            {{student_form.as_p}}
+                            <input type="button" value="Saved Changes" class="form-control btn btn-success my-3" id="SavedChanges">
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-1 lineHeight"></div>
+                <div class="col-lg-8">
+                    <h4 class="text-center">Student Tables</h4>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">NAME</th>
+                                <th scope="col">DEPARTMENT</th>
+                                <th scope="col">PHONE</th>
+                                <th scope="col">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            {% for st_qs in student_qs %}
+                            <tr>
+                                <td scope="row"> {{st_qs.id}} </td>
+                                <td scope="row"> {{st_qs.name}} </td>
+                                <td scope="row"> {{st_qs.department}} </td>
+                                <td scope="row"> {{st_qs.phone}} </td>
+                                <td scope="row">
+                                    <input type="button" data-sid=" {{st_qs.id}} " value="Edit" class="btn btn-warning btn-sm btn-edit">
+                                    <input type="button" data-sid=" {{st_qs.id}} " value="Del" class="btn btn-danger btn-sm btn-del">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    {% include "ajax.html" %}
+</body>
+</html>

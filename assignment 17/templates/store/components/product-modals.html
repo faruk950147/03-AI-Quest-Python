@@ -1,0 +1,61 @@
+{% load static %}
+{% comment %} modal.html {% endcomment %}
+<!-- shop modal start -->
+<div class="modal fade" id="productModalId" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered product__modal">
+        <div class="modal-content">
+            <div class="product__modal-wrapper p-relative">
+
+                <!-- Close Button -->
+                <div class="product__modal-close p-absolute">
+                    <button data-bs-dismiss="modal">
+                        <i class="fal fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="product__modal-inner">
+                    <div class="row">
+
+                        <!-- IMAGE SIDE -->
+                        <div class="col-md-6">
+                            <div class="product__modal-img w-img text-center">
+                                <img id="quick-image"
+                                     src=""
+                                     alt="Product Image"
+                                     style="max-height:400px; object-fit:contain;">
+                            </div>
+                        </div>
+
+                        <!-- DETAILS SIDE -->
+                        <div class="col-md-6">
+                            <div class="product__modal-content">
+
+                                <!-- TITLE -->
+                                <h4>
+                                    <a href="#" id="quick-title"></a>
+                                </h4>
+
+                                <!-- PRICE -->
+                                <div class="product__price mb-15">
+                                    <span id="quick-price"></span>
+                                </div>
+
+                                <!-- DESCRIPTION -->
+                                <div class="product__modal-des mb-15">
+                                    <p id="quick-desc"></p>
+                                </div>
+
+                                <!-- STOCK -->
+                                <div class="product__stock mb-20">
+                                    <span id="quick-stock"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- shop modal end -->

@@ -1,0 +1,353 @@
+Django Caching Notes (Bangla)
+1. Caching কী?
+
+Caching মানে হলো বারবার calculation না করে data আগেই save করে রাখা।
+
+উদাহরণ:
+
+Database query slow
+API call slow
+Template render slow
+
+Caching করলে এইগুলোর পরবর্তী load অনেক দ্রুত হয়।
+
+2. Django-তে caching কেন ব্যবহার করবো?
+ওয়েবসাইট দ্রুত হয়
+Database load কমে
+Server cost কমে
+User experience ভালো হয়
+3. Django caching types
+Per-site cache – পুরো website cache
+Per-view cache – নির্দিষ্ট view cache
+Template fragment cache – template-এর কিছু অংশ cache
+4. Django cache backend
+
+Built-in backends:
+
+LocMemCache (local memory)
+FileBasedCache
+DatabaseCache
+
+Production backend:
+
+Redis (recommended)
+Memcached
+5. Basic setup (settings.py)
+
+Simple local cache:
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+6. Per-view cache
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 5)  # 5 minutes
+def my_view(request):
+    pass
+
+Result 5 মিনিটের জন্য cache হবে।
+
+7. URL-based cache (middleware)
+MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+]
+CACHE_MIDDLEWARE_SECONDS = 600
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
+
+পুরো site cache হবে।
+
+8. Template fragment caching
+{% load cache %}
+{% cache 300 sidebar %}
+    <div>Sidebar Content</div>
+{% endcache %}
+What is this?
+
+300 seconds cache হবে।
+
+9. Low-level cache API
+from django.core.cache import cache
+
+# Set
+cache.set('my_key', 'hello', timeout=60)
+
+# Get
+data = cache.get('my_key')
+
+# Delete
+cache.delete('my_key')
+
+# Clear all
+cache.clear()
+10. Cache key concept
+
+Cache key হলো unique identifier।
+
+cache.set(f"product_{id}", product_data)
+11. Cache invalidation
+
+ডেটা পরিবর্তন হলে cache delete করতে হবে।
+
+cache.delete(f"product_{id}")
+
+না করলে পুরানো ডেটা দেখাবে।
+
+12. Redis cache (Production level)
+
+Redis খুব দ্রুত এবং production-ready।
+
+Install:
+
+pip install django-redis
+
+settings.py:
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+13. Real-life example (E-commerce)
+def product_detail(request, id):
+    cache_key = f"product_{id}"
+    product = cache.get(cache_key)
+
+    if not product:
+        product = Product.objects.get(id=id)
+        cache.set(cache_key, product, 300)
+
+    return render(request, "product.html", {"product": product})
+14. Cache strategies
+Cache Aside (most used) – প্রথমে cache চেক, না থাকলে DB, তারপর cache set
+Write Through – DB এবং cache একসাথে update
+15. Common mistakes
+Cache invalidate না করা
+Too much caching
+Wrong timeout
+Sensitive data cache করা
+16. কোথায় caching use করবো
+Product list
+Product detail
+Homepage
+API response
+Dashboard data
+17. Advanced
+Cache versioning:
+cache.set('key', 'value', version=2)
+Cache get_or_set:
+cache.get_or_set('key', 'value', 60)
+18. Recommendation for Django e-commerce
+
+Use:
+
+Redis cache
+Per-view cache (list page)
+Low-level cache (product detail)
+Final Summary
+Django caching = speed booster
+Redis = best choice
+Low-level API = most powerful
+Cache invalidation = must
+
+
+
+
+Django-তে cache ব্যবহার করার উদ্দেশ্য হলো আপনার ওয়েব অ্যাপ্লিকেশনকে দ্রুত করা। যখন কোনো ভিউ বা ডেটা বারবার তৈরি হয় বা ডাটাবেস থেকে নিয়ে আসা হয়, তখন cache ব্যবহার করলে সেই রিকোয়েস্টের জন্য আগের ফলাফল সংরক্ষণ করে রাখে এবং পরবর্তীতে দ্রুত সেই ডেটা রিটার্ন করে।
+
+আমি আপনাকে ধাপে ধাপে ব্যাখ্যা করি:
+
+1️⃣ Cache এর ধরন
+
+Django ৫ ধরনের cache সাপোর্ট করে:
+
+In-Memory Cache (LocMemCache)
+ছোট অ্যাপ বা ডেভেলপমেন্টের জন্য।
+একটাই সার্ভারের জন্য কাজ করে।
+সেটআপ সহজ।
+File-Based Cache
+ডেটা ফাইল সিস্টেমে সংরক্ষণ হয়।
+ছোট থেকে মাঝারি অ্যাপের জন্য ভালো।
+Database Cache
+ডেটাবেসে cache সংরক্ষণ করা হয়।
+বড় অ্যাপের জন্য ব্যাকআপ সুবিধা আছে।
+Memcached
+RAM-ভিত্তিক দ্রুত cache।
+High-performance এবং distributed cache।
+Redis Cache
+Memcached-এর মতো distributed এবং persistent।
+Advanced caching এবং pub/sub, session management এ ব্যবহার করা হয়।
+2️⃣ Cache সেটআপ
+
+settings.py এ উদাহরণ:
+
+# In-memory cache
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
+File-based cache:
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/var/tmp/django_cache",
+    }
+}
+
+Redis ব্যবহার:
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+3️⃣ Cache ব্যবহার করার উপায়
+(a) View-Level Cache
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 15)  # 15 মিনিটের জন্য cache
+def my_view(request):
+    # expensive computation or db query
+    return render(request, 'my_template.html', {})
+(b) Template Fragment Cache
+{% load cache %}
+{% cache 600 sidebar %}
+    <!-- এখানে যা আছে সেটা ১০ মিনিট cache হবে -->
+    <div>Expensive sidebar content</div>
+{% endcache %}
+What is this?
+(c) Low-Level Cache API
+from django.core.cache import cache
+
+# cache set
+cache.set('my_key', 'hello world', timeout=300)  # 5 মিনিট
+
+# cache get
+value = cache.get('my_key')  # return 'hello world'
+
+# cache delete
+cache.delete('my_key')
+(d) Per-Object Cache (Optional)
+product = cache.get(f'product_{product_id}')
+if not product:
+    product = Product.objects.get(id=product_id)
+    cache.set(f'product_{product_id}', product, 300)
+4️⃣ Cache এর গুরুত্বপূর্ণ বিষয়সমূহ
+Timeout: কতক্ষণ cache থাকবে।
+Invalidation: কখন cache বাতিল হবে। যেমন ডাটাবেস আপডেট হলে cache clear করা।
+Distributed Cache: অনেক সার্ভারের জন্য Redis/Memcached ভালো।
+Memory vs Disk: RAM বেশি দ্রুত, Disk ধীর।
+
+💡 সারসংক্ষেপ:
+
+ছোট এবং ডেভেলপমেন্টের জন্য: LocMemCache
+Production বা distributed system: Redis/Memcached
+ফ্রিকোয়েন্ট ভিউ বা template যা হ্যাং করবে: view/template caching ব্যবহার করুন
+
+আপনি চাইলে আমি আপনাকে একটা ছোট Django প্রোজেক্টে Redis cache ব্যবহার করে view এবং template caching দেখানোর জন্য পুরো উদাহরণ কোড দেখাতে পারি।
+
+আপনি কি সেটা চাইবেন?
+
+note pdf
+
+ঠিক আছে! আমি আপনাকে Django cache এর উপর একটি সম্পূর্ণ নোট PDF আকারে বানানোর জন্য কনটেন্ট সাজিয়ে দিচ্ছি। নিচে আমি structured নোট বানাচ্ছি, আপনি পরে এটাকে PDF এ কনভার্ট করতে পারবেন।
+
+Django Cache – নোটস (Bangla)
+১️⃣ Cache কি?
+
+Cache হলো অস্থায়ী ডেটা সংরক্ষণের একটি উপায়, যা ডাটাবেস বা computation বারবার না করে দ্রুত ফলাফল দেখাতে সাহায্য করে।
+
+উদ্দেশ্য:
+
+ওয়েবসাইট দ্রুত করা
+সার্ভার লোড কমানো
+রিসোর্স অপটিমাইজেশন
+২️⃣ Django তে Cache এর ধরন
+ধরন	ব্যবহার	সুবিধা
+LocMemCache	ছোট অ্যাপ, ডেভেলপমেন্ট	দ্রুত, সহজ সেটআপ
+File-Based Cache	ছোট/মাঝারি অ্যাপ	সহজ, persistent
+Database Cache	বড় অ্যাপ	ডেটাবেস ব্যাকআপ সুবিধা
+Memcached	High-performance	RAM-based, distributed
+Redis	Advanced, distributed	Persistent, pub/sub, session support
+৩️⃣ Cache সেটআপ
+LocMemCache উদাহরণ
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+File-Based Cache উদাহরণ
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/var/tmp/django_cache",
+    }
+}
+Redis Cache উদাহরণ
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+৪️⃣ Cache ব্যবহার করার উপায়
+(a) View-Level Cache
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 15)  # 15 মিনিট cache
+def my_view(request):
+    return render(request, 'my_template.html', {})
+(b) Template Fragment Cache
+{% load cache %}
+{% cache 600 sidebar %}
+<div>Expensive sidebar content</div>
+{% endcache %}
+What is this?
+(c) Low-Level Cache API
+from django.core.cache import cache
+
+# Set cache
+cache.set('my_key', 'hello world', timeout=300)
+
+# Get cache
+value = cache.get('my_key')
+
+# Delete cache
+cache.delete('my_key')
+(d) Per-Object Cache
+product = cache.get(f'product_{product_id}')
+if not product:
+    product = Product.objects.get(id=product_id)
+    cache.set(f'product_{product_id}', product, 300)
+৫️⃣ Cache ব্যবহারে গুরুত্বপূর্ণ বিষয়সমূহ
+Timeout: কতক্ষণ cache থাকবে
+Invalidation: কখন cache clear হবে (যেমন ডাটাবেস update হলে)
+Distributed Cache: অনেক সার্ভারের জন্য Redis/Memcached ব্যবহার করা ভালো
+Memory vs Disk: RAM-based cache দ্রুত, Disk-based ধীর
+৬️⃣ Best Practices
+Frequently accessed data cache করুন
+ডেটার freshness গুরুত্ব দিয়ে timeout নির্ধারণ করুন
+Template fragment caching ব্যাবহার করুন যেখানে computation heavy
+
+💡 Tip: Production এ Redis/Memcached ব্যবহার করলে performance অনেক ভালো হয়।

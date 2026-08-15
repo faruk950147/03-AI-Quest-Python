@@ -1,0 +1,515 @@
+from rest_framework import serializers
+from .models import (
+    Category, Brand, Color, Size, Product, ProductVariant,
+    ImageGallery, Slider, Review, AcceptancePayment
+)
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+# =========================================================
+# 01. CATEGORY SERIALIZER
+# =========================================================
+class CategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Category
+        fields = ['id', 'title', 'slug', 'keyword', 'description', 'image', 'status', 'is_featured', 'created_at', 'updated_at', 'children']
+
+    def get_children(self, obj):
+        qs = obj.children.filter(status='active')
+        return CategorySerializer(qs, many=True).data
+
+# =========================================================
+# 02. BRAND SERIALIZER
+# =========================================================
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['id', 'title', 'slug', 'keyword', 'description', 'image', 'status', 'is_featured', 'created_at', 'updated_at']
+
+# =========================================================
+# 03. COLOR SERIALIZER
+# =========================================================
+class ColorSerializer(serializers.ModelSerializer):
+    color_tag = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Color
+        fields = ['id', 'title', 'code', 'status', 'created_at', 'updated_at', 'color_tag']
+
+# =========================================================
+# 04. SIZE SERIALIZER
+# =========================================================
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ['id', 'title', 'code', 'status', 'created_at', 'updated_at']
+
+# =========================================================
+# 07. IMAGE GALLERY SERIALIZER
+# =========================================================
+class ImageGallerySerializer(serializers.ModelSerializer):
+    image_tag = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = ImageGallery
+        fields = ['id', 'image', 'status', 'created_at', 'updated_at', 'image_tag']
+
+# =========================================================
+# 06. PRODUCT VARIANT SERIALIZER
+# =========================================================
+class ProductVariantSerializer(serializers.ModelSerializer):
+    color = ColorSerializer(read_only=True)
+    size = SizeSerializer(read_only=True)
+    image_url = serializers.ReadOnlyField()
+    image_tag = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = ProductVariant
+        fields = ['id', 'sku', 'variant_price', 'available_stock', 'status', 'created_at', 'updated_at', 'color', 'size', 'image_url', 'image_tag']
+
+# =========================================================
+# 09. REVIEW SERIALIZER
+# =========================================================
+class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = Review
+        fields = ['id', 'subject', 'comment', 'rating', 'status', 'created_at', 'updated_at', 'user']
+
+# =========================================================
+# 05. PRODUCT SERIALIZER (nested variants, images, reviews)
+# =========================================================
+class ProductSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    brand = BrandSerializer(read_only=True)
+    variants = ProductVariantSerializer(many=True, read_only=True)
+    images = ImageGallerySerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'title', 'slug', 'category', 'brand', 'variant',
+            'old_price', 'sale_price', 'discount_percent', 'available_stock', 'sold', 'visited',
+            'prev_des', 'add_des', 'short_des', 'long_des', 'keyword', 'description', 'tag',
+            'deadline', 'is_deadline', 'is_featured', 'status', 'created_at', 'updated_at',
+            'variants', 'images', 'reviews'
+        ]
+
+# =========================================================
+# 08. SLIDER SERIALIZER
+# =========================================================
+class SliderSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    
+    class Meta:
+        model = Slider
+        fields = ['id', 'title', 'sub_title', 'paragraph', 'slider_type', 'image', 'status', 'created_at', 'updated_at', 'product']
+
+# =========================================================
+# 10. ACCEPTANCE PAYMENT SERIALIZER
+# =========================================================
+class AcceptancePaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcceptancePayment
+        fields = ['id', 'title', 'image', 'help_time', 'status', 'is_featured', 'created_at', 'updated_at']
+
+from decimal import Decimal
+from django.utils import timezone
+from django.db.models import Q, Sum, Avg, F
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from store.models import (
+    Product, ProductVariant, ImageGallery, Slider, Review,
+    AcceptancePayment, Category, Brand
+)
+from .serializers import (
+    ProductSerializer, ProductVariantSerializer, ImageGallerySerializer, SliderSerializer,
+    ReviewSerializer, AcceptancePaymentSerializer, CategorySerializer, BrandSerializer
+)
+from django.shortcuts import get_object_or_404
+
+
+# =========================================================
+# PRODUCT LIST API
+# =========================================================
+class ProductListAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        products = Product.objects.filter(status='active').annotate(
+            total_variant_stock=Sum('variants__available_stock', filter=Q(variants__status='active')),
+            avg_rate=Avg('reviews__rating', filter=Q(reviews__status='active'))
+        ).filter(Q(available_stock__gt=0) | Q(total_variant_stock__gt=0)) \
+         .select_related('category', 'brand') \
+         .prefetch_related('variants', 'variants__color', 'variants__size', 'images', 'reviews')
+
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+
+# =========================================================
+# PRODUCT DETAIL API
+# =========================================================
+class ProductDetailAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        product = get_object_or_404(
+            Product.objects.select_related('category', 'brand').prefetch_related('variants','images','reviews').annotate(
+                avg_rate=Avg('reviews__rating', filter=Q(reviews__status='active'))
+            ),
+            id=pk, status='active'
+        )
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+
+
+# =========================================================
+# PRODUCT VARIANT API (by size)
+# =========================================================
+class GetVariantBySizeAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        product_id = request.data.get('product_id')
+        size_id = request.data.get('size_id')
+
+        variants_qs = ProductVariant.objects.filter(
+            product_id=product_id, size_id=size_id,
+            status='active', available_stock__gt=0
+        ).select_related('size','color').order_by('id')
+
+        variant = variants_qs.first()
+        if not variant:
+            return Response({'error':'Variant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductVariantSerializer(variant)
+        return Response(serializer.data)
+
+
+# =========================================================
+# PRODUCT VARIANT API (by color)
+# =========================================================
+class GetVariantByColorAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        variant_id = request.data.get('variant_id')
+        variant = ProductVariant.objects.select_related('size','color').filter(
+            id=variant_id, status='active', available_stock__gt=0
+        ).first()
+
+        if not variant:
+            return Response({'error':'Variant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductVariantSerializer(variant)
+        return Response(serializer.data)
+
+
+# =========================================================
+# PRODUCT FILTER API
+# =========================================================
+class ProductFilterAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        products_qs = Product.objects.filter(status='active').annotate(
+            total_variant_stock=Sum('variants__available_stock', filter=Q(variants__status='active')),
+            avg_rate=Avg('reviews__rating', filter=Q(reviews__status='active'))
+        ).filter(Q(available_stock__gt=0) | Q(total_variant_stock__gt=0)) \
+         .select_related('category','brand')
+
+        category_ids = request.data.getlist('category[]', [])
+        brand_ids = request.data.getlist('brand[]', [])
+
+        if category_ids:
+            products_qs = products_qs.filter(category_id__in=category_ids)
+        if brand_ids:
+            products_qs = products_qs.filter(brand_id__in=brand_ids)
+
+        max_price = request.data.get('maxPrice')
+        if max_price:
+            try:
+                max_price = Decimal(max_price)
+                products_qs = products_qs.filter(sale_price__lte=max_price)
+            except:
+                pass
+
+        serializer = ProductSerializer(products_qs, many=True)
+        return Response(serializer.data)
+
+
+# =========================================================
+# PRODUCT REVIEW API
+# =========================================================
+class ProductReviewAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        product_id = request.data.get('product_id')
+        rating = request.data.get('rating')
+        subject = request.data.get('subject')
+        comment = request.data.get('comment')
+
+        try:
+            rating = float(rating)
+        except:
+            return Response({'status':'error','message':'Rating must be a number'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not subject or not comment:
+            return Response({'status':'error','message':'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if rating < 1 or rating > 5:
+            return Response({'status':'error','message':'Rating must be between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
+
+        product = get_object_or_404(Product, id=product_id, status='active')
+
+        if Review.objects.filter(user=user, product=product, status='active').exists():
+            return Response({'status':'error','message':'You have already reviewed this product'}, status=status.HTTP_400_BAD_REQUEST)
+
+        review = Review.objects.create(user=user, product=product, rating=rating, subject=subject, comment=comment)
+        serializer = ReviewSerializer(review)
+        return Response({'status':'success','message':'Review submitted successfully','review': serializer.data})
+
+
+# =========================================================
+# CATEGORY LIST API
+# =========================================================
+class CategoryListAPIView(ListAPIView):
+    queryset = Category.objects.filter(status='active')
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# =========================================================
+# BRAND LIST API
+# =========================================================
+class BrandListAPIView(ListAPIView):
+    queryset = Brand.objects.filter(status='active')
+    serializer_class = BrandSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# =========================================================
+# SLIDER LIST API
+# =========================================================
+class SliderListAPIView(ListAPIView):
+    queryset = Slider.objects.filter(status='active')
+    serializer_class = SliderSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# =========================================================
+# ACCEPTANCE PAYMENT LIST API
+# =========================================================
+class AcceptancePaymentListAPIView(ListAPIView):
+    queryset = AcceptancePayment.objects.filter(status='active')
+    serializer_class = AcceptancePaymentSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# =========================================================
+# SEARCH API
+# =========================================================
+class ProductSearchAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        query = request.GET.get('q','').strip()
+        category_id = request.GET.get('category', None)
+
+        products = Product.objects.filter(status='active').annotate(
+            total_variant_stock=Sum('variants__available_stock', filter=Q(variants__status='active'))
+        ).filter(Q(available_stock__gt=0) | Q(total_variant_stock__gt=0)) \
+         .select_related('category','brand').prefetch_related('variants')
+
+        if query:
+            products = products.filter(Q(title__icontains=query) | Q(keyword__icontains=query))
+        if category_id:
+            products = products.filter(category_id=category_id)
+
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+
+# =========================================================
+# AUTOCOMPLETE SEARCH API
+# =========================================================
+class ProductAutoCompleteAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        term = request.GET.get('term','').strip()
+        results = []
+
+        if term:
+            products = Product.objects.filter(status='active', available_stock__gt=0, title__icontains=term)[:5]
+            product_ids = [p.id for p in products]
+            images_map = {img.product_id: img.image.url for img in ImageGallery.objects.filter(product_id__in=product_ids, status='active').order_by('id')}
+            for p in products:
+                results.append({
+                    'id': p.id,
+                    'title': p.title,
+                    'price': f"{p.sale_price:.2f}",
+                    'image': images_map.get(p.id,''),
+                    'url': f"/product/{p.slug}/{p.id}/"
+                })
+
+        return Response(results)
+
+
+
+class CartSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    variant = ProductVariantSerializer(read_only=True)
+    unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'product', 'variant', 'quantity', 'unit_price', 'subtotal']
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    variant = ProductVariantSerializer(read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'product', 'variant']
+
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+from django.db.models import F, Sum
+from decimal import Decimal
+
+from .models import Cart, Wishlist
+from store.models import Product, ProductVariant
+from .serializers import CartSerializer, WishlistSerializer
+
+SHIPPING_COST = Decimal('150.00')
+
+# =======================
+# Cart API
+# =======================
+class CartListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        cart_items = Cart.objects.filter(user=request.user, paid=False)\
+            .select_related('product', 'variant')
+        serializer = CartSerializer(cart_items, many=True)
+        summary = cart_items.aggregate(subtotal=Sum(F('quantity')*F('stored_unit_price')))
+        subtotal = Decimal(summary['subtotal'] or 0).quantize(Decimal('0.01'))
+        grand_total = (subtotal + SHIPPING_COST).quantize(Decimal('0.01'))
+
+        return Response({
+            "cart_items": serializer.data,
+            "subtotal": str(subtotal),
+            "grand_total": str(grand_total),
+            "cart_count": cart_items.count()
+        })
+
+
+class AddToCartAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        variant_id = request.data.get("variant_id")
+        quantity = int(request.data.get("quantity", 1))
+
+        if not product_id or quantity < 1:
+            return Response({"status":"error","message":"Invalid input"})
+
+        with transaction.atomic():
+            product = get_object_or_404(Product, id=product_id, status='active')
+            variant = None
+            if product.variant != 'none':
+                if not variant_id:
+                    return Response({"status":"error","message":"Select a variant"})
+                variant = get_object_or_404(ProductVariant, id=variant_id, product=product, status='active')
+
+            max_stock = variant.available_stock if variant else product.available_stock
+            if max_stock <= 0:
+                return Response({"status":"error","message":"Out of stock"})
+
+            temp_cart = Cart(user=request.user, product=product, variant=variant)
+            unit_price = temp_cart.unit_price
+
+            cart_item, created = Cart.objects.get_or_create(
+                user=request.user,
+                product=product,
+                variant=variant,
+                paid=False,
+                defaults={"quantity": quantity, "stored_unit_price": unit_price}
+            )
+
+            if not created:
+                new_quantity = cart_item.quantity + quantity
+                if new_quantity > max_stock:
+                    return Response({"status":"error","message":f"Cannot exceed stock ({max_stock})"})
+                cart_item.quantity = new_quantity
+                cart_item.save()
+                message = "Cart updated"
+            else:
+                message = "Product added to cart"
+
+            cart_items = Cart.objects.filter(user=request.user, paid=False)
+            serializer = CartSerializer(cart_items, many=True)
+            subtotal = cart_items.aggregate(subtotal=Sum(F('quantity')*F('stored_unit_price')))['subtotal'] or 0
+            subtotal = Decimal(subtotal).quantize(Decimal('0.01'))
+
+            return Response({
+                "status":"success",
+                "message": message,
+                "cart_items": serializer.data,
+                "subtotal": str(subtotal),
+                "grand_total": str((subtotal+SHIPPING_COST).quantize(Decimal('0.01'))),
+                "cart_count": cart_items.count()
+            })
+
+
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        variant_id = request.data.get("variant_id")
+
+        if not product_id:
+            return Response({"status":"error","message":"Invalid product"})
+
+        product = get_object_or_404(Product, id=product_id)
+        variant = None
+        if variant_id:
+            variant = get_object_or_404(ProductVariant, id=variant_id, product=product)
+
+        wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product, variant=variant)
+
+        if not created:
+            wishlist_item.delete()
+            status = 'removed'
+            message = 'Removed from wishlist'
+        else:
+            status = 'added'
+            message = 'Added to wishlist'
+
+        wish_count = Wishlist.objects.filter(user=request.user).count()
+
+        return Response({
+            "status": status,
+            "message": message,
+            "wish_count": wish_count
+        })

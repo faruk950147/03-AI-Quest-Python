@@ -1,0 +1,121 @@
+================================ 1. views.py ====================================
+from django.views import View
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from .models import Product
+
+class FilterDataView(View):
+    def get(self, request):
+        categories = request.GET.getlist('category[]')
+        brands = request.GET.getlist('brand[]')
+        minPrice = request.GET.get('minPrice')
+        maxPrice = request.GET.get('maxPrice')
+
+        products = Product.objects.all().order_by('-id').distinct()
+
+        # Category filter
+        if len(categories) > 0:
+            products = products.filter(Categories__id__in=categories).distinct()
+
+        # Brand filter
+        if len(brands) > 0:
+            products = products.filter(Brand__id__in=brands).distinct()
+
+        # Price Filter
+        if minPrice:
+            products = products.filter(price__gte=minPrice)
+
+        if maxPrice:
+            products = products.filter(price__lte=maxPrice)
+
+        html = render_to_string('ajax/product-list.html', {'product': products})
+
+        return JsonResponse({'data': html})
+
+===================================== 2. urls.py =====================================
+from .views import FilterDataView
+
+urlpatterns = [
+    path('product/filter-data', FilterDataView.as_view(), name="filter-data"),
+]
+
+=============================== 3. jquery js =================================
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+$(document).ready(function(){
+
+    $(".filter-checkbox, #minPrice, #maxPrice").on('click keyup change', function(){
+
+        let filter_object = {};
+
+        // Category filters
+        filter_object['category[]'] = Array.from(
+            document.querySelectorAll('input[data-filter="category"]:checked')
+        ).map(el => el.value);
+
+        // Brand filters
+        filter_object['brand[]'] = Array.from(
+            document.querySelectorAll('input[data-filter="brand"]:checked')
+        ).map(el => el.value);
+
+        // Price Filters
+        filter_object['minPrice'] = $("#minPrice").val();
+        filter_object['maxPrice'] = $("#maxPrice").val();
+
+        $.ajax({
+            url: "{% url 'filter-data' %}",
+            data: filter_object,
+            dataType: 'json',
+            success: function(res){
+                $("#filteredProducts").html(res.data);
+            }
+        });
+
+    });
+
+});
+</script>
+
+================================== 4. HTML — Category Filter ============================
+{% for c in category %}
+<div class="single-widget-category">
+    <input type="checkbox" data-filter="category" value="{{ c.id }}" class="filter-checkbox">
+    <label>{{ c.name }}</label>
+</div>
+{% endfor %}
+
+=========================== 5. HTML — Brand Filter ============================
+{% for b in brand %}
+<div class="single-widget-category">
+    <input type="checkbox" data-filter="brand" value="{{ b.id }}" class="filter-checkbox">
+    <label>{{ b.name }}</label>
+</div>
+{% endfor %}
+
+============================ 6. HTML — Price Filter =============================
+<input type="number" id="minPrice" placeholder="Min Price" class="form-control mb-2">
+
+<input type="number" id="maxPrice" placeholder="Max Price" class="form-control mb-2">
+
+========================== 7. ajax/product-list.html (FULL)======================
+{% for p in product %}
+<div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+   <div class="product__item product__item-d">
+
+      <div class="product__thumb fix">
+         <a href="#">
+            <img src="{{p.featured_image}}" alt="" height="200">
+         </a>
+      </div>
+
+      <div class="product__content-3">
+         <h6>{{ p.product_name }}</h6>
+         <div class="price mb-10">
+            <span>${{ p.price }}</span>
+         </div>
+      </div>
+
+   </div>
+</div>
+{% endfor %}

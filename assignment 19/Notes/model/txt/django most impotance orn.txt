@@ -1,0 +1,466 @@
+Django Query Optimization (Database Query Optimization) খুবই গুরুত্বপূর্ণ—কারণ Django project slow হওয়ার প্রধান কারণ হলো inefficient query।
+
+আমি সহজভাবে Bangla + practical example দিয়ে বুঝাচ্ছি 👇
+
+Django Query Optimization কী?
+
+Database query কমানো + efficient করা = Query Optimization
+
+Goal:
+
+কম query execute করা
+fast response পাওয়া
+server load কমানো
+Common Problem (N+1 Query Problem)
+products = Product.objects.all()
+
+for product in products:
+    print(product.category.name)
+
+Problem:
+
+1 query → products
+N query → category
+
+Total = N+1 queries 
+
+Solution 1: select_related() (ForeignKey)
+products = Product.objects.select_related('category')
+
+for product in products:
+    print(product.category.name)
+
+✔️ 1 query তেই সব data
+
+Use when:
+
+ForeignKey
+OneToOneField
+Solution 2: prefetch_related() (Many-to-Many / Reverse)
+products = Product.objects.prefetch_related('tags')
+
+✔️ separate query but optimized
+Use when:
+
+ManyToMany
+reverse FK
+Difference
+Method	Use case	Query
+select_related	FK, OneToOne	JOIN
+prefetch_related	M2M, reverse	separate query
+Only প্রয়োজনীয় data আনো (only, values)
+products = Product.objects.only('id', 'name')
+
+or
+
+products = Product.objects.values('id', 'name')
+
+✔️ unnecessary field load হয় না
+
+.exists() ব্যবহার করো (faster than count)
+if Product.objects.filter(price=100).exists():
+    print("Found")
+
+avoid:
+
+Product.objects.filter(price=100).count()
+.iterator() (Large Data)
+for product in Product.objects.all().iterator():
+    print(product.name)
+
+✔️ memory save করে
+
+Aggregation ব্যবহার করো
+from django.db.models import Sum
+
+total = Product.objects.aggregate(Sum('price'))
+
+✔️ Python loop avoid
+
+Index ব্যবহার করো
+class Product(models.Model):
+    name = models.CharField(max_length=100, db_index=True)
+
+✔️ search fast হয়
+
+Query count check (Debug)
+
+Install:
+
+pip install django-debug-toolbar
+
+use:
+
+query count দেখার জন্য
+performance debug করার জন্য
+Avoid this (bad practice)
+for product in products:
+    Variant.objects.filter(product=product)
+
+✔️ fix:
+
+products = Product.objects.prefetch_related('variant_set')
+
+
+Real Example (E-commerce)
+products = Product.objects.select_related('category').prefetch_related('variants')
+
+✔️ Best optimized query
+
+Pro Tips
+Loop এর ভিতরে query লিখবে না 
+Always related data prefetch/select করো
+Debug toolbar use করো
+indexing use করো
+Summary
+
+Django optimization =
+
+select_related
+prefetch_related
+values / only
+exists
+aggregation
+indexing
+
+
+1. select_related() (JOIN optimization)
+
+ForeignKey / OneToOne এর জন্য
+
+products = Product.objects.select_related('category')
+
+✔️ SQL JOIN করে
+✔️ 1 query তে data
+
+2. prefetch_related() (Reverse / M2M)
+products = Product.objects.prefetch_related('variants')
+
+✔️ separate query but efficient
+✔️ Python এ join হয়
+
+3. only() (Specific field load)
+products = Product.objects.only('id', 'name')
+
+✔️ unnecessary field load হয় না
+
+4. defer() (Field skip করা)
+products = Product.objects.defer('description')
+
+✔️ heavy field avoid
+
+5. values() (Dictionary output)
+products = Product.objects.values('id', 'name')
+
+✔️ fast
+✔️ template/API এর জন্য ভালো
+
+6. values_list()
+names = Product.objects.values_list('name', flat=True)
+
+✔️ শুধু list return করে
+
+7. exists() (Fast check)
+Product.objects.filter(price=100).exists()
+
+✔️ fastest way to check
+
+8. count() (Row count)
+Product.objects.count()
+
+✔️ optimized SQL COUNT
+
+9. iterator() (Large data)
+for p in Product.objects.all().iterator():
+    print(p.name)
+
+✔️ memory efficient
+
+10. bulk_create()
+Product.objects.bulk_create([
+    Product(name='A'),
+    Product(name='B')
+])
+
+✔️ multiple insert → 1 query
+
+11. bulk_update()
+Product.objects.bulk_update(products, ['price'])
+
+✔️ multiple update → fast
+
+12. update() (Direct SQL update)
+Product.objects.filter(id=1).update(price=200)
+
+✔️ save() call হয় না → faster
+
+13. F() Expression (DB calculation)
+from django.db.models import F
+
+Product.objects.update(price=F('price') + 10)
+
+✔️ Python loop লাগে না
+
+14. Q() (Complex query)
+from django.db.models import Q
+
+Product.objects.filter(Q(price__lt=100) | Q(stock__gt=10))
+
+✔️ OR, AND control
+
+15. annotate() (Extra field add)
+from django.db.models import Count
+
+products = Product.objects.annotate(total_variants=Count('variants'))
+
+✔️ extra calculated field
+
+16. aggregate() (Summary)
+from django.db.models import Sum
+
+Product.objects.aggregate(total=Sum('price'))
+
+✔️ total, avg, max etc
+
+17. order_by() optimization
+Product.objects.order_by('name')
+
+indexing না থাকলে slow
+
+18. Indexing (VERY IMPORTANT)
+class Product(models.Model):
+    name = models.CharField(max_length=100, db_index=True)
+
+✔️ search fast
+
+19. select_for_update() (Lock row)
+Product.objects.select_for_update().get(id=1)
+
+✔️ concurrency control
+
+0. Raw SQL (Advanced)
+Product.objects.raw('SELECT * FROM app_product')
+
+✔️ full control
+
+21. in_bulk()
+Product.objects.in_bulk([1, 2, 3])
+
+✔️ dict return
+
+22. distinct()
+Product.objects.distinct()
+
+✔️ duplicate remove
+
+23. prefetch_related_objects() (Manual prefetch)
+from django.db.models import prefetch_related_objects
+
+prefetch_related_objects(products, 'variants')
+🚀 24. explain() (Query analyze)
+Product.objects.all().explain()
+
+✔️ SQL execution plan
+
+25. Caching (Huge performance boost)
+from django.core.cache import cache
+
+data = cache.get('products')
+
+if not data:
+    data = Product.objects.all()
+    cache.set('products', data, 60)
+
+✔️ DB hit কমায়
+
+26. Pagination (Large dataset)
+from django.core.paginator import Paginator
+
+paginator = Paginator(Product.objects.all(), 10)
+
+✔️ load কম হয়
+
+27. Avoid N+1 Query (IMPORTANT)
+
+Wrong:
+
+for p in products:
+    print(p.category.name)
+
+✔️ Fix:
+
+products = Product.objects.select_related('category')
+28. Subquery (Advanced)
+from django.db.models import Subquery
+
+latest = Product.objects.filter(category=OuterRef('pk')).values('price')[:1]
+29. union(), intersection()
+qs1.union(qs2)
+
+✔️ multiple queryset combine
+
+30. chunked queries (Manual batching)
+for p in Product.objects.all()[:1000]:
+    pass
+
+
+Real E-commerce Best Practice
+products = Product.objects.select_related('category') \
+    .prefetch_related('variants') \
+    .only('id', 'name', 'price')
+
+Super optimized query
+
+Final Tips
+
+✔️ Loop এর ভিতরে query লিখো না
+✔️ Related data always prefetch করো
+✔️ Index use করো
+✔️ Debug toolbar use করো
+✔️ Cache use করো
+
+
+1. Model Optimization (Best Structure)
+class Category(models.Model):
+    name = models.CharField(max_length=100, db_index=True)
+
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, db_index=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Variant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    size = models.CharField(max_length=50)
+    color = models.CharField(max_length=50)
+    stock = models.IntegerField(default=0)
+
+✔️ db_index=True → search fast
+✔️ related_name='variants' → clean query
+
+2. BAD View (Slow)
+def product_list(request):
+    products = Product.objects.all()
+
+    data = []
+    for p in products:
+        variants = Variant.objects.filter(product=p)
+        data.append({
+            'name': p.name,
+            'category': p.category.name,
+            'variants': variants
+        })
+
+    return render(request, 'shop.html', {'data': data})
+
+Problem:
+
+N+1 query
+loop এর ভিতরে query
+3. Optimized View (FAST ⚡)
+def product_list(request):
+    products = Product.objects.select_related('category') \
+        .prefetch_related('variants') \
+        .only('id', 'name', 'price', 'category__name')
+
+    return render(request, 'shop.html', {'products': products})
+
+✔️ 1–2 query only
+✔️ super fast
+
+4. Template (Clean & Efficient)
+{% for product in products %}
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.category.name }}</p>
+
+    {% for v in product.variants.all %}
+        <span>{{ v.size }} - {{ v.color }}</span>
+    {% endfor %}
+{% endfor %}
+What is this?
+
+✔️ no extra query
+
+5. Filter Optimization
+products = Product.objects.filter(price__lt=1000)
+
+✔️ indexed field → fast
+
+6. Exists Check (Important)
+if Product.objects.filter(name='Phone').exists():
+    print("Found")
+7. Update Optimization
+
+Slow:
+
+p = Product.objects.get(id=1)
+p.price = 500
+p.save()
+
+✔️ Fast:
+
+Product.objects.filter(id=1).update(price=500)
+8. Bulk Insert
+Product.objects.bulk_create([
+    Product(name='A', price=100),
+    Product(name='B', price=200)
+])
+9. Aggregation (No loop)
+from django.db.models import Sum
+
+total = Product.objects.aggregate(total_price=Sum('price'))
+10. Caching (Huge boost)
+from django.core.cache import cache
+
+def product_list(request):
+    products = cache.get('product_list')
+
+    if not products:
+        products = Product.objects.select_related('category') \
+            .prefetch_related('variants')
+        cache.set('product_list', products, 60)
+
+    return render(request, 'shop.html', {'products': products})
+🚀 11. Pagination (Must for large data)
+from django.core.paginator import Paginator
+
+def product_list(request):
+    products = Product.objects.all()
+    paginator = Paginator(products, 10)
+
+    page = request.GET.get('page')
+    products = paginator.get_page(page)
+
+    return render(request, 'shop.html', {'products': products})
+12. Debug Query Count
+pip install django-debug-toolbar
+
+✔️ কত query হচ্ছে দেখো
+
+13. Advanced Optimization (F Expression)
+from django.db.models import F
+
+Product.objects.update(stock=F('stock') - 1)
+🚀 14. Best Final Query (Production Ready)
+products = Product.objects.select_related('category') \
+    .prefetch_related('variants') \
+    .only('id', 'name', 'price', 'category__name')
+
+This is PRO level optimization
+
+Golden Rules
+
+✔️ Loop এর ভিতরে query না 
+✔️ Always select_related / prefetch_related
+✔️ Index ব্যবহার করো
+✔️ Cache ব্যবহার করো
+✔️ Bulk operation ব্যবহার করো
+
+Result
+Before	After
+100+ queries	2-3 queries
+slow	fast ⚡
+server load বেশি	কম

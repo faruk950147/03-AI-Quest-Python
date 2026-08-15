@@ -1,0 +1,45 @@
+<div class="shop-sidebar">
+
+    <!-- All Filter -->
+    <div class="product-widget mb-30">
+        <h5 class="pt-title">All Filter</h5>
+        <div class="product__all-filter mt-20">
+            <input type="checkbox" id="all-filters" class="filter-checkbox me-2" data-filter="all">
+            <label for="all-filters">All Filters</label>
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="product-widget mb-30">
+        <h5 class="pt-title">Category</h5>
+        <div class="product__category mt-20">
+            {% for cat in cats %}
+            <div class="product__category-item">
+                <input type="checkbox" class="filter-checkbox filter-category" data-filter="category" value="{{ cat.id }}">
+                <label>{{ cat.title }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Brand Filter -->
+    <div class="product-widget mb-30">
+        <h5 class="pt-title">Brand</h5>
+        <div class="product__brand mt-20">
+            {% for brand in brands %}
+            <div class="product__brand-item">
+                <input type="checkbox" class="filter-checkbox filter-brand" data-filter="brand" value="{{ brand.id }}">
+                <label>{{ brand.title }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Price Range -->
+    <div class="product-widget mb-30">
+        <h5 class="pt-title">Price Range</h5>
+        <input type="range" id="maxPrice" min="{{ min_price }}" max="{{ max_price }}" value="{{ max_price }}" step="5">
+        <span id="priceValue">Max: {{ max_price }}</span>
+    </div>
+
+</div>

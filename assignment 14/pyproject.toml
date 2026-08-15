@@ -1,0 +1,10 @@
+[project]
+name = "assignment-14"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django==4.2.16",
+    "pillow>=12.1.1",
+]

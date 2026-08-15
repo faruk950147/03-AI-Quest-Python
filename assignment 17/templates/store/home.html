@@ -1,0 +1,762 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Home{% endblock title %} 
+
+{% block slider %}
+    {% include 'store/components/slider.html' %}
+{% endblock slider %}
+
+{% block off_canvas %}
+    {% include 'store/components/off-canvas.html' %}
+{% endblock off_canvas %}
+
+{% block main_content %}
+
+<!-- features__area-start -->
+<section class="features__area pt-20">
+    <div class="container">
+        <div class="row row-cols-xxl-4 row-cols-xl-4 row-cols-lg-4 row-cols-md-2 row-cols-sm-2 row-cols-1 gx-0">
+            {% if acceptance_payments %}
+            {% for acceptance_payment in acceptance_payments %}
+            <div class="col">
+                <div class="features__item d-flex white-bg">
+                    <div class="features__icon mr-20">
+                        <img src="{{ acceptance_payment.image.url }}" alt="{{ acceptance_payment.title|title }}" style="width: 50px; height: 40px; object-fit: cover;">
+                    </div>
+                    <div class="features__content">
+                        <h6>{{ acceptance_payment.title|title|truncatewords:5 }}</h6>
+                        <p>{{acceptance_payment.help_time|title}}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No Payments Found </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<!-- features__area-end -->
+
+
+
+<!-- topsell__area-start -->
+<section class="topsell__area-1 pt-15">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section__head d-flex justify-content-between mb-10">
+                    <div class="section__title">
+                        <h5 class="st-titile-d">Top Deals Of The Day</h5>
+                    </div>
+                    <div class="offer-time">
+                        <span class="offer-title d-none d-sm-block">Hurry Up! Offer ends in:</span>
+                        {% if first_top_deal and first_top_deal.deadline %}
+                            <div class="countdown">
+                                <div class="countdown-inner b-radius"
+                                    data-countdown=""
+                                    data-date="{{ first_top_deal.deadline|date:'c' }}">
+                                    <ul class="text-center">
+                                        <li><span data-days="">0</span> Days</li>
+                                        <li><span data-hours="">0</span> Hours</li>
+                                        <li><span data-minutes="">0</span> Mins</li>
+                                        <li><span data-seconds="">0</span> Secs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATIC PRODUCTS (same as your original code) -->
+        <div class="row">
+            <div class="product-bs-slider">
+                <div class="product-slider swiper-container">
+                    <div class="swiper-wrapper">
+                        {% if top_deals %}
+                        {% for product in top_deals %}
+                        <!-- product-1 -->
+                        <div class="product__item swiper-slide">
+                            <div class="product__thumb fix">
+                                <div class="product-image w-img">
+                                    <a href="{% url 'product-detail' product.slug product.id %}">
+                                        <img src="{{product.images.first.image.url}}" alt="{{product.title|title}}" style="width: 260px; height: 300px; object-fit: cover">
+                                    </a>
+                                </div>
+                                {% if product.deadline %}
+                                <div class="countdown countdown-small mt-5">
+                                    <div class="countdown-inner b-radius"
+                                        data-countdown=""
+                                        data-date="{{ product.deadline|date:'c' }}">
+                                        <ul class="text-center" style="padding:0; list-style:none; display:flex; justify-content:center; gap:10px;">
+                                            <li><span data-days="">0</span>d</li>
+                                            <li><span data-hours="">0</span>h</li>
+                                            <li><span data-minutes="">0</span>m</li>
+                                            <li><span data-seconds="">0</span>s</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="product__offer">
+                                    <span class="discount">-{{product.discount_percent}}%</span>
+                                </div>
+                                <div class="product-action">
+                                    <a href="#"
+                                        class="icon-box icon-box-1 quick-view-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#productModalId"
+
+                                        data-title="{{ product.title }}"
+                                        data-price="{{ product.sale_price }}"
+                                        data-image="{{ product.images.first.image.url }}"
+                                        data-desc="{{ product.description|truncatechars:120 }}"
+                                        data-stock="{{ product.available_stock }}">
+                                            <i class="fal fa-eye"></i>
+                                            <i class="fal fa-eye"></i>
+                                    </a>
+
+                                    <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                        <i class="fal fa-heart"></i>
+                                        <i class="fal fa-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="product__content">
+                                <h6><a href="{% url 'product-detail' product.slug product.id %}">{{product.title|title|truncatewords:5}}</a></h6>
+                                <div class="rating mb-5">
+                                    <ul>
+                                        <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                    </ul>
+                                    <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                </div>
+
+
+                                <div class="price mb-10"><span>
+                                   {{product.sale_price}} TK 
+                                    <del class="text-danger">
+                                    {% if product.old_price %}
+                                       {{product.old_price}} TK
+                                    {% endif %}
+                                    </del>
+                                </span></div>
+                                <div class="progress mb-5">
+                                    <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                </div>
+                                <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                            </div>
+                        </div>
+                        <!-- product-1 end -->
+                         {% endfor %}
+                         {% else %}
+                         <p> No products found </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bs-button bs-button-prev"><i class="fal fa-chevron-left"></i></div>
+                <div class="bs-button bs-button-next"><i class="fal fa-chevron-right"></i></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!-- topsell__area-end -->
+
+
+<!-- banner__area-start -->
+<section class="banner__area banner__area-d pb-10">
+    <div class="container">
+        <div class="row">
+            {% if add_sliders %}
+            {% for add_slider in add_sliders %}
+                <div class="col-xl-6 col-lg-6 col-md-12">
+                <div class="banner__item p-relative w-img mb-30">
+                    <div class="banner__img">
+                        <a href="{% url 'product-detail' add_slider.product.slug add_slider.product.id %}">
+                            <img src="{{add_slider.image.url}}" alt="{{add_slider.product.title|title}}" style="width: 700px; height: 250px; object-fit: cover">
+                        </a>
+                    </div>
+                    <div class="banner__content">
+                        <span>{{add_slider.title|title}}</span>
+                        <h6><a href="{% url 'product-detail' add_slider.product.slug add_slider.product.id %}">{{add_slider.product.title|title|truncatewords:5}}</a></h6>
+                         <P> {{add_slider.product.discount_percent}}% {{add_slider.sub_title|title|truncatewords:5}}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p> No Add Found </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<!-- banner__area-end -->
+
+
+<!-- topsell__area-start -->
+<section class="topsell__area-2 pt-15">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section__head d-flex justify-content-between mb-10">
+                    <div class="section__title">
+                        <h5 class="st-titile">Top Selling Products</h5>
+                    </div>
+
+                    <!-- Dynamic Tabs -->
+                    <div class="product__nav-tab">
+                        <ul class="nav nav-tabs" id="flast-sell-tab" role="tablist">
+                            {% for cat in cats %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {% if forloop.first %}active{% endif %}"
+                                        id="tab-{{ cat.id }}"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-pane-{{ cat.id }}"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="tab-pane-{{ cat.id }}"
+                                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                    {{ cat.title|title }}
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="tab-content" id="flast-sell-tabContent">
+
+                    {% for cat in cats %}
+                    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                        id="tab-pane-{{ cat.id }}" 
+                        role="tabpanel" 
+                        aria-labelledby="tab-{{ cat.id }}">
+
+                        <div class="product-bs-slider-2">
+                            <div class="product-slider-2 swiper-container">
+                                <div class="swiper-wrapper">
+
+                                    {% for product in top_sales_products %}
+                                        {% if product.category.id == cat.id %}
+                                            <div class="product__item swiper-slide">
+                                                <div class="product__thumb fix">
+                                                    <div class="product-image w-img">
+                                                        <a href="{% url 'product-detail' product.slug product.id %}">
+                                                            <img src="{{product.images.first.image.url}}" alt="{{product.title|title}}" style="width: 260px; height: 300px; object-fit: cover">
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="product__offer">
+                                                        <span class="discount">-{{product.discount_percent}}%</span>
+                                                    </div>
+                                                    <div class="product-action">
+                                                    <a href="#"
+                                                        class="icon-box icon-box-1 quick-view-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#productModalId"
+
+                                                        data-title="{{ product.title }}"
+                                                        data-price="{{ product.sale_price }}"
+                                                        data-image="{{ product.images.first.image.url }}"
+                                                        data-desc="{{ product.description|truncatechars:120 }}"
+                                                        data-stock="{{ product.available_stock }}">
+                                                            <i class="fal fa-eye"></i>
+                                                            <i class="fal fa-eye"></i>
+                                                    </a>
+                                                        <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                                            <i class="fal fa-heart"></i>
+                                                            <i class="fal fa-heart"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="product__content">
+                                                    <h6><a href="{% url 'product-detail' product.slug product.id %}">{{product.title|title|truncatewords:5}}</a></h6>
+                                                    <div class="rating mb-5">
+                                                        <ul>
+                                                            <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                            <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                            <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                            <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                            <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                        </ul>
+                                                        <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                                    </div>
+
+
+                                                    <div class="price mb-10"><span>
+                                                    {{product.sale_price}} TK 
+                                                        <del class="text-danger">
+                                                        {% if product.old_price %}
+                                                        {{product.old_price}} TK
+                                                        {% endif %}
+                                                        </del>
+                                                    </span></div>
+                                                    <div class="progress mb-5">
+                                                        <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                                    </div>
+                                                    <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+
+                            <!-- Navigation Buttons -->
+                            <div class="bs-button bs2-button-prev">
+                                <i class="fal fa-chevron-left"></i>
+                            </div>
+                            <div class="bs-button bs2-button-next">
+                                <i class="fal fa-chevron-right"></i>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- topsell__area-end -->
+
+<!-- featured-start -->
+<section class="featured light-bg pt-55 pb-40">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section__head d-flex justify-content-between mb-30">
+                    <div class="section__title">
+                        <h5 class="st-titile">Top Featured Products</h5>
+                    </div>
+                    <div class="button-wrap">
+                        <a href="shop.html">See All Product <i class="fal fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if featured_products %}
+        <div class="row">
+            <div class="col-xl-6 col-lg-12">
+                {% with featured_products.0 as product %}
+                <div class="single-features-item single-features-item-d b-radius mb-20">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-6">
+                            <div class="features-thum">
+                                <div class="features-product-image w-img">
+                                    <a href="{% url 'product-detail' product.slug product.id %}">
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.title|title }}"
+                                        style="width:300px; height:350px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <!-- Discount Badge -->
+                                {% if product.discount_percent > 0 %}
+                                <div class="product__offer">
+                                    <span class="discount">-{{ product.discount_percent }}%</span>
+                                </div>
+                                {% endif %}
+                                <div class="product-action">
+                                    <a href="#"
+                                        class="icon-box icon-box-1 quick-view-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#productModalId"
+
+                                        data-title="{{ product.title }}"
+                                        data-price="{{ product.sale_price }}"
+                                        data-image="{{ product.images.first.image.url }}"
+                                        data-desc="{{ product.description|truncatechars:120 }}"
+                                        data-stock="{{ product.available_stock }}">
+                                            <i class="fal fa-eye"></i>
+                                            <i class="fal fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                        <i class="fal fa-heart"></i>
+                                        <i class="fal fa-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="product__content product__content-d">
+                                <h6>
+                                    <a href="{% url 'product-detail' product.slug product.id %}">{{product.title|title|truncatewords:5}}</a>
+                                </h6>
+                                <!-- Star Rating -->
+                                <div class="rating mb-5">
+                                    <ul>
+                                        <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                    </ul>
+                                    <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                </div>
+
+                                <div class="price mb-10"><span>
+                                    {{product.sale_price}} TK
+                                    <del class="text-danger">
+                                    {% if product.old_price %}
+                                        {{product.old_price}} TK
+                                    {% endif %}
+                                    </del>
+                                </span></div>
+                                <div class="features-des mb-25">
+                                    <ul>
+                                        <li><a href="{% url 'product-detail' product.slug product.id %}"><i class="fas fa-circle"></i> Prev desc: {{product.prev_des|title}}.</a></li>
+                                        <li><a href="{% url 'product-detail' product.slug product.id %}"><i class="fas fa-circle"></i> Add desc: {{product.add_des}} </a></li>
+                                        <li><a href="{% url 'product-detail' product.slug product.id %}"><i class="fas fa-circle"></i> Tag: {{product.tag}}</a></li>
+                                    </ul>
+                                </div>
+                                <div class="progress mb-5">
+                                    <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                </div>
+                                <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            </div>
+            <!-- Right side smaller featured products -->
+            <div class="col-xl-6 col-lg-12">
+                <div class="row">
+                    {% for product in featured_products|slice:"1:" %}
+                    <div class="col-md-6">
+                        <div class="single-features-item b-radius mb-20">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-6">
+                                    <div class="features-thum">
+                                        <div class="features-product-image w-img">
+                                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                                <img src="{{ product.images.first.image.url }}" alt="{{ product.title|title }}" style="width:130px; height: 200px; object-fit: cover;">
+                                            </a>
+                                        </div>
+                                        {% if product.discount_percent > 0 %}
+                                        <div class="product__offer">
+                                            <span class="discount">-{{ product.discount_percent }}%</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="product__content product__content-d">
+                                        <h6><a href="{% url 'product-detail' product.slug product.id %}">{{ product.title|title|truncatewords:5 }}</a></h6>
+                                        <div class="rating mb-5">
+                                            <ul>
+                                                <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                                <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                            </ul>
+                                        </div>
+                                        <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                        <div class="price d-price">
+                                            <span> 
+                                                {{ product.sale_price }} TK
+                                                {% if product.old_price %}
+                                            </br>
+                                                <del class="danger">
+                                                    {{ product.old_price }} TK
+                                                </del>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="progress mb-5">
+                                            <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                        </div>
+                                        <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p> No Products Found </p>
+        {% endif %}
+    </div>
+</section>
+<!-- featured-end -->
+
+<!-- moveing-text-area-start -->
+<section class="moveing-text-area">
+    <div class="container">
+        <div class="ovic-running">
+            <div class="wrap">
+                <div class="inner">
+                    <p class="item">Free UK Delivery - Return Over 100.00 TK ( Excluding Homeware )   |   Free UK Collect From Store</p>
+                    <p class="item">Design Week / 15% Off the website / Code: AYOSALE-2020</p>
+                    <p class="item">Always iconic. Now organic. Introducing the 20 TK Organic Tee.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- moveing-text-area-end -->
+
+<!-- banner__area-start -->
+<section class="banner__area pt-60 pb-25">
+    <div class="container">
+        <div class="row">
+            {% if promo_sliders %}
+            {% for promo_slider in promo_sliders %}
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="banner__item p-relative w-img mb-30">
+                    <div class="banner__img">
+                        <a href="{% url 'product-detail' promo_slider.product.slug promo_slider.product.id %}">
+                            <img src="{{promo_slider.image.url}}" alt="{{promo_slider.product.title|title}}" style="width: 500px; height: 300px; object-fit: cover">
+                        </a>
+                    </div>
+                    <div class="banner__content banner__content-sd text-center">
+                        <div class="banner-button mb-20">
+                            <a href="{% url 'product-detail' promo_slider.product.slug promo_slider.product.id %}" class="st-btn">{{promo_slider.title|title|truncatewords:5}}</a>
+                        </div>
+                        <p>
+                            <a href="{% url 'product-detail' promo_slider.product.slug promo_slider.product.id %}">{{promo_slider.product.discount_percent}} % {{promo_slider.title|title}}</a>
+                        </p>
+                        <p>
+                            <a href="{% url 'product-detail' promo_slider.product.slug promo_slider.product.id %}">{{promo_slider.product.title|title|truncatewords:5}}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No promo slider found </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<!-- banner__area-end -->
+
+<!-- recombed-product-area-start -->
+<section class="recomand-product-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section__head d-flex justify-content-between mb-10">
+                    <div class="section__title">
+                        <h5 class="st-titile">Recommended For You</h5>
+                    </div>
+                    <div class="button-wrap">
+                        <a href="shop.html">See All Product <i class="fal fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-0">
+            <div class="product-bs-slider-2">
+                <div class="product-slider-3 swiper-container">
+                    <div class="swiper-wrapper">
+                        {% if recommendation_products %}
+                        {% for product in recommendation_products %}
+                        <!-- product-1 -->
+                        <div class="product__item swiper-slide">
+                            <div class="product__thumb fix">
+                                <div class="product-image w-img">
+                                    <a href="{% url 'product-detail' product.slug product.id %}">
+                                        <img src="{{product.images.first.image.url}}" alt="{{product.title|title}}" style="width: 260px; height: 300px; object-fit: cover">
+                                    </a>
+                                </div>
+                                <div class="product__offer">
+                                    <span class="discount">-{{product.discount_percent}}%</span>
+                                </div>
+                                <div class="product-action">
+                                    <a href="#"
+                                        class="icon-box icon-box-1 quick-view-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#productModalId"
+
+                                        data-title="{{ product.title }}"
+                                        data-price="{{ product.sale_price }}"
+                                        data-image="{{ product.images.first.image.url }}"
+                                        data-desc="{{ product.description|truncatechars:120 }}"
+                                        data-stock="{{ product.available_stock }}">
+                                            <i class="fal fa-eye"></i>
+                                            <i class="fal fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                        <i class="fal fa-heart"></i>
+                                        <i class="fal fa-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="product__content">
+                                <h6><a href="{% url 'product-detail' product.slug product.id %}">{{product.title|title|truncatewords:5}}</a></h6>
+                                <div class="rating mb-5">
+                                    <ul>
+                                        <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                    </ul>
+                                    <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                </div>
+
+
+                                <div class="price mb-10">
+                                    <span>
+                                    {{product.sale_price}} TK 
+                                        <del class="text-danger">
+                                        {% if product.old_price %}
+                                        {{product.old_price}} TK
+                                        {% endif %}
+                                        </del>
+                                    </span>
+                                </div>
+                                <div class="progress mb-5">
+                                    <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                </div>
+                                <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                            </div>
+                        </div>
+                        <!-- product-1 end -->
+                         {% endfor %}
+                         {% else %}
+                         <p> No products found </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- recombed-product-area-end -->
+
+
+<!-- recombed-product-area-start -->
+<section class="trending-product-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section__head d-flex justify-content-between mb-10">
+                    <div class="section__title">
+                        <h5 class="st-titile">Trending Products</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-0">
+            <div class="product-bs-slider-2">
+                <div class="product-slider-3 swiper-container">
+                    <div class="swiper-wrapper">
+                        {% if trending_products %}
+                        {% for product in trending_products %}
+                        <!-- product-1 -->
+                        <div class="product__item swiper-slide">
+                            <div class="product__thumb fix">
+                                <div class="product-image w-img">
+                                    <a href="{% url 'product-detail' product.slug product.id %}">
+                                        <img src="{{product.images.first.image.url}}" alt="{{product.title|title}}" style="width: 260px; height: 300px; object-fit: cover">
+                                    </a>
+                                </div>
+                                <div class="product__offer">
+                                    <span class="discount">-{{product.discount_percent}}%</span>
+                                </div>
+                                <div class="product-action">
+                                    <a href="#"
+                                        class="icon-box icon-box-1 quick-view-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#productModalId"
+
+                                        data-title="{{ product.title }}"
+                                        data-price="{{ product.sale_price }}"
+                                        data-image="{{ product.images.first.image.url }}"
+                                        data-desc="{{ product.description|truncatechars:120 }}"
+                                        data-stock="{{ product.available_stock }}">
+                                            <i class="fal fa-eye"></i>
+                                            <i class="fal fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="icon-box icon-box-1 add-to-wish" data-product_id="{{ product.id }}" data-variant_id="{{ variant.id }}">
+                                        <i class="fal fa-heart"></i>
+                                        <i class="fal fa-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="product__content">
+                                <h6><a href="{% url 'product-detail' product.slug product.id %}">{{product.title|title|truncatewords:5}}</a></h6>
+                                <div class="rating mb-5">
+                                    <ul>
+                                        <i class="fa {% if product.avg_rate >= 1 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 2 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 3 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 4 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                        <i class="fa {% if product.avg_rate >= 5 %}fa-star{% else %}fa-star-o{% endif %}" style="color: #FFD700;"></i>
+                                    </ul>
+                                    <span>({{ product.reviews.count }} review{{ product.reviews.count|pluralize }})</span>
+                                </div>
+
+                                <div class="price mb-10"><span>
+                                   {{product.sale_price}} TK 
+                                    <del class="text-danger">
+                                    {% if product.old_price %}
+                                       {{product.old_price}} TK
+                                    {% endif %}
+                                    </del>
+                                </span></div>
+                                <div class="progress mb-5">
+                                    <div class="progress-bar bg-primary" style="width:{{ product.sold }}%"></div>
+                                </div>
+                                <div class="progress-rate"><span>Sold {{product.sold}}</span></div>
+                            </div>
+                        </div>
+                        <!-- product-1 end -->
+                         {% endfor %}
+                         {% else %}
+                         <p> No products found </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- recombed-product-area-end -->
+
+<!-- brand-area-start -->
+<section class="brand-area brand-area-d">
+    <div class="container">
+        <div class="brand-slider swiper-container pt-50 pb-45">
+            <div class="swiper-wrapper">
+                {% if brands %}
+                    {% for brand in brands %}
+                        <div class="brand-item w-img swiper-slide">
+                            <a href="#"><img src="{{brand.image.url}}" alt="{{brand.title|title}}" style="width: 200px; height: 70px; object-fit: cover;"></a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <p>No brand found </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- brand-area-end -->
+
+
+<!-- shop modal start -->
+{% include 'store/components/product-modals.html' %}
+<!-- shop modal end -->
+{% endblock main_content %}

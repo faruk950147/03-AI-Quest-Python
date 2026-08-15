@@ -1,0 +1,183 @@
+ঠিক আছে — আমি তোমাকে Basic → Advanced Web Crawler (Python) একদম step-by-step কোড দিচ্ছি 
+(শুধু কোড, clean, production-style)
+
+1. BASIC CRAWLER (Single Page)
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://example.com"
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+for link in soup.find_all("a"):
+    print(link.get("href"))
+
+
+2. MULTI-PAGE CRAWLER (Depth Control)
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+
+visited = set()
+
+def crawl(url, depth):
+    if depth == 0 or url in visited:
+        return
+
+    visited.add(url)
+    print("Crawling:", url)
+
+    try:
+        response = requests.get(url, timeout=5)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        for link in soup.find_all("a", href=True):
+            next_url = urljoin(url, link["href"])
+            crawl(next_url, depth - 1)
+
+    except:
+        pass
+
+
+crawl("https://example.com", depth=2)
+3. DOMAIN-RESTRICTED CRAWLER
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+
+visited = set()
+domain = "example.com"
+
+def is_valid(url):
+    return urlparse(url).netloc.endswith(domain)
+
+def crawl(url):
+    if url in visited or not is_valid(url):
+        return
+
+    visited.add(url)
+    print("Crawling:", url)
+
+    try:
+        res = requests.get(url)
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        for link in soup.find_all("a", href=True):
+            next_url = urljoin(url, link["href"])
+            crawl(next_url)
+    except:
+        pass
+
+
+crawl("https://example.com")
+4. SAVE DATA (Title + Links)
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://example.com"
+
+res = requests.get(url)
+soup = BeautifulSoup(res.text, "html.parser")
+
+title = soup.title.string if soup.title else "No Title"
+links = [a.get("href") for a in soup.find_all("a", href=True)]
+
+data = {
+    "title": title,
+    "links": links
+}
+
+print(data)
+
+5. ADVANCED CRAWLER (Threading + Queue)
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+from queue import Queue
+import threading
+
+visited = set()
+queue = Queue()
+domain = "example.com"
+
+def is_valid(url):
+    return urlparse(url).netloc.endswith(domain)
+
+def worker():
+    while not queue.empty():
+        url = queue.get()
+
+        if url in visited or not is_valid(url):
+            queue.task_done()
+            continue
+
+        visited.add(url)
+        print("Crawling:", url)
+
+        try:
+            res = requests.get(url, timeout=5)
+            soup = BeautifulSoup(res.text, "html.parser")
+
+            for link in soup.find_all("a", href=True):
+                next_url = urljoin(url, link["href"])
+                if next_url not in visited:
+                    queue.put(next_url)
+        except:
+            pass
+
+        queue.task_done()
+
+
+start_url = "https://example.com"
+queue.put(start_url)
+
+threads = []
+
+for _ in range(5):  # 5 threads
+    t = threading.Thread(target=worker)
+    t.start()
+    threads.append(t)
+
+queue.join()
+6. PRO LEVEL (Production Ready Features)
+
+✔ Rate limiting
+✔ Headers (User-Agent)
+✔ Error handling
+✔ Robots.txt respect (optional)
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import time
+
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+visited = set()
+
+def crawl(url):
+    if url in visited:
+        return
+
+    visited.add(url)
+    print("Crawling:", url)
+
+    try:
+        res = requests.get(url, headers=headers, timeout=5)
+        time.sleep(1)  # rate limit
+
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        for link in soup.find_all("a", href=True):
+            next_url = urljoin(url, link["href"])
+            if next_url not in visited:
+                crawl(next_url)
+
+    except:
+        pass
+
+
+crawl("https://example.com")

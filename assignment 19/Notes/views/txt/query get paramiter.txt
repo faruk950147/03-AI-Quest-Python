@@ -1,0 +1,144 @@
+GET Parameter Format in django
+
+{% comment %} views.py 
+1. views.py
+def product_list(request):
+    # GET parameter from value get
+    category = request.GET.get('category')  # if ?category=something then it will get
+    sort_by = request.GET.get('sort')       # if ?sort=price then it will get
+
+    # Product queryset
+    products = Product.objects.all()
+
+    # category filter
+    if category:
+        products = products.filter(category=category)
+
+    # sort by
+    if sort_by:
+        products = products.order_by(sort_by)
+
+    # template products
+    return render(request, 'product_list.html', {'products': products}) 
+2. urls.py
+
+    from django.urls import path
+    from . import views
+    
+    urlpatterns = [
+        path('products/', views.product_list, name='product_list'),
+    ] 
+    
+3. Template: product_list.html
+
+    <h1>Product List</h1>
+
+    {% if products %}
+        <ul>
+        {% for product in products %}
+            <li>{{ product.name }} - {{ product.category }} - {{ product.price }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}    
+    
+    http://localhost:8000/products/?category=electronics&sort=price
+
+{% endcomment %}
+Correct Way (a tag use করে)
+<li>
+    <a href="{% url 'product_detail' product.id %}">
+        {{ product.name }} - {{ product.category }} - {{ product.price }}
+    </a>
+</li>
+
+এটা কী করছে?
+
+পুরো <li> item clickable হয়ে যাবে
+click করলে যাবে product detail page-এ
+
+URL pattern লাগবে
+path('product/<int:id>/', views.product_detail, name='product_detail')
+Simple View
+def product_detail(request, id):
+    product = Product.objects.get(id=id)
+    return render(request, 'product_detail.html', {'product': product})
+যদি শুধু name clickable করতে চাও
+<li>
+    <a href="{% url 'product_detail' product.id %}">
+        {{ product.name }}
+    </a>
+    - {{ product.category }} - {{ product.price }}
+</li>
+
+Bonus Tip
+
+Better practice id এর বদলে slug use করা
+
+<a href="{% url 'product_detail' product.slug %}">
+Summary
+
+✔ <a> দিলে clickable হয়
+✔ {% url %} দিয়ে dynamic link বানানো হয়
+✔ product detail page-এ redirect হয়
+
+from django.db import models
+from django.utils.text import slugify
+
+class Category(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Project(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='projects')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+from django.shortcuts import render
+from .models import Project
+
+def project_list(request):
+    # Dynamic category ID নিতে GET parameter থেকে
+    category_id = request.GET.get('category_id')  # URL: ?category_id=1
+
+    if category_id:
+        # Dynamic ID দিয়ে filter
+        girls = Project.objects.filter(category_id=category_id)
+    else:
+        # যদি ID না দেয়, সব projects দেখাবে
+        girls = Project.objects.all()
+
+    return render(request, 'projects.html', {'projects': girls})
+
+
+<h2>Projects</h2>
+<ul>
+    {% for project in projects %}
+        <li>{{ project.name }} - Category: {{ project.category.name }}</li>
+    {% empty %}
+        <li>No projects found.</li>
+    {% endfor %}
+</ul>
+
+
+
+
+
+
+
+

@@ -1,0 +1,108 @@
+{% load static %}
+
+<!-- breadcrumb__area-start -->
+<section class="breadcrumb__area box-plr-75">
+    <div class="container">
+        <div class="row">
+            <div class="col-xxl-12">
+                <div class="breadcrumb__wrapper">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                            <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb__area-end -->
+
+<!-- slider-area-start -->
+<div class="slider-area light-bg-s">
+  <div class="container custom-conatiner">
+    <div class="row">
+      <div class="col-xl-7">
+        <div class="swiper-container slider__active pb-30">
+          <div class="slider-wrapper swiper-wrapper">
+            <!-- /single-slider -->
+            {% if sliders %}
+              {% for slider in sliders %}
+                {% if slider.product.slug and slider.product.id %}
+                  <div class="single-slider swiper-slide b-radius-2 slider-height-2 d-flex align-items-center" data-background="{{slider.image.url}}">
+                    <div class="slider-content slider-content-2">
+                      <h2 data-animation="fadeInLeft" data-delay="1.7s" class="pt-15 slider-title pb-5">
+                        <a href="{% url 'product-detail' slider.product.slug slider.product.id %}">
+                          {{ slider.title|title|truncatewords:5 }}
+                        </a>
+                      </h2>
+                      <p class="pr-20 slider_text">
+                        <a href="{% url 'product-detail' slider.product.slug slider.product.id %}">
+                          {{ slider.sub_title|title|truncatewords:5 }}
+                        </a>
+                        {% if slider.product.discount_percent %}
+                          <span data-animation="fadeInLeft" data-delay="1.9s">
+                            {{slider.product.discount_percent}} %
+                          </span><br>
+                          <a href="{% url 'product-detail' slider.product.slug slider.product.id %}" class="pr-20 slider_text" data-animation="fadeInLeft" data-delay="1.9s">
+                            {{slider.product.title|title|truncatewords:5}}
+                          </a>
+                        {% else %}
+                          <span>No Off Product</span>
+                        {% endif %}
+                      </p>
+                      <div class="slider-bottom-btn mt-65">
+                        <a href="{% url 'product-detail' slider.product.slug slider.product.id %}" data-animation="fadeInUp" data-delay="1.15s" class="st-btn-border b-radius-2">Discover now</a>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <p>No Slider Found</p>
+            {% endif %}
+            <!-- /single-slider -->
+            <div class="main-slider-paginations"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-5">
+        <div class="row">
+          {% if feature_sliders %}
+            {% for feature_slider in feature_sliders %}
+              {% if feature_slider.product.slug and feature_slider.product.id %}
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                  <div class="banner__item p-relative w-img mb-30">
+                    <div class="banner__img b-radius-2">
+                      <a href="{% url 'product-detail' feature_slider.product.slug feature_slider.product.id %}">
+                        <img src="{{feature_slider.image.url}}" alt="{{feature_slider.title|title}}" style="width: 300px; height: 150px;" />
+                      </a>
+                    </div>
+                    <div class="banner__content banner__content-2">
+                      <h6>
+                        <a href="{% url 'product-detail' feature_slider.product.slug feature_slider.product.id %}">{{feature_slider.title|title|truncatewords:5}}</a>
+                      </h6>
+                      <p>
+                        <a href="{% url 'product-detail' feature_slider.product.slug feature_slider.product.id %}">{{feature_slider.sub_title|title|truncatewords:5}}</a>
+                        {% if feature_slider.product.discount_percent %}
+                          <span>{{feature_slider.product.discount_percent}} %</span>
+                        {% endif %}
+                      </p>
+                      <p class="mt-2">
+                        <a href="{% url 'product-detail' feature_slider.product.slug feature_slider.product.id %}">{{feature_slider.product.title|title|truncatewords:5}}</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <p>No Features Slider Found</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- slider-area-end -->

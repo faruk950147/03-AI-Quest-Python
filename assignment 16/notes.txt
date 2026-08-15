@@ -1,0 +1,65 @@
+Django-তে ডাবল আন্ডারস্কোর (__) ব্যবহার হয় রিলেটেড ফিল্ডে ফিল্টার বা lookup করার জন্য।
+
+ধরো আপনার মডেলগুলো এমন:
+# models.py
+from django.db import models
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Brand(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+# views.py
+from django.shortcuts import render, get_object_or_404
+from .models import Category, Product, Brand
+
+def category_products(request, category_id):
+    # ১️⃣ নির্দিষ্ট category নিয়ে আসি
+    category = get_object_or_404(Category, id=category_id)
+    
+    # ২️⃣ ঐ category-র সব products আনছি
+    products = Product.objects.filter(category=category)
+    
+    # ৩️⃣ ঐ category-র সব brands আনছি (distinct() যাতে একই brand বারবার না আসে)
+    brands = Brand.objects.filter(product__category=category).distinct()
+    
+    # ৪️⃣ context এ পাঠাই
+    context = {
+        'category': category,
+        'products': products,
+        'brands': brands,
+    }
+    return render(request, 'shop/category_products.html', context)
+
+
+
+এখন:
+
+Product মডেলে category নামে ForeignKey আছে Category মডেলের দিকে।
+
+Product মডেলে brand নামে ForeignKey আছে Brand মডেলের দিকে।
+
+যদি আমরা Brand.objects.filter(product__category=category) লিখি:
+
+Django বুঝবে: Brand এর সাথে যেসব Product যুক্ত আছে।
+
+সেই Product গুলোর category কি আমাদের দেওয়া category এর সমান?
+
+যেসব ব্র্যান্ডের অন্তত একটি প্রোডাক্ট মিলছে, শুধু তাদেরই return করবে।

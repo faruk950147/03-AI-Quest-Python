@@ -1,0 +1,8 @@
+asgiref==3.11.1
+django==4.2.16
+pillow==12.1.1
+sqlparse==0.5.5
+tzdata==2025.3
+channels==4.3.2
+channels-redis==4.3.0
+daphne==4.2.1

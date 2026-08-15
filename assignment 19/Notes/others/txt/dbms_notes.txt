@@ -1,0 +1,121 @@
+DBMS Notes (বাংলা)
+1. Integrity (ইন্টেগ্রিটি)
+Definition:
+Database-এর data যেন সঠিক (accurate), বৈধ (valid) এবং নির্ভরযোগ্য (reliable) থাকে 
+— এটাকেই Integrity বলে।
+Example:
+Student-এর age যদি -10 হয় → এটা invalid → integrity ভেঙে গেছে 
+Types of Integrity:
+
+
+Entity Integrity → Primary key কখনো NULL হতে পারবে না
+
+
+Referential Integrity → Foreign key অবশ্যই parent table-এর value-এর সাথে 
+match করবে
+
+
+Domain Integrity → Data অবশ্যই নির্দিষ্ট type/range-এর মধ্যে হতে হবে
+
+
+
+2. Consistency (কনসিসটেন্সি)
+Definition:
+Database সবসময় valid rules মেনে সঠিক অবস্থায় থাকবে — এটাকে Consistency বলে।
+Example:
+Bank-এ টাকা transfer করলে total balance logically ঠিক থাকতে হবে।
+অর্থাৎ, transaction শেষ হলে database অবশ্যই valid state-এ থাকতে হবে।
+
+3. Constraint (কনস্ট্রেইন্ট)
+Definition:
+Database-এ data control করার জন্য যে rules ব্যবহার করা হয়, তাকে Constraint বলে।
+Types of Constraint:
+
+
+Primary Key → Unique + Not Null
+
+
+Foreign Key → Relation তৈরি করে
+
+
+Unique → Duplicate value allowed না
+
+
+Not Null → Null value allowed না
+
+
+Check → Condition apply করা যায়
+
+
+Example:
+Roll number unique হতে হবে → Unique constraint
+
+4. Redundancy (রিডানডেন্সি)
+Definition:
+একই data বারবার store করা হলে তাকে Redundancy বলে।
+Problems:
+
+
+Storage waste 📦
+
+
+Update সমস্যা
+
+
+Data inconsistency
+
+
+Example:
+একই student name multiple table-এ রাখা
+
+5. Inconsistency (ইনকনসিসটেন্সি)
+Definition:
+Database-এ একই data বিভিন্ন জায়গায় different হলে তাকে Inconsistency বলে।
+সাধারণত Redundancy এর কারণে হয়।
+Example:
+
+
+Table 1 → phone = 017xxxx
+
+
+Table 2 → phone = 018xxxx
+একই ব্যক্তি, কিন্তু data আলাদা 
+
+
+
+6. Atomicity (অ্যাটোমিসিটি)
+Definition:
+Atomicity হলো ACID properties-এর একটি অংশ।
+এটা বলে — Transaction পুরোটা হবে, না হলে একদমই হবে না।
+"All or Nothing"
+Example:
+Bank transfer:
+
+
+টাকা কাটা হলো ✔
+
+
+কিন্তু অন্য account-এ যোগ হলো না 
+
+
+এই অবস্থায় system rollback করবে (সব cancel)
+
+Short Revision (Exam-এর জন্য)
+
+
+Integrity → Data correct & valid
+
+
+Consistency → Rules follow করে stable state
+
+
+Constraint → Data control rules
+
+
+Redundancy → Duplicate data
+
+
+Inconsistency → Conflicting data
+
+
+Atomicity → All or Nothing transaction

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Category Products{% endblock %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card p-3 shadow-sm">
+                <h6 class="fw-bold mb-2">All Filters</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item p-0 border-0">
+                        <a href="?" class="text-decoration-none text-muted">All Products</a>
+                    </li>
+                </ul>
+
+                <h6 class="fw-bold mb-2 mt-3">Brands</h6>
+                <ul class="list-group list-group-flush">
+                    {% for brand in brands %}
+                    <li class="list-group-item p-0 border-0">
+                        <a href="?brand={{ brand.id }}{% if price_filter %}&price={{ price_filter }}{% endif %}" class="text-decoration-none text-muted">
+                            {{ brand.title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <h6 class="fw-bold mb-2 mt-3">Prices</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item p-0 border-0">
+                        <a href="?price=below_20k{% if selected_brand %}&brand={{ selected_brand }}{% endif %}" class="text-decoration-none text-muted">
+                            Below 20k
+                        </a>
+                    </li>
+                    <li class="list-group-item p-0 border-0">
+                        <a href="?price=above_20k{% if selected_brand %}&brand={{ selected_brand }}{% endif %}" class="text-decoration-none text-muted">
+                            Above 20k
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9 col-md-8" id="product-grid">
+            {% include 'store/product_grid.html' %}
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

@@ -1,0 +1,35 @@
+WSL Full Commands (English Descriptions)
+1 Basic Commands
+wsl → Starts the default Linux distribution
+wsl -d Ubuntu → Starts a specific Linux distribution
+wsl -l → Lists all installed distributions
+wsl -l -v → Shows distributions with version info (WSL1/WSL2)
+2 Installation & Setup
+wsl --install → Installs WSL with default Linux distro
+wsl --install -d Ubuntu → Installs a specific Linux distro
+wsl --status → Shows WSL installation status
+3 Stop & Manage
+wsl --shutdown → Stops all running WSL instances
+wsl --terminate Ubuntu → Stops a specific distribution
+wsl --unregister Ubuntu → Deletes a distribution permanently
+4 Update & Config
+wsl --update → Updates WSL kernel and components
+wsl --set-default Ubuntu → Sets default Linux distribution
+wsl --set-version Ubuntu 2 → Sets WSL version (1 or 2)
+5 User & System
+wsl -u root → Runs WSL as root user
+uname -r → Shows Linux kernel version
+6 Package Management (Linux)
+sudo apt update → Updates package list
+sudo apt upgrade → Upgrades installed packages
+sudo apt install nginx → Installs a package
+sudo apt remove nginx → Removes a package
+7 File System Access
+cd /mnt/c → Access Windows C drive from Linux
+\\wsl$ → Access Linux files from Windows Explorer
+explorer.exe . → Opens current folder in Windows Explorer
+8 Backup & Restore
+wsl --export Ubuntu backup.tar → Exports WSL backup
+wsl --import NewUbuntu D:\WSL backup.tar → Imports backup
+9 Config File
+sudo nano /etc/wsl.conf → Edits WSL configuration file

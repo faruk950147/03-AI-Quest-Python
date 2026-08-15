@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Cart Detail{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h1 class="text-center mb-5">Shopping Cart</h1>
+
+        <!-- Cart Items -->
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Cart</h3>
+                    {% if cart_items %}
+                        {% for cart_item in cart_items %}
+                        <div class="row mb-3">
+                            <div class="col-sm-2 text-center align-self-center">
+                                <img src="{{ cart_item.product.image.url }}" alt="{{ cart_item.product.title|title }}"
+                                     class="img-fluid img-thumbnail shadow-sm">
+                            </div>
+                            <div class="col-sm-10">
+                                <h5>{{ cart_item.product.title|title }}</h5>
+                                <p class="mb-2 text-muted small">Description: {{ cart_item.product.description }}</p>
+                                
+                                <!-- Quantity Form -->
+                                <div class="my-3 d-flex align-items-center">
+                                    <form method="post" action="{% url 'qty-inc-dec' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="product-id" value="{{ cart_item.id }}">
+
+                                        <!-- Decrease -->
+                                        <button type="submit" name="action" value="dec" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+
+                                        <span class="mx-2">{{ cart_item.quantity }}</span>
+
+                                        <!-- Increase -->
+                                        <button type="submit" name="action" value="inc" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Remove Item -->
+                                <div class="d-flex justify-content-between">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger text-white">
+                                            Remove item
+                                        </button>
+                                    </form>
+                                    <p class="mb-0"><strong>Tk. {{ cart_item.subtotal }}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="text-muted">
+                        {% endfor %}
+                    {% else %}
+                        <p>Your cart is empty.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3>The Total Amount</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                            Amount <span>Tk. {{ cart_total }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            Shipping <span>Tk. {{ shipping_cost }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                            <div>
+                                <strong>Total</strong> <small>(including VAT)</small>
+                            </div>
+                            <span><strong>Tk. {{ cart_total|add:shipping_cost }}</strong></span>
+                        </li>
+                    </ul>
+                    <div class="d-grid">
+                        <a href="{% url 'checkout' %}" class="btn btn-success">Place Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock main_content %}

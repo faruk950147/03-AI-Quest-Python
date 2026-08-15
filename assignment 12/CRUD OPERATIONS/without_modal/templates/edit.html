@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Edit{% endblock title %}
+{% block content %}
+    <div id="hero">
+        <div class="container">
+            <div class="row my-5 justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <h4 class="text-center">Edit Task</h4>
+                    <hr>
+                    <form action="{% url 'EditedView' task.id %}" method="POST" onsubmit="return confirm('Are you sure you want to save changes?');">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                        <!--
+                        <input type="text" name="name" value="{{ task.name }}" class="form-control my-3" placeholder="Name" required>
+                        <input type="text" name="department" value="{{ task.department }}" class="form-control my-3" placeholder="Department" required>
+                        <input type="text" name="phone" value="{{ task.phone }}" class="form-control my-3" placeholder="Phone" required>   -->
+                        <button type="submit" class="form-control btn btn-success my-3">Edit Student</button>
+                        <a href="{% url 'HomeView' %}" class="form-control btn btn-danger my-3">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

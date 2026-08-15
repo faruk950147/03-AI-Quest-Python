@@ -1,0 +1,44 @@
+<div class="card p-3 shadow-sm">
+
+    <!-- All Filters -->
+    <h6 class="fw-bold mb-2">All Filters</h6>
+    <div class="list-group list-group-flush">
+        <div class="list-group-item p-0 border-0">
+            <div class="d-flex align-items-center mb-2">
+                <input type="checkbox" id="all-filters" class="filter-checkbox me-2" data-filter="all" value="all">
+                <label for="all-filters">All Filters</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brand Filters -->
+    <h6 class="fw-bold mb-2 mt-3">Brands</h6>
+    <div class="list-group list-group-flush">
+        {% for brand in brands %}
+        <div class="list-group-item p-0 border-0">
+            <div class="d-flex align-items-center mb-2">
+                <input type="checkbox"
+                       id="brand-{{ brand.id }}"
+                       class="filter-checkbox me-2"
+                       data-filter="brand"
+                       value="{{ brand.id }}">
+                <label for="brand-{{ brand.id }}">{{ brand.title|title }}</label>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Price Range -->
+    <h6 class="fw-bold mb-2 mt-3">Price</h6>
+    <div class="list-group list-group-flush">
+        <input type="range"
+               id="maxPrice"
+               class="form-range"
+               min="{{min_price}}"
+               max="{{ max_price }}"
+               step="5"
+               value="{{ max_price }}">
+
+        <span id="priceValue" class="fw-bold small">Max : {{ max_price }} Min : {{min_price}}</span>
+    </div>
+</div>

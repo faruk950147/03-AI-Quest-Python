@@ -1,0 +1,227 @@
+Race Condition হলো প্রোগ্রামিং-এর একটা সমস্যা, যেখানে একাধিক thread বা process একই data একসাথে access করে এবং execution-এর order unpredictable হওয়ায় ভুল result আসে।
+
+সহজভাবে বুঝি
+
+ধরো, একটা variable আছে:
+
+balance = 100
+
+এখন দুইটা thread একসাথে কাজ করছে:
+
+Thread 1 → balance থেকে 50 টাকা কমাবে
+Thread 2 → balance থেকে 30 টাকা কমাবে
+Expected Result:
+100 - 50 - 30 = 20
+কিন্তু আসলে কি হতে পারে?
+
+দুইটা thread একসাথে পড়ছে:
+
+Thread 1 পড়লো: balance = 100
+Thread 2 পড়লো: balance = 100
+
+তারপর:
+
+Thread 1 → 100 - 50 = 50
+Thread 2 → 100 - 30 = 70
+
+Final balance = 70 (ভুল!)
+
+এটাই Race Condition 
+
+কেন হয় (Causes)
+Multiple thread/process একসাথে run করে
+Shared resource (variable, file, DB) use করে
+Proper synchronization নাই
+কোথায় বেশি হয়?
+Multithreading
+Multiprocessing
+Database transactions
+Web apps (যেমন Django concurrent request)
+Solution (Fix করার উপায়)
+1. Lock (Mutex)
+
+এক সময় একটাই thread access করতে পারবে
+
+from threading import Lock
+
+lock = Lock()
+
+with lock:
+    balance -= 50
+2. Database Transaction
+
+Django example:
+
+from django.db import transaction
+
+with transaction.atomic():
+    # safe operation
+3. Semaphore / Monitor
+
+Advanced control system
+
+4. Queue ব্যবহার
+
+Sequential processing নিশ্চিত করে
+
+Real Life Example
+
+ATM machine
+একই account থেকে একসাথে 2 জন টাকা তুলতে গেলে balance mismatch হতে পারে → Race Condition
+
+Short Summary
+Race Condition = same data multiple thread access → wrong result
+Cause = no synchronization
+Fix = Lock, Transaction, Queue
+
+
+
+
+========================== Example ==========================
+
+from django.db import transaction
+from shop.models import Product
+from django.http import Http404
+
+def buy_product(product_id, quantity):
+    try:
+        with transaction.atomic():
+            product = Product.objects.select_for_update().get(id=product_id)
+            if product.stock >= quantity:
+                product.stock -= quantity
+                product.save()
+                return True
+            else:
+                return False
+    except Product.DoesNotExist:
+        raise Http404("Product not found")
+
+
+চল এখন Django-তে real Race Condition example + fix (A to Z) দেখি 
+আমি একদম practical ভাবে দেখাচ্ছি—যেটা তুমি তোমার প্রোজেক্টে use করতে পারবে।
+
+Problem: Race Condition (Django)
+Scenario
+
+ধরো, একটা Product আছে:
+
+models.py
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    stock = models.IntegerField(default=0)
+
+এখন 2 জন user একই সময় order করলো:
+
+Product stock = 10
+User A → buy 7
+User B → buy 5
+Expected:
+
+Stock negative হওয়া উচিত না
+
+But (Race Condition):
+
+দুইজনই একসাথে stock = 10 পড়লো
+
+Result:
+
+A → 10 - 7 = 3
+B → 10 - 5 = 5
+
+Final stock = 5 (ভুল!)
+
+Wrong Code (Race Condition হয়)
+# views.py
+def buy_product(request, id):
+    product = Product.objects.get(id=id)
+
+    qty = int(request.POST.get('qty'))
+
+    if product.stock >= qty:
+        product.stock -= qty
+        product.save()
+
+    return JsonResponse({'status': 'ok'})
+
+Problem:
+
+get() দিয়ে read হচ্ছে
+পরে modify হচ্ছে
+মাঝখানে অন্য request ঢুকে যাচ্ছে
+Solution 1: select_for_update (Best)
+
+Database-level lock ব্যবহার করি
+
+from django.db import transaction
+
+def buy_product(request, id):
+    qty = int(request.POST.get('qty'))
+
+    with transaction.atomic():
+        product = Product.objects.select_for_update().get(id=id)
+
+        if product.stock >= qty:
+            product.stock -= qty
+            product.save()
+            return JsonResponse({'status': 'success'})
+
+        return JsonResponse({'status': 'out_of_stock'})
+কী হলো এখানে?
+transaction.atomic() → block শুরু
+select_for_update() → row lock 
+অন্য request wait করবে
+
+Result = No race condition
+
+Solution 2: F Expression (Super Efficient)
+
+Django-এর smart update
+
+from django.db.models import F
+
+def buy_product(request, id):
+    qty = int(request.POST.get('qty'))
+
+    updated = Product.objects.filter(
+        id=id,
+        stock__gte=qty
+    ).update(stock=F('stock') - qty)
+
+    if updated:
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'out_of_stock'})
+
+কেন এটা ভালো?
+DB-level calculation
+No read আগে → direct update
+Fast + safe
+select_for_update vs F()
+Method	Use Case
+select_for_update	Complex logic
+F()	Simple update (best choice)
+Real-life Django Use Cases
+E-commerce stock management
+Wallet balance
+Ticket booking system
+Inventory system
+Bonus Tip (Important)
+Django + MySQL ব্যবহার করলে:
+
+ENGINE=InnoDB
+
+না হলে lock কাজ করবে না 
+
+Final Summary
+Race Condition = multiple request same data modify
+Wrong = read → modify → save
+Fix:
+select_for_update() (lock)
+F() expression (best)
+তুমি চাইলে আমি next step এ দেখাতে পারি 👇
+Cart + Order system (race condition safe)
+Payment + stock sync system
+Full e-commerce flow (pro level)
+
+
+

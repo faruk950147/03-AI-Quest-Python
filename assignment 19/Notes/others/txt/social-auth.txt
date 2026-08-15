@@ -1,0 +1,17 @@
+Python/Django OAuth2 Packages
+
+django-oauth-toolkit – Django-এর জন্য OAuth2 server ও client support
+
+Authlib – Modern OAuth1, OAuth2, OpenID Connect, Flask/Django/FastAPI support
+
+social-auth-app-django – Social login (Google, Facebook, GitHub…) সহজে integrate করা
+
+django-allauth – Full authentication solution + social login support
+
+requests-oauthlib – Python requests-এর জন্য OAuth1 & OAuth2 client
+
+django-oauth-toolkit
+Authlib
+social-auth-app-django
+django-allauth
+requests-oauthlib

@@ -1,0 +1,36 @@
+এই headers object টি মূলত Django AJAX request-এর জন্য ব্যবহার করা হয়। একটু বিশ্লেষণ করি:
+
+headers: {
+    'Content-Type': 'application/json',      // যদি JSON format-এ data পাঠাও, browser কে বলে দেয়
+    'X-CSRFToken': csrfmiddlewaretoken,      // CSRF protection active থাকলে Django এই token চায়
+    'X-Requested-With': 'XMLHttpRequest'     // Django কে বলে দেয় যে requestটি AJAX এর মাধ্যমে এসেছে
+}
+
+
+Content-Type: 'application/json'
+এটি browser কে বলে যে request body JSON format-এ আছে। যদি তুমি শুধু form-data পাঠাও (যেমন application/x-www-form-urlencoded), এটি লাগবে না।
+
+X-CSRFToken: csrfmiddlewaretoken
+Django CSRF protection চালু থাকলে POST, PUT, PATCH, DELETE request-এর জন্য CSRF token লাগবে। সাধারণত template-এ {% csrf_token %} দিয়ে csrfmiddlewaretoken variable তৈরি করে JavaScript-এ ব্যবহার করা হয়।
+
+X-Requested-With: 'XMLHttpRequest'
+Django এর view-এ request.is_ajax() বা modern Django version-এ request.headers.get('x-requested-with') == 'XMLHttpRequest' চেক করার জন্য। এটা মূলত server-কে বলে দেয় যে requestটি AJAX call।
+
+FormData AJAX submit
+$("#form").on("submit", function(e) {
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    $.ajax({
+        url: "/submit/",
+        type: "POST",
+        data: formData,
+        processData: false,   // FormData এর জন্য অবশ্যই false
+        contentType: false,   // FormData এর জন্য অবশ্যই false
+
+        success: function(response) {
+            console.log(response);
+        }
+    });
+});

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Checkout Success{% endblock title %}
+
+{% block main_content %}
+<main>
+    <!-- breadcrumb__area-start -->
+    <section class="breadcrumb__area box-plr-75">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__wrapper">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb__area-end -->
+
+    <!-- checkout success area -->
+    <section class="checkout-success-area pt-50 pb-50">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="checkout-success-wrapper text-center">
+                        <h2 class="success-title">Thank you for your checkout!</h2>
+                        <p class="success-msg">Your checkout has been placed successfully.</p>
+
+                        <div class="order-summary mt-4 text-start">
+                            <h4>Checkout Details:</h4>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Checkout ID:</strong> {{ checkout.id }}</li>
+                                <li class="list-group-item"><strong>Is Finalized:</strong> {{ checkout.is_finalized }}</li>
+                                <li class="list-group-item"><strong>Paid At:</strong> {{ checkout.paid_at }}</li>
+                                <li class="list-group-item"><strong>Payment Method:</strong> {{ checkout.get_payment_method_display }}</li>
+                                <li class="list-group-item"><strong>Subtotal:</strong> {{ checkout.total_amount }} TK</li>
+                                <li class="list-group-item"><strong>Discount:</strong> {{ checkout.discount_amount }} TK</li>
+                                <li class="list-group-item"><strong>Shipping:</strong> {{ shipping_cost }} TK</li>
+                                <li class="list-group-item"><strong>Grand Total:</strong> {{ checkout.final_amount }} TK</li>
+                                <li class="list-group-item"><strong>Status:</strong> {{ checkout.get_status_display }}</li>
+                            </ul>
+
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'home' %}" class="cart-btn">Continue Shopping</a>
+                            <a href="{% url "checkout-list" %}" class="cart-btn">View Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock main_content %}

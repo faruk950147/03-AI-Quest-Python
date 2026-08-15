@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Raffle Draw{% endblock title %}
+{% block main %}
+    <main class="main">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-6">
+                    {% if participants %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-primary btn-lg form-control" type="submit">Draw Winner</button>
+                        </form>
+                    {% else %}
+                        <p>No participants found.</p>
+                    {% endif %}
+                    <hr>
+                    <h3 class="lead">Winner</h3>
+                    {% if winner %}
+                        <p class="lead"> Id: {{ winner.id }}.</p>
+                        <p class="lead">Name: {{ winner.name }}.</p>
+                        <p class="lead">Phone: {{ winner.phone }}.</p>
+                        <p class="lead">Email: {{ winner.email }}.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-6">
+                    <h3 class="lead">All Participants:</h3>
+                    <ul class="lead">
+                        {% for participant in participants %}
+                            <li class="lead">Id: {{ participant.id }} - Name: {{ participant.name }} - Phone: {{ participant.phone }} - Email: {{ participant.email }}</li>
+                        {% endfor %}
+                    </ul>   
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock main %}
+{% block extra_scripts %}
+
+{% endblock extra_scripts %}

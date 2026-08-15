@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details{% endblock %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h3>Welcome {{ request.user.username|title }}</h3>
+
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid">
+                    <a href="{% url 'checkout-list' %}" class="btn btn-success">Checkout List</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-sm-9 offset-sm-1">
+
+            {% if checkout_items %}
+                {% for checkout_item in checkout_items %}
+
+                    <div class="row shadow-sm mb-3 p-3 rounded">
+                        <div class="col-sm-2 d-flex align-items-center">
+                            <img src="{{ checkout_item.product.image.url }}" 
+                                 class="img-fluid rounded"
+                                 style="max-height: 100px;">
+                        </div>
+
+                        <div class="col-sm-7">
+                            <p class="mb-1">Product Title: {{ checkout_item.product.title }}</p>
+                            <p class="mb-1">Quantity: {{ checkout_item.quantity }}</p>
+                            <p class="mb-1">Price: ${{ checkout_item.total_cost|floatformat:2 }}</p>
+                            <p class="mb-1">Checkout On: {{ checkout_item.ordered_date|date:"F j, Y, g:i a" }}</p>
+                        </div>
+
+                        <div class="col-sm-3 fw-bold">
+                            <p class="mb-2">Checkout Status: {{ checkout_item.status }}</p>
+
+                            {% if checkout_item.status == 'Pending' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar bg-secondary progress-bar-striped progress-bar-animated" 
+                                         style="width: 10%;">10%</div>
+                                </div>
+                            {% elif checkout_item.status == 'Accepted' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         style="width: 20%;">20%</div>
+                                </div>
+                            {% elif checkout_item.status == 'Packed' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+                                         style="width: 40%;">40%</div>
+                                </div>
+                            {% elif checkout_item.status == 'On the Way' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+                                         style="width: 70%;">70%</div>
+                                </div>
+                            {% elif checkout_item.status == 'Delivered' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar bg-success text-center"
+                                         style="width: 100%;">Delivered</div>
+                                </div>
+                            {% elif checkout_item.status == 'Cancel' %}
+                                <div class="progress mb-1">
+                                    <div class="progress-bar bg-danger text-center"
+                                         style="width: 100%;">Cancel</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                {% endfor %}
+            {% else %}
+                <h4>No Checkout Found</h4>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

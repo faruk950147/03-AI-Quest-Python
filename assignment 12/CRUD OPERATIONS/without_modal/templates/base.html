@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>{% block title %}To Do List{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header id="header">
+        <div class="header container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+                <div class="container-fluid">
+                    <!-- Brand -->
+                    <a class="navbar-brand" href="{% url 'HomeView' %}">Self Help</a>
+
+                    <!-- Toggler -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Menu Items -->
+                    <div class="collapse navbar-collapse" id="navbarScroll">
+                        <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="{% url 'HomeView' %}">Home</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {% if request.user.is_authenticated %}
+                                        {{ request.user.username }}
+                                    {% else %}
+                                        User
+                                    {% endif %}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarScrollingDropdown">
+                                    {% if request.user.is_authenticated %}
+                                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="">Logout</a></li>
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="">Login</a></li>
+                                        <li><a class="dropdown-item" href="">Sign Up</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    {% block content %}
+
+    {% endblock content %}
+    <!-- JS Scripts -->
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('#datatable').DataTable({
+            responsive: true,
+            pageLength: 5,
+            scrollX: true, // allows horizontal scrolling if table is wide
+            language: {
+                emptyTable: "No tasks available",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ tasks",
+                search: "Search:",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

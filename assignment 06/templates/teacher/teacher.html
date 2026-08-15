@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Teacher {% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Teacher</h1>
+                <p>Teacher Name: {{teacher_name|capfirst}}</p>
+                <p>Teacher Age: {{teacher_age|default:"Unknown"}}</p>
+                <p>Teacher Salary: {{teacher_salary|default:"Unknown"}}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %} Checkout {% endblock title %}
+
+{% block main_content %}
+<main>
+    <!-- breadcrumb__area-start -->
+    <section class="breadcrumb__area box-plr-75">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__wrapper">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb__area-end -->
+
+    <!-- checkout-area-start -->
+    <section class="checkout-area pt-10 pb-10">
+        <div class="container">
+            <form action="" method="post" id="checkout-form">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Left Column: Checkout Summary + Coupon -->
+                    <div class="col-md-6">
+                        <h4 class="text-muted"><i class="fa fa-shopping-cart"></i> Checkout Summary</h4>
+                        <hr>
+                        <div class="card mb-2">
+                            <div class="table-content table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Images</th>
+                                            <th>Product</th>
+                                            <th>Variant</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in cart_items %}
+                                        <tr>
+                                            <td>
+                                                <img style="width:70px;height:80px;"
+                                                    src="{% if item.variant and item.variant.image_url %}{{ item.variant.image_url }}{% elif item.product.images.all.0 %}{{ item.product.images.all.0.image.url }}{% else %}/media/defaults/default.jpg{% endif %}"
+                                                    alt="{{ item.product.title }}">
+                                            </td>
+                                            <td>{{ item.product.title|title }}</td>
+                                            <td>{% if item.variant %}{{ item.variant.color.title|default:'' }} - {{ item.variant.size.code|default:'' }}{% else %}—{% endif %}</td>
+                                            <td>{{ item.stored_unit_price }} TK</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.subtotal }} TK</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Coupon Input -->
+                        <div class="coupon mb-3">
+                            <input class="w-50 p-1 border border-warning" name="coupon_code" 
+                                placeholder="Coupon code" type="text">
+                            <button class="cart-btn" type="button" id="apply-coupon-btn">Apply Coupon</button>
+                        </div>
+
+                        <!-- Totals -->
+                        <p class="text-end me-3" id="sub-total">Subtotal: {{total_price}} TK</p> 
+                        <p class="text-end me-3">Shipping Cost: {{shipping_cost}} TK</p>
+
+                        <p class="text-end me-3" id="discount-amount">Discount: {{ discount_amount }} TK</p> 
+
+                        <p class="text-end me-3 fw-bold" id="grand-total">Grand Total: {{grand_total}} TK</p>
+                    </div>
+
+                    <!-- Right Column: Shipping + Payment -->
+                    <div class="col-md-5 offset-md-1">
+
+                        <!-- Shipping Address -->
+                        <h4 class="text-muted">
+                            <i class="fa fa-location-dot me-2"></i> Select Shipping Address
+                        </h4>
+                        <hr>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% for ship_add in shipping_address %}
+                                <div class="form-check border rounded p-2 mb-2">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="radio" 
+                                        name="address" 
+                                        value="{{ ship_add.id }}" 
+                                        id="address{{ forloop.counter }}">
+
+                                    <label class="form-check-label" for="address{{ forloop.counter }}">
+                                        <strong>{{ ship_add.shipping_choice }}</strong><br>
+                                        <small>{{ ship_add.name }}, {{ ship_add.country }}, {{ ship_add.city }}, {{ ship_add.home_city }}</small><br>
+                                        <small>{{ ship_add.zip_code }} | {{ ship_add.phone }}</small><br>
+                                        <small>{{ ship_add.address }}</small>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+                        <!-- Payment Method -->
+                        <h4 class="text-muted">
+                            <i class="fa fa-credit-card me-2"></i> Payment Method
+                        </h4>
+                        <hr>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% for value, label in payment_methods %}
+                                <div class="form-check mb-2">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="radio" 
+                                        name="payment_method" 
+                                        value="{{ value }}" 
+                                        id="pay_{{ value }}">
+
+                                    <label class="form-check-label" for="pay_{{ value }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+                        <!-- Submit Button -->
+                        <button class="btn cart-btn w-100" type="submit">
+                            <i class="fa fa-lock me-2"></i> Place Checkout
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <!-- checkout-area-end -->
+</main>
+{% endblock main_content %}

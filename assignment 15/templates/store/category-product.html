@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Category Products{% endblock %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row g-3">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            {% include "store/get-filters.html" %}
+        </div>
+        <!-- Product Grid -->
+        <div class="col-lg-9 col-md-8" id="product-grid">
+            {% include "store/product_grid.html" %}
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+    $('.filter-link').on('click', function(e) {
+        e.preventDefault();
+        let url = $(this).attr('href');
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(response) {
+                $('#product-grid').html(response.html);
+                window.history.pushState({}, '', url);
+            }
+        });
+    });
+});
+</script>
+{% endblock extra_scripts %}

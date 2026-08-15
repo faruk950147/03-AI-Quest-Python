@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Participants{% endblock title %}
+{% block main %}
+    <div class="row justify-content-center align-items-center">
+        <div class="col-6">
+            <h3>All Participants:</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in participants %}
+                    <tr>
+                        <td>{{ participant.id }}</td>
+                        <td>{{ participant.name }}</td>
+                        <td>{{ participant.phone }}</td>
+                        <td>{{ participant.email }}</td>
+                        <td>
+                            <a href="" class="btn btn-primary">Edit</a>
+                            <a href="" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock main %}     
+{% block extra_scripts %}
+
+{% endblock extra_scripts %}    

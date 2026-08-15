@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home{% endblock title %}
+{% block slider %}
+<!--Banner Slider-->
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {% if sliders %}
+        {% for slider in sliders %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ slider.image.url }}" class="d-block w-100" alt="{{ slider.title|title }}">
+            <div class="carousel-caption d-none d-md-block">
+            <h5>{{ slider.title|title }}</h5>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h3>Please no slider</h3>
+        {% endif %}
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </a>
+</div>
+<!-- End Banner Slider -->
+{% endblock slider %}
+
+{% block live_sale %} 
+<!-- Live Sale Section -->
+<div class="container">
+    {% if live_sales %}
+        {% for live_sale in live_sales %}
+            <div class="row text-center mt-2 p-5 text-white border-bottom shadow" style="background-color: violet;">
+                <h1>{{live_sale.title|title}}</h1>
+                <span>{{live_sale.subtitle|title}}</span>
+                <small class="fw-lighter">Term and Condition Applied (For details visit {{live_sale.url}} )</small>
+            </div>
+            {% empty %}
+            <h3> No live sale available </h3>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- End Live Sale Section -->
+{% endblock live_sale %}
+
+{% block main_content %} 
+<!-- 1st Product Slider -->
+<div class="m-3">
+    <h2>E-Shop | Gents Pant</h2>
+    <!-- Slider 1 -->
+    <div class="owl-carousel" id="slider1">
+        {% if gents_pants %}
+            {% for product in gents_pants %}
+                <div class="item" style="width: 100%; max-width: 190px; margin: auto;">
+                    <a class="text-decoration-none" href="{% url "single-product" product.slug product.id %}"><img src="{{product.image.url}}" alt="{{product.title|title}}" height="200px"></a>
+                    <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">{{ product.title|truncatechars:25 }}</h6>
+                    <p class="fw-bold mb-0 text-success" style="font-size: 13px;">
+                    Tk. {{ product.sale_price }}
+                    {% if product.old_price %}
+                    <small class="text-muted text-decoration-line-through">
+                        Tk. {{ product.old_price }}
+                    </small>
+                    {% endif %}
+                    </p>
+                    <p style="font-size: 13px;">Category: {{ product.category.title|title }}</p>
+                    <p style="font-size: 13px;">Brand: {{ product.brand.title|title }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+        <h3> Please no products </h3>
+        {% endif %}
+    </div>
+</div>
+<!-- End 1st Product Slider -->
+
+<!-- Payment Info Section -->
+<div class="container my-5">
+    <div class="row">
+        
+        <div class="col-sm-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <img src="{% static 'assets/images/payavail/aq.jpg' %}" alt="" srcset="" class="img-fluid">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- End Payment Info Section -->
+
+<!-- 2nd Product Slider -->
+<div class="mx-3">
+    <h2>E-Shop | Borkha</h2>
+    <!-- Slider 2 -->
+    <div class="owl-carousel" id="slider2">
+        {% if borkhas  %}
+            {% for product in borkhas %}
+                <div class="item" style="width: 100%; max-width: 190px; margin: auto;">
+                    <a class="text-decoration-none" href="{% url "single-product" product.slug product.id %}"><img src="{{product.image.url}}" alt="{{product.title|title}}" height="200px"></a>
+                    <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">{{ product.title|truncatechars:25 }}</h6>
+                    <p class="fw-bold mb-0 text-success" style="font-size: 13px;">
+                    Tk. {{ product.sale_price }}
+                    {% if product.old_price %}
+                    <small class="text-muted text-decoration-line-through">
+                        Tk. {{ product.old_price }}
+                    </small>
+                    {% endif %}
+                    </p>
+                    <p style="font-size: 13px;">Category: {{ product.category.title|title }}</p>
+                    <p style="font-size: 13px;">Brand: {{ product.brand.title|title }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+        <h3> Please no products </h3>
+        {% endif %}
+    </div>
+</div>
+<!-- End 2nd Product Slider -->
+
+<!-- Payment Info Section -->
+<div class="container my-5">
+    <div class="row">
+
+        <div class="col-sm-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <img src="{% static 'assets/images/payavail/cc.jpg' %}" alt="" srcset="" class="img-fluid">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- End Payment Info Section -->
+
+<!-- 3rd Product Slider -->
+<div class="m-3">
+    <h2>E-Shop | Baby Fashion</h2>
+    <!-- Slider 3 -->
+    <div class="owl-carousel" id="slider3">
+        {% if baby_fashions %}
+            {% for product in baby_fashions %}
+                <div class="item" style="width: 100%; max-width: 190px; margin: auto;">
+                    <a class="text-decoration-none" href="{% url "single-product" product.slug product.id %}"><img src="{{product.image.url}}" alt="{{product.title|title}}" height="200px"></a>
+                    <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">{{ product.title|truncatechars:25 }}</h6>
+                    <p class="fw-bold mb-0 text-success" style="font-size: 13px;">
+                    Tk. {{ product.sale_price }}
+                    {% if product.old_price %}
+                    <small class="text-muted text-decoration-line-through">
+                        Tk. {{ product.old_price }}
+                    </small>
+                    {% endif %}
+                    </p>
+                    <p style="font-size: 13px;">Category: {{ product.category.title|title }}</p>
+                    <p style="font-size: 13px;">Brand: {{ product.brand.title|title }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+        <h3> Please no products </h3>
+      {% endif %}
+    </div>
+</div>
+<!-- End 3rd Product Slider -->
+{% endblock main_content %}

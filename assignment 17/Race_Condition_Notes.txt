@@ -1,0 +1,56 @@
+Race Condition - Notes
+
+1.  Definition: Race Condition is a situation where multiple threads or
+    processes access and modify shared data at the same time, causing
+    unexpected or incorrect results.
+
+2.  Why It Happens:
+
+-   Multithreading
+-   Multiprocessing
+-   Concurrent web requests
+-   Shared variables or database records
+-   Lack of synchronization
+
+3.  Example:
+
+balance = 100
+
+If two threads withdraw 50 at the same time:
+
+Expected result: 100 - 50 - 50 = 0
+
+Race Condition result: Final balance = 50 (Wrong)
+
+Reason: Both threads used the old value (100).
+
+4.  Real Life Web Example (Django): If product stock = 1 Two users buy
+    at the same time Without locking, both orders succeed But stock was
+    only 1
+
+5.  Problems Caused:
+
+-   Wrong data updates
+-   Duplicate orders
+-   Money loss
+-   Inventory errors
+-   Security risks
+
+6.  Prevention Methods:
+
+A. Using Lock (Python): import threading lock = threading.Lock()
+
+with lock: balance -= 50
+
+B. Using Database Transaction (Django): from django.db import
+transaction
+
+with transaction.atomic(): # update code
+
+C. Row Level Locking: select_for_update()
+
+D. Atomic Database Operation: update(stock = F(‘stock’) - 1)
+
+7.  Short Exam Definition: Race Condition is an issue that occurs when
+    concurrent execution leads to incorrect modification of shared
+    resources.

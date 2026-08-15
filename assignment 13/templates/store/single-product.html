@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Product Detail{% endblock title %}
+{% block main_content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-sm-6 text-center align-self-center">
+                <img src="{{product.image.url}}" alt="{{product.title|title}}" class="img-fluid img-thumbnail">
+            </div>
+            <div class="col-sm-5 offset-sm-1">
+                <h2>Product Title: {{product.title|title}}</h2>
+                <hr>
+                <p>{{product.description}}</p> <br>
+                <h4>Tk. {{product.sale_price}} <small class="fw-light text-decoration-line-through">{% if product.old_price %}
+                    {{product.old_price}}
+                    {% endif %}</small></h4> <br>
+
+                <p>Available Discount: {{product.discount_percent|title}}%</p>
+                <a href="" class="btn btn-primary shadow px-5 py-2">Add to Cart</a>
+                <a href="" class="btn btn-danger shadow px-5 py-2 ms-4">Buy Now</a>
+                <h5 class="mt-5">Available Info</h5>
+                <ul>
+                    <li>Category: {{product.category.title|title}}</li>
+                    <li>Brand: {{product.brand.title|title}}</li>
+                    <li>Available stock: {{product.available_stock|title}}</li>
+                    <li>Tag: {{product.keyword|title}}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}

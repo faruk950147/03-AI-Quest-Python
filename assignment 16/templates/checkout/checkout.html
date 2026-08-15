@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Checkout{% endblock title %}
+{% block main_content %}
+<div class="container">
+    <div class="row mt-5">
+        {% if checkout_items %}
+        <div class="col-sm-6">
+            <h4>Checkout Summary</h4>
+            <hr>
+            {% for item in checkout_items %}
+                <div class="card mb-2">
+                    <div class="card-body d-flex gap-3">
+                        <!-- Product Image -->
+                        <img src="{{ item.product.image.url }}" 
+                            alt="{{ item.product.title |title }}" 
+                            style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                        <div>
+                            <h5>Product: {{item.product.title|title}}</h5>
+                            <p>Quantity: {{item.quantity}}</p>
+                            <p class="fw-bold">Price: {{item.product.sale_price}}</p>
+                        </div>
+                    </div>
+
+                    <p class="text-end me-3">Subtotal: {{item.subtotal}}</p>
+                </div>
+            {% empty %}
+            <p>No items to checkout.</p>
+            {% endfor %}
+
+            <p class="text-end me-3d">Shipping Cost: {{shipping_cost}}</p>
+            <p class="text-end me-3">Grand Total: {{grand_total}}</p>
+            <hr>
+        </div>
+        {% endif %}
+        <div class="col-sm-4 offset-sm-1">
+            <h4>Select Shipping Address</h4>
+            <hr>
+            <form action="{% url "checkout-success" %}" method="post">
+                {% csrf_token %}
+                {% if profiles %}
+                {% for profile in profiles %}
+                <div class="card">
+                    <div class="card-body">
+                        <h6>{{profile.name|title}}</h6>
+                        <h6>{{profile.phone}}</h6>
+                        <p>{{profile.villorroad}}, {{profile.thana|title}}, {{profile.district|title}}, {{profile.division|title}}, {{profile.zipcode}}</p>
+                    </div>
+                </div>            
+                <div class="form-check mt-2 mb-5">
+                    <input class="form-check-input" type="radio" value="{{profile.id}}" name="address-id" id="address-id{{profile.id}}">
+                    <label class="form-check-label fw-bold" for="{{profile.id}}">Use This
+                        Address: {{forloop.counter}} </label>
+                </div>
+                {% empty %}
+                <p>No saved addresses found.</p>
+                {% endfor %}
+                <div class="text-end">
+                    <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Continue</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

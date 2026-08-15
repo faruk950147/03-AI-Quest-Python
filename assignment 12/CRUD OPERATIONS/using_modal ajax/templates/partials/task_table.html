@@ -1,0 +1,66 @@
+<table class="table table-bordered table-striped">
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Department</th>
+    <th>Phone</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for task in tasks %}
+<tr>
+    <td>{{ task.id }}</td>
+    <td>{{ task.name }}</td>
+    <td>{{ task.department }}</td>
+    <td>{{ task.phone }}</td>
+    <td>
+        <button class="btn btn-sm {% if task.is_completed %}btn-success{% else %}btn-secondary{% endif %} complete-btn"
+                href="{% url 'IsCompleteView' task.id %}">
+            {% if task.is_completed %}Completed{% else %}Pending{% endif %}
+        </button>
+    </td>
+    <td class="d-flex gap-1">
+
+        <!-- EDIT BUTTON -->
+        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ task.id }}">
+            Edit
+        </button>
+
+        <!-- EDIT MODAL -->
+        <div class="modal fade" id="editModal{{ task.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form class="editForm" action="{% url 'EditedView' task.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Task</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" name="name" value="{{ task.name }}" class="form-control my-2" required>
+                            <input type="text" name="department" value="{{ task.department }}" class="form-control my-2" required>
+                            <input type="text" name="phone" value="{{ task.phone }}" class="form-control my-2" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success w-100">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELETE BUTTON -->
+        <a href="{% url 'DeletedView' task.id %}" class="btn btn-danger btn-sm delete-btn">Delete</a>
+
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="text-center text-muted">No tasks found</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account{% endblock title %}
+
+{% block main_content %}
+<main>
+    <div class="account-area mt-70 mb-70">
+        <div class="container">
+            <div class="row">
+
+                <!-- LEFT Account PANEL -->
+                <div class="col-3 mb-4">
+                    {% include "account/sidebar.html" %}
+                </div>
+
+                <!-- RIGHT PROFILE INFO -->
+                <div class="col-9">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="fw-bold border-bottom pb-2 mb-4">USER PROFILE INFO</h6>
+
+                            <!-- Profile Image -->
+                            <div class="text-center mb-4">
+                                <img src="{{request.user.image.url}}"
+                                     class="rounded-circle border img-fluid"
+                                     style="width: 120px; height: 120px; object-fit: cover;"
+                                     alt="{{ request.user.username }}">
+                            </div>
+
+                            <!-- Profile Table -->
+                            <div>
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold" width="180"> Username</td>
+                                            <td>{{ request.user.username }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Email</td>
+                                            <td>{{ request.user.email }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Country</td>
+                                            <td>{{ request.user.country }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">City</td>
+                                            <td>{{ request.user.city }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Home City</td>
+                                            <td>{{ request.user.home_city }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Zip Code</td>
+                                            <td>{{ request.user.zip_code }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Phone Number</td>
+                                            <td>{{ request.user.phone }}</td>
+                                        </tr>
+                                        <tr class="border-bottom">
+                                            <td class="fw-semibold">Address</td>
+                                            <td>{{ request.user.address }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock main_content %}

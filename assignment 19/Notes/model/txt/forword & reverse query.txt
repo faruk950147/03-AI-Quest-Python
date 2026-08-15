@@ -1,0 +1,228 @@
+
+======================================= Forward & Reverse Query =======================================
+Django Models & Relations Complete Notes (Bangla)
+1. Models Overview
+
+Django মডেল হলো ডাটাবেসের structure define করার উপায়। প্রতিটি মডেল একটি table হিসেবে ডাটাবেসে তৈরি হয়।
+
+Example Models:
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='posts')
+    tags = models.ManyToManyField(Tag, related_name='posts')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+2. Field Types
+Field	Description	Example
+CharField	ছোট text field	name = models.CharField(max_length=100)
+TextField	বড় text content	content = models.TextField()
+EmailField	ইমেইল	email = models.EmailField(unique=True)
+DateTimeField	date-time	created_at = models.DateTimeField(auto_now_add=True)
+ForeignKey	One-to-Many relation	author = models.ForeignKey(Author)
+ManyToManyField	Many-to-Many relation	tags = models.ManyToManyField(Tag)
+
+3. Model Relations
+3.1 One-to-Many (ForeignKey)
+
+এক Author → অনেক Post
+
+এক Post → এক Author
+
+author = Author.objects.first()
+posts = author.posts.all()  # Reverse relation
+post = posts.first()
+author = post.author        # Forward relation
+3.2 Many-to-Many (ManyToManyField)
+
+এক Post → অনেক Tag
+
+এক Tag → অনেক Post
+
+post = Post.objects.first()
+tags = post.tags.all()  # Forward from Post → Tags
+
+tag = Tag.objects.first()
+posts = tag.posts.all()  # Reverse from Tag → Posts
+3.3 Reverse Relation
+
+Related name ব্যবহার করে reverse query করা যায়।
+
+উদাহরণ:
+
+post = Post.objects.first()
+comments = post.comments.all()  # Reverse: Post → Comment
+4. Forward vs Reverse Relation
+Relation	Access Example	Forward/Reverse
+Post → Author	post.author	Forward
+Author → Post	author.posts.all()	Reverse
+Post → Comment	post.comments.all()	Reverse
+Comment → Post	comment.post	Forward
+
+Tip: Forward মানে original field use করা, Reverse মানে related_name বা Django default ব্যবহার করা।
+
+5. Django Query Examples
+5.1 Create
+# Author create
+author = Author.objects.create(name='Faruk', email='faruk@example.com')
+
+# Tag create
+tag1 = Tag.objects.create(name='Python')
+tag2 = Tag.objects.create(name='Django')
+
+# Post create
+post = Post.objects.create(title='My First Post', content='Content here', author=author)
+post.tags.add(tag1, tag2)  # Many-to-Many add tags
+
+# Comment create
+comment = Comment.objects.create(post=post, content='Nice post!')
+5.2 Read / Access
+# Get all posts by an author
+author_posts = author.posts.all()  # Reverse
+
+# Get all comments for a post
+comments = post.comments.all()     # Reverse
+
+# Get all posts for a tag
+tag_posts = tag1.posts.all()       # Reverse
+
+# Get post author
+post_author = post.author          # Forward
+5.3 Filter
+# Posts by specific author
+Post.objects.filter(author=author)
+
+# Posts with a specific tag
+Post.objects.filter(tags=tag1)
+
+# Comments on a specific post
+Comment.objects.filter(post=post)
+6. Admin & String Representation
+class Post(models.Model):
+    ...
+    def __str__(self):
+        return self.title  # Admin-এ সুন্দরভাবে দেখানোর জন্য
+
+__str__ method ব্যবহার করলে Django admin এ readable format দেখায়।
+
+7. Extra Tips
+
+related_name ব্যবহার করলে reverse query সহজ হয়।
+
+on_delete=models.CASCADE ব্যবহার করলে parent delete হলে childও delete হবে।
+
+auto_now_add=True ব্যবহার করলে object creation time automatically save হয়।
+
+Many-to-Many field এ add(), remove(), clear() ব্যবহার করতে পারেন।
+
+============================== select_related & prefetch_related ==============================
+Optimized Queries with select_related & prefetch_related
+1. Fetch all posts with authors (Forward FK)
+from django.db.models import Count
+from blog.models import Post
+
+# Normal query (slow, N+1 problem)
+posts = Post.objects.all()
+for post in posts:
+    print(post.title, post.author.name)  # এক extra query per post
+
+# Optimized query
+posts = Post.objects.select_related('author').all()
+for post in posts:
+    print(post.title, post.author.name)  # সব একবারের query
+
+Effect:
+
+Normal: 1 + N queries
+
+Optimized: 1 query
+
+2. Fetch posts with tags (Many-to-Many)
+from blog.models import Post
+
+# Normal query (slow)
+posts = Post.objects.all()
+for post in posts:
+    for tag in post.tags.all():  # N queries per post
+        print(post.title, tag.name)
+
+# Optimized query
+posts = Post.objects.prefetch_related('tags').all()
+for post in posts:
+    for tag in post.tags.all():  # no extra query
+        print(post.title, tag.name)
+
+Effect:
+
+Normal: 1 + N queries for tags
+
+Optimized: 2 queries total (Post + Tags)
+
+3. Fetch posts with authors and tags (combined)
+posts = Post.objects.select_related('author').prefetch_related('tags').all()
+
+for post in posts:
+    print(post.title, post.author.name, [tag.name for tag in post.tags.all()])
+
+Effect:
+
+Only 2 queries, no matter how many posts
+
+Author → select_related (JOIN)
+
+Tags → prefetch_related
+
+4. Fetch comments with posts and post authors
+from blog.models import Comment
+
+# Optimized: fetch comment + post + post author
+comments = Comment.objects.select_related('post__author').all()
+
+for comment in comments:
+    print(comment.content, comment.post.title, comment.post.author.name)
+
+Effect:
+
+1 query for all comments + related posts + authors
+
+5. Fetch authors with their posts and post tags (Nested prefetch)
+from blog.models import Author
+
+# Nested prefetch: Author → Post → Tags
+authors = Author.objects.prefetch_related('posts__tags').all()
+
+for author in authors:
+    print(author.name)
+    for post in author.posts.all():
+        print("  ", post.title, [tag.name for tag in post.tags.all()])
+    
+Effect:
+
+3 queries total:
+
+Authors
+
+Posts of all authors
+
+Tags of all posts
+
+6. Summary Table
+Scenario	Field Type	Recommended	Query Count
+Post → Author	FK	select_related('author')	1
+Post → Tags	M2M	prefetch_related('tags')	2
+Post → Author + Tags	FK + M2M	select_related('author').prefetch_related('tags')	2
+Comment → Post → Author	FK	select_related('post__author')	1
+Author → Posts → Tags	Reverse + M2M	prefetch_related('posts__tags')	3

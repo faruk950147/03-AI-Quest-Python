@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %} Wishlist Details {% endblock title %}
+
+{% block main_content %}
+<main>
+    <!-- breadcrumb__area-start -->
+    <section class="breadcrumb__area box-plr-75">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__wrapper">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb__area-end -->
+
+    <section class="cart-area pt-10 pb-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+
+                    <div class="table-content table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Images</th>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>Unit Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if wish_items %}
+                                    {% for item in wish_items %}
+                                        <tr class="cart-item" data-id="{{ item.id }}">
+                                            <td>
+                                                <a href="{% url 'product-detail' item.product.slug item.product.id %}">
+                                                    <img style="width:70px;height:80px;"
+                                                        src="{% if item.variant and item.variant.image_url %}
+                                                                {{ item.variant.image_url }}
+                                                            {% elif item.product.images.all.0 %}
+                                                                {{ item.product.images.all.0.image.url }}
+                                                            {% else %}
+                                                                /media/defaults/default.jpg
+                                                            {% endif %}" 
+                                                        alt="{{ item.product.title }}">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'product-detail' item.product.slug item.product.id %}">
+                                                    {{ item.product.title|title }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {% if item.variant %}
+                                                    {{ item.variant.color.title|default:'' }} - {{ item.variant.size.code|default:'' }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.product.sale_price }} TK</td>
+                                            <td>
+                                                <button class="btn btn-sm remove-wish-item">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock main_content %}

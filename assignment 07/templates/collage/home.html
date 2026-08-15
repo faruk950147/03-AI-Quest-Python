@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %} Home {% endblock %}
+{% load data %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-4">
+                {% if title and department and age >= 18 %}
+                    <p>Title: {{ title|capfirst }}</p>
+                    <p>Department: {{ department|capfirst }}</p>
+                    <p>Age: {{ age|default_if_none:18 }}</p>
+                {% else %}
+                    <p>No title or department provided</p>
+                {% endif %}
+                <p>{{ "Faruk"|course }}</p>
+            </div>
+            <div class="col-8">
+                <h3 class="text-center mb-3">Student Result Table (10×10)</h3>
+
+                <table class="table table-bordered table-striped text-center">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Dept</th>
+                        <th>CGPA</th>
+                        <th>Age</th>
+                        <th>Year</th>
+                        <th>Semester</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>101</td><td>Faruk Ahmed</td><td>CMT</td><td>3.75</td><td>22</td><td>2025</td><td>6th</td><td>faruk@mail.com</td><td>01711111111</td><td>Bogura</td>
+                    </tr>
+                    <tr>
+                        <td>102</td><td>Rahim</td><td>Electrical</td><td>3.50</td><td>23</td><td>2025</td><td>6th</td><td>rahim@mail.com</td><td>01722222222</td><td>Dhaka</td>
+                    </tr>
+                    <tr>
+                        <td>103</td><td>Karim</td><td>Mechanical</td><td>3.20</td><td>22</td><td>2025</td><td>6th</td><td>karim@mail.com</td><td>01733333333</td><td>Rajshahi</td>
+                    </tr>
+                    <tr>
+                        <td>104</td><td>Hasan</td><td>Civil</td><td>3.10</td><td>24</td><td>2025</td><td>6th</td><td>hasan@mail.com</td><td>01744444444</td><td>Chittagong</td>
+                    </tr>
+                    <tr>
+                        <td>105</td><td>Selim</td><td>Textile</td><td>3.40</td><td>22</td><td>2025</td><td>6th</td><td>selim@mail.com</td><td>01755555555</td><td>Khulna</td>
+                    </tr>
+                    <tr>
+                        <td>106</td><td>Shahin</td><td>Computer</td><td>3.80</td><td>21</td><td>2025</td><td>6th</td><td>shahin@mail.com</td><td>01766666666</td><td>Barisal</td>
+                    </tr>
+                    <tr>
+                        <td>107</td><td>Asif</td><td>Electronics</td><td>3.60</td><td>22</td><td>2025</td><td>6th</td><td>asif@mail.com</td><td>01777777777</td><td>Sylhet</td>
+                    </tr>
+                    <tr>
+                        <td>108</td><td>Rafiq</td><td>Power</td><td>3.25</td><td>23</td><td>2025</td><td>6th</td><td>rafiq@mail.com</td><td>01788888888</td><td>Mymensingh</td>
+                    </tr>
+                    <tr>
+                        <td>109</td><td>Jamil</td><td>Marine</td><td>3.55</td><td>24</td><td>2025</td><td>6th</td><td>jamil@mail.com</td><td>01799999999</td><td>Cox’s Bazar</td>
+                    </tr>
+                    <tr>
+                        <td>110</td><td>Nayeem</td><td>Architecture</td><td>3.70</td><td>22</td><td>2025</td><td>6th</td><td>nayeem@mail.com</td><td>01811111112</td><td>Rangpur</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

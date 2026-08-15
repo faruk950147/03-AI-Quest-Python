@@ -1,0 +1,191 @@
+================================ 1. views.py ====================================
+from django.views import View
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from .models import Product, Category
+@method_decorator(never_cache, name='dispatch')
+class CategoryProductView(generic.View):
+    def get(self, request, slug, id):
+        category = get_object_or_404(Category, slug=slug, id=id)
+        products = Product.objects.filter(category=category, status='ACTIVE')
+        brands = Brand.objects.filter(product__category=category).distinct()
+
+        max_price = products.aggregate(Max('sale_price'))['sale_price__max']
+        min_price = products.aggregate(Min('sale_price'))['sale_price__min']
+
+        context = {
+            'category': category,
+            'products': products,
+            'brands': brands,
+            'max_price': max_price,
+            'min_price': min_price,
+        }
+        return render(request, 'store/category-product.html', context)
+
+@method_decorator(never_cache, name='dispatch')
+class GetFilterProductsView(generic.View):
+    def post(self, request):
+        id = request.POST.get('id')
+        slug = request.POST.get('slug')
+        category = get_object_or_404(Category, id=id, slug=slug)
+
+        products = Product.objects.filter(category=category, status='ACTIVE')
+
+        # Brand filter
+        brand_ids = request.POST.getlist('brand[]')
+        if brand_ids:
+            products = products.filter(brand_id__in=brand_ids)
+
+        # Price filter (min & max)
+        min_price = request.POST.get('minPrice')
+        max_price = request.POST.get('maxPrice')
+
+        if min_price:
+            products = products.filter(sale_price__gte=min_price)
+        if max_price:
+            products = products.filter(sale_price__lte=max_price)
+
+        html = render_to_string('store/product_grid.html', {'products': products})
+        return JsonResponse({'html': html})
+    
+
+===================================== 2. urls.py =====================================
+from .views import *
+
+urlpatterns = [
+    path('category-product/<str:slug>/<int:id>/', CategoryProductView.as_view(), name='category-product'),
+    path('get-filter-products/', csrf_exempt(GetFilterProductsView.as_view()), name='get-filter-products'),
+]
+================================ 3 main =====================================
+<input type="hidden" id="id" value="{{ category.id }}">
+<input type="hidden" id="slug" value="{{ category.slug }}">
+=============================== 4. jquery js =================================
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+$(document).ready(function() {
+
+    // All Filters — Select/Unselect all
+    $("#all-filters").on('change', function() {
+        let isChecked = $(this).is(":checked");
+        $(".filter-checkbox").prop("checked", isChecked);
+        $("#priceRange").trigger("change");
+    });
+
+    // Apply AJAX when checkbox or price changes
+    $('.filter-checkbox, #priceRange').on('change', function(e){
+        e.preventDefault();
+
+        let filter_object = {};
+        let id = $("#id").val();
+        let slug = $("#slug").val();
+
+        // Get selected filters
+        $('.filter-checkbox:checked').each(function(){
+            let key = $(this).data('filter');
+            let value = $(this).val();
+
+            if (!filter_object[key]) {
+                filter_object[key] = [];
+            }
+            filter_object[key].push(value);
+        });
+
+        // Category info
+        filter_object['id'] = id;
+        filter_object['slug'] = slug;
+
+        // Price range
+        filter_object['minPrice'] = $("#minPrice").val();
+        filter_object['maxPrice'] = $("#priceRange").val();
+
+
+        console.log(filter_object);
+
+        // AJAX Call
+        $.ajax({
+            url: "{% url 'get-filter-products' %}",
+            method: "POST",
+            data: {
+                ...filter_object,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            dataType: "json",
+            success: function(res){
+                $("#product-grid").html(res.html);
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}
+
+================================== 5. HTML — Get Filter ============================
+<div class="card p-3 shadow-sm">
+
+    <!-- All Filters -->
+    <h6 class="fw-bold mb-2">All Filters</h6>
+    <div class="list-group list-group-flush">
+        <div class="list-group-item p-0 border-0">
+            <div class="d-flex align-items-center mb-2">
+                <input type="checkbox" id="all-filters" class="filter-checkbox me-2" data-filter="all" value="all">
+                <label for="all-filters">All Filters</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brand Filters -->
+    <h6 class="fw-bold mb-2 mt-3">Brands</h6>
+    <div class="list-group list-group-flush">
+        {% for brand in brands %}
+        <div class="list-group-item p-0 border-0">
+            <div class="d-flex align-items-center mb-2">
+                <input type="checkbox"
+                       id="brand-{{ brand.id }}"
+                       class="filter-checkbox me-2"
+                       data-filter="brand"
+                       value="{{ brand.id }}">
+                <label for="brand-{{ brand.id }}">{{ brand.title|title }}</label>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Price Range -->
+    <h6 class="fw-bold mb-2 mt-3">Price</h6>
+    <div class="list-group list-group-flush">
+        <input type="range"
+               id="priceRange"
+               class="form-range"
+               min="{{min_price}}"
+               max="{{ max_price }}"
+               step="5"
+               value="{{ max_price }}">
+
+        <span id="priceValue" class="fw-bold small">Max : {{ max_price }} Min : {{min_price}}</span>
+    </div>
+</div>
+<input type="number" id="maxPrice" placeholder="Max Price" class="form-control mb-2">
+
+========================== 6. ajax/product-list.html (FULL)======================
+<div class="row g-3">
+    {% for product in products %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card h-100 shadow-sm">
+            <a href="{% url 'single-product' product.slug product.id %}">
+                <img src="{{ product.image.url }}" class="card-img-top" style="height:220px; object-fit:cover;">
+            </a>
+            <div class="card-body p-2">
+                <h6 class="card-title">{{ product.title|truncatechars:25 }}</h6>
+                <p class="text-success mb-1">Tk. {{ product.sale_price }}
+                    {% if product.old_price %}
+                        <small class="text-muted text-decoration-line-through">Tk. {{ product.old_price }}</small>
+                    {% endif %}
+                </p>
+                <p class="mb-0" style="font-size: 14px;">Brand: {{ product.brand.title|title }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center mt-4">No products available for selected filters.</p>
+    {% endfor %}
+</div>

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %} Student List {% endblock %}
+{% block content %}
+<section class="student-list">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-10 col-lg-8 mt-5">
+                <h1 class="mb-4 text-center text-muted">Student List</h1>
+
+                <table class="table table-hover table-bordered text-center align-middle">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Batch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for student in students %}
+                                <tr>
+                                    <td>{{ student.id }}</td>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.batch }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">No students found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

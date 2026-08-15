@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Category Products{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h6 class="mt-3 mb-2 fw-bold px-3">Category {{ category.title|title }}</h6>
+        <!-- Sidebar Filters -->
+        <div class="col-sm-3">
+            <div class="list-group shadow-sm">
+                <!-- All Filters -->
+                <h6 class="mt-3 mb-2 fw-bold px-3">All Filters</h6>
+                <a href="{% url 'category-product' category.slug category.id %}" 
+                   class="list-group-item list-group-item-action {% if not current_data %}active{% endif %}">
+                    All Filters
+                </a>
+
+                <!-- Brand Filter -->
+                <h6 class="mt-3 mb-2 fw-bold px-3">Brands</h6>
+                {% if brands %}
+                    {% for brand in brands %}
+                    <a href="{% url 'category-filter' category.slug category.id brand.slug %}"
+                       class="list-group-item list-group-item-action {% if current_data == brand.slug %}active{% endif %}">
+                        {{ brand.title|title }}
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted px-3 small">No brands available</p>
+                {% endif %}
+
+                <!-- Price Filter -->
+                <h6 class="mt-4 mb-2 fw-bold px-3">Prices</h6>
+                <a href="{% url 'category-filter' category.slug category.id 'above' %}"
+                   class="list-group-item list-group-item-action {% if current_data == 'above' %}active{% endif %}">
+                    Above 20k
+                </a>
+                <a href="{% url 'category-filter' category.slug category.id 'below' %}"
+                   class="list-group-item list-group-item-action {% if current_data == 'below' %}active{% endif %}">
+                    Below 20k
+                </a>
+            </div>
+        </div>
+
+        <!-- Product Section -->
+        <div class="col-sm-9">
+            <div class="row justify-content-start">
+                {% if products %}
+                    {% for product in products %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100" style="width: 100%; max-width: 190px; margin: auto;">
+                            <a href="{% url 'single-product' product.slug product.id %}" class="text-decoration-none">
+                                <img src="{{ product.image.url }}" alt="{{ product.title|title }}" class="card-img-top" style="height:220px; object-fit:cover;">
+                            </a>
+                            <div class="card-body p-2">
+                                <h6 class="card-title fw-bold mb-1" style="font-size: 14px;">{{ product.title|truncatechars:25 }}</h6>
+                                <p class="fw-bold mb-0 text-success" style="font-size: 13px;">
+                                    Tk. {{ product.sale_price }}
+                                    {% if product.old_price %}
+                                        <small class="text-muted text-decoration-line-through">
+                                            Tk. {{ product.old_price }}
+                                        </small>
+                                    {% endif %}
+                                </p>
+                                <p style="font-size: 13px;">Category: {{ product.category.title|title }}</p>
+                                <p style="font-size: 13px;">Brand: {{ product.brand.title|title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <h5 class="text-muted">No products available for the selected filters.</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock main_content %}

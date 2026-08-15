@@ -1,0 +1,40 @@
+/* Highlight active nav-link */
+.navbar .nav-link.active {
+    background-color: #198754; /* Bootstrap success shade */
+    border-radius: 0.25rem;
+}
+
+/* Highlight active dropdown-item */
+.dropdown-menu .dropdown-item.active {
+    background-color: #198754;
+    color: #fff;
+}
+.navbar .nav-link:hover {
+    background-color: #198754; /* Bootstrap success shade */
+    border-radius: 0.25rem;
+}
+
+/* Highlight active dropdown-item */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #198754;
+    color: #fff;
+}
+/* Premium Hover Effect */
+.hover-card {
+    transition: all .25s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.12) !important;
+}
+
+/* Smooth list styling */
+.list-group-item:hover {
+    background: #f8f9fa;
+    cursor: pointer;
+}
+
+.card {
+    border-radius: 10px !important;
+}

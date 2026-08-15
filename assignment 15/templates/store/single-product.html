@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Detail{% endblock %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+
+        <!-- Product Image -->
+        <div class="col-sm-6 text-center align-self-center">
+            <div class="card shadow-sm border-0 p-3" 
+                 style="max-width: 450px; height: 450px; overflow: hidden;
+                        display: flex; align-items: center; justify-content: center; margin: auto;">
+                <img src="{{ product.image.url }}"
+                     alt="{{ product.title }}"
+                     class="img-fluid"
+                     style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-sm-5 offset-sm-1">
+
+            <h2 class="fw-bold">{{ product.title|title }}</h2>
+            <hr>
+
+            <p class="text-muted">{{ product.description }}</p>
+
+            <h4 class="mt-3">
+                Tk. {{ product.sale_price }}
+                {% if product.old_price %}
+                <small class="fw-light text-decoration-line-through text-danger ms-2">
+                    {{ product.old_price }}
+                </small>
+                {% endif %}
+            </h4>
+
+            {% if product.discount_percent %}
+            <p class="text-success fw-semibold">
+                Discount: {{ product.discount_percent }}%
+            </p>
+            {% endif %}
+
+            <div class="card-body px-0">
+
+                <!-- Add To Cart Form -->
+                <form method="POST" action="{% url 'add-to-cart' %}" id="form">
+                    {% csrf_token %}
+
+                    <p class="text-muted mb-2">Select Quantity</p>
+
+                    <!-- Quantity -->
+                    <div class="mb-3" style="max-width: 140px;">
+                        <input type="number"
+                               name="quantity"
+                               id="quantity"
+                               class="form-control text-center"
+                               value="1"
+                               min="1"
+                               max="{{ product.available_stock }}"
+                               required>
+
+                        <input type="hidden" name="product-id" value="{{ product.id }}">
+                    </div>
+                    <!-- Buttons -->
+                    <button type="submit" 
+                            class="btn btn-success fw-semibold shadow-sm me-2">
+                        <i class="bi bi-cart-plus me-1"></i> Add To Cart
+                    </button>
+                    <a href="#" class="btn btn-danger fw-semibold shadow-sm">
+                        <i class="bi bi-lightning-charge me-1"></i> Buy Now
+                    </a>
+                </form>
+
+            </div>
+
+            <!-- Additional Info -->
+            <h5 class="mt-5">Product Info</h5>
+            <ul class="list-unstyled">
+                <li><strong>Category:</strong> {{ product.category.title|title }}</li>
+                <li><strong>Brand:</strong> {{ product.brand.title|title }}</li>
+                <li><strong>Available Stock:</strong> {{ product.available_stock }}</li>
+                <li><strong>Tags:</strong> {{ product.keyword|title }}</li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+
+    $("#form").on("submit", function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{% url 'add-to-cart' %}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+            },
+
+            success: function(data) {
+
+                if (data.status === "success") {
+
+                    alert(data.message);
+
+                    // Update Cart Count
+                    if ($("#cart-count").length) {
+                        $("#cart-count").text(data.cart_count);
+                    }
+
+                    // Update Cart Total Price (if exists)
+                    if ($("#cart-total-price").length) {
+                        $("#cart-total-price").text(
+                            parseFloat(data.cart_total_price).toFixed(2)
+                        );
+                    }
+
+                    // Reset quantity
+                    $("#quantity").val(1);
+
+                } else {
+                    alert(data.message);
+                }
+            },
+
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+                alert("Something went wrong. Please try again.");
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}

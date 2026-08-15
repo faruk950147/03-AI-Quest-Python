@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}User Profile{% endblock title %}
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <h3>Welcome {{request.user.username|title}}</h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url 'profile' %}" class="btn {{active}} ">Profile</a></li>
+                <li class="d-grid"><a href="{% url 'address' %}" class="btn">Address</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-8 offset-sm-1">
+            {% include "alert.html" %}
+            <form method="post" action="" class="border p-4 rounded shadow-sm bg-light" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3 text-start">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors|striptags }}</div>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+                    
+                {% if form.non_field_errors %}
+                    <div class="text-danger small mb-3">{{ form.non_field_errors|striptags }}</div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-success w-100">Changes Now</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

@@ -1,0 +1,22 @@
+<div class="row g-3">
+    {% for product in products %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card h-100 shadow-sm">
+            <a href="{% url 'single-product' product.slug product.id %}">
+                <img src="{{ product.image.url }}" class="card-img-top" style="height:220px; object-fit:cover;">
+            </a>
+            <div class="card-body p-2">
+                <h6 class="card-title">{{ product.title|truncatechars:25 }}</h6>
+                <p class="text-success mb-1">Tk. {{ product.sale_price }}
+                    {% if product.old_price %}
+                        <small class="text-muted text-decoration-line-through">Tk. {{ product.old_price }}</small>
+                    {% endif %}
+                </p>
+                <p class="mb-0" style="font-size: 14px;">Brand: {{ product.brand.title|title }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center mt-4">No products available for selected filters.</p>
+    {% endfor %}
+</div>

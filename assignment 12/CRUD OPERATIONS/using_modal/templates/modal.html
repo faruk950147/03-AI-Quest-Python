@@ -1,0 +1,26 @@
+<!-- Edit Button -->
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ task.id }}">Edit</button>
+        
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal{{ task.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'EditedView' task.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="name" value="{{ task.name }}" class="form-control my-2" placeholder="Name" required>
+                    <input type="text" name="department" value="{{ task.department }}" class="form-control my-2" placeholder="Department" required>
+                    <input type="text" name="phone" value="{{ task.phone }}" class="form-control my-2" placeholder="Phone" required> 
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success form-control" type="submit">Saved Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %} Checkout History {% endblock title %}
+
+{% block main_content %}
+<main>
+    <!-- breadcrumb area -->
+    <section class="breadcrumb__area box-plr-75">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__wrapper">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{% url "home" %}">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Checkout History</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- checkout area -->
+    <section class="checkout-area pt-10 pb-10">
+        <div class="container">
+
+            {% if checkouts %}
+                {% for checkout in checkouts %}
+                <div class="row mb-4">
+
+                    <!-- Left: Checkout Items -->
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+
+                            <!-- Header -->
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap">
+
+                                <!-- LEFT SIDE -->
+                                <div>
+                                    <strong>Checkout Id #{{ checkout.id }}</strong><br>
+                                    <small class="text-muted">{{ checkout.created_at|date:"d M Y H:i" }}</small>
+                                </div>
+
+                                <!-- RIGHT SIDE (PROGRESS) -->
+                                <div style="min-width:200px;" class="ms-auto">
+
+                                    {% if checkout.status == 'pending' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-secondary progress-bar-striped progress-bar-animated" style="width:100%">Pending</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'accepted' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%">Accepted</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'packed' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width:100%">Packed</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'on_the_way' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width:100%">On The Way</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'delivered' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-success" style="width:100%">Delivered</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'cancelled' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-danger" style="width:100%">Cancelled</div>
+                                        </div>
+
+                                    {% elif checkout.status == 'refunded' %}
+                                        <div class="progress" style="height:20px;">
+                                            <div class="progress-bar bg-dark" style="width:100%">Refunded</div>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <div class="card-body table-responsive">
+                                <table class="table table-bordered mb-0 align-middle">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Product</th>
+                                            <th>Variant</th>
+                                            <th>Unit Price</th>
+                                            <th>Qty</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in checkout.items.all %}
+                                        <tr class="text-center">
+                                            <td>
+                                                <img style="width:70px;height:80px;object-fit:cover;"
+                                                    src="{% if item.variant and item.variant.image_url %}
+                                                            {{ item.variant.image_url }}
+                                                        {% elif item.product.images.first %}
+                                                            {{ item.product.images.first.image.url }}
+                                                        {% else %}
+                                                            /media/defaults/default.jpg
+                                                        {% endif %}"
+                                                    alt="{{ item.product.title }}">
+                                            </td>
+
+                                            <td>{{ item.product.title|title }}</td>
+
+                                            <td>
+                                                {% if item.variant %}
+                                                    {{ item.variant.color.title|default:"" }}
+                                                    {% if item.variant.size %} - {{ item.variant.size.code }}{% endif %}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+
+                                            <td>{{ item.unit_price }} TK</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.subtotal }} TK</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Amount Summary -->
+                            <div class="card-footer bg-light">
+                                <p class="text-end me-3">Subtotal: {{ checkout.total_amount }} TK</p>
+                                <p class="text-end me-3">Shipping Cost: {{ checkout.shipping_cost }} TK</p>
+
+                                {% if checkout.discount_amount > 0 %}
+                                    <p class="text-end me-3 text-success">Discount: -{{ checkout.discount_amount }} TK</p>
+                                {% endif %}
+
+                                <p class="text-end me-3 fw-bold">Grand Total: {{ checkout.final_amount }} TK</p>
+
+                                {% if checkout.coupon %}
+                                    <p class="text-end me-3">Coupon: {{ checkout.coupon.code }} ({{ checkout.coupon.discount_percent }}%)</p>
+                                {% endif %}
+
+                                <p class="text-end me-3">Payment Method: {{ checkout.get_payment_method_display }}</p>
+
+                                <!-- ACTION BUTTONS -->
+                                <div class="text-end mt-2">
+
+                                    {% if checkout.status == 'pending' or checkout.status == 'accepted' or checkout.status == 'packed' %}
+                                        <a href="" 
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Are you sure you want to cancel this order?');">
+                                        Cancel Checkout
+                                        </a>
+                                    {% endif %}
+
+                                    {% if checkout.status == 'delivered' %}
+                                        {% if not checkout.refund_request %}
+                                            <button class="btn btn-sm btn-warning" data-bs-toggle="collapse" data-bs-target="#refundBox{{ checkout.id }}">
+                                                Request Refund
+                                            </button>
+
+                                            <div id="refundBox{{ checkout.id }}" class="collapse mt-2">
+                                                <form method="POST" action="{% url 'request_refund' checkout.id %}">
+                                                    {% csrf_token %}
+                                                    <textarea name="reason" class="form-control mb-2" placeholder="Enter refund reason..." required></textarea>
+                                                    <button type="submit" class="btn btn-sm btn-dark">Submit</button>
+                                                </form>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge bg-info">Refund Requested</span>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if checkout.status == 'refunded' %}
+                                        <span class="badge bg-success">Refunded</span>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Shipping Info -->
+                    <div class="col-md-3 offset-md-1">
+                        <div class="card shadow-sm">
+                            <div class="card-body border rounded p-3">
+                                <h5 class="text-muted mb-3">Shipping Address</h5>
+                                <p><strong>Shipping Type:</strong> {{ checkout.shipping.shipping_choice|default:"N/A" }}</p>
+                                <p><strong>Name:</strong> {{ checkout.shipping.name|default:"N/A" }}</p>
+                                <p><strong>Phone:</strong> {{ checkout.shipping.phone|default:"N/A" }}</p>
+                                <p><strong>Address:</strong> {{ checkout.shipping.address|default:"N/A" }}</p>
+                                <p><strong>City:</strong> {{ checkout.shipping.city|default:"N/A" }}</p>
+                                <p><strong>Home City:</strong> {{ checkout.shipping.home_city|default:"N/A" }}</p>
+                                <p><strong>Postal Code:</strong> {{ checkout.shipping.zip_code|default:"N/A" }}</p>
+                                <p><strong>Country:</strong> {{ checkout.shipping.country|default:"N/A" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info text-center">
+                    You have no past checkouts.
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+</main>
+{% endblock main_content %}

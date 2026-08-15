@@ -1,0 +1,101 @@
+Django Allauth-এর configuration settings এর বিস্তারিত তালিকা। এগুলো মূলত user authentication, signup, login, password reset, email verification, session management, এবং user model behavior কাস্টমাইজ করার জন্য ব্যবহৃত হয়। আমি এগুলো বাংলায় সংক্ষেপে ব্যাখ্যা করে দিচ্ছি, যাতে তুমি বুঝতে পারো কোন সেটিং কী করে।
+
+১. Overall (সাধারণ সেটিংস)
+
+ACCOUNT_ADAPTER – কাস্টম adapter ক্লাস ব্যবহার করে ডিফল্ট behavior পরিবর্তন করা যায়।
+
+ACCOUNT_FORMS – builtin form গুলো override করতে ব্যবহৃত।
+
+ACCOUNT_PREVENT_ENUMERATION – True থাকলে, কোনো user account আছে কিনা guess করা যায় না।
+
+ACCOUNT_RATE_LIMITS – rate limits কন্ট্রোল করে (login attempts, password resets ইত্যাদি)।
+
+ACCOUNT_SESSION_REMEMBER – session কতদিন active থাকবে (Remember me সেটিং)।
+
+ACCOUNT_TEMPLATE_EXTENSION – template extension (ডিফল্ট: html)।
+
+২. Signup (সাইনআপ সম্পর্কিত)
+
+ACCOUNT_SIGNUP_FIELDS – সাইনআপ ফর্মে কোন কোন field থাকবে। Required গুলো * দিয়ে চিহ্নিত।
+
+ACCOUNT_SIGNUP_FORM_CLASS – কাস্টম ফর্ম ব্যবহার করা যায় অতিরিক্ত info collect করার জন্য।
+
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD – spam bot detection এর জন্য hidden field।
+
+৩. Login (লগইন সম্পর্কিত)
+
+ACCOUNT_LOGIN_BY_CODE_ENABLED – Magic Code / OTP-based login enable করা যাবে।
+
+ACCOUNT_LOGIN_METHODS – কোন method দিয়ে login হবে (username, email, বা দুইটিই)।
+
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION – True হলে, email confirm হলে auto login হবে।
+
+ACCOUNT_LOGIN_TIMEOUT – login process timeout (seconds)।
+
+৪. Logout (লগআউট)
+
+ACCOUNT_LOGOUT_ON_GET – GET request এ auto logout হবে কি না।
+
+ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE – password change করলে auto logout হবে কি না।
+
+৫. Password Reset (পাসওয়ার্ড রিসেট)
+
+ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED – password reset link বা code ব্যবহার করে হবে।
+
+ACCOUNT_PASSWORD_RESET_TOKEN_GENERATOR – কাস্টম token generator ব্যবহার করা যায়।
+
+৬. Email Verification (ইমেইল ভেরিফিকেশন)
+
+ACCOUNT_EMAIL_VERIFICATION – email verification ধরন: "mandatory", "optional", "none".
+
+ACCOUNT_CONFIRM_EMAIL_ON_GET – GET request এ email confirm হবে কি না।
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS – email confirmation link এর expiration (days)।
+
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED – link এর বদলে code-based verification।
+
+৭. Reauthentication (পুনঃপ্রমাণীকরণ)
+
+ACCOUNT_REAUTHENTICATION_REQUIRED – sensitive action (password change, email change) আগে user reauthenticate করতে হবে কি না।
+
+ACCOUNT_REAUTHENTICATION_TIMEOUT – কত সেকেন্ড পর্যন্ত পুরানো authentication valid থাকবে।
+
+৮. Routing (Redirects)
+
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS – logged-in user login/signup page access করলে redirect হবে কি না।
+
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL – email confirm হলে redirect URL (anonymous)।
+
+ACCOUNT_LOGOUT_REDIRECT_URL – logout হলে redirect URL।
+
+ACCOUNT_SIGNUP_REDIRECT_URL – signup শেষে redirect URL।
+
+৯. Sending Email
+
+ACCOUNT_EMAIL_SUBJECT_PREFIX – email subject এর prefix।
+
+ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS – unknown email address reset attempt এ email পাঠানো হবে কি না।
+
+ACCOUNT_EMAIL_NOTIFICATIONS – security notification emails enable/disable।
+
+১০. Email Addresses (ইমেইল field behavior)
+
+ACCOUNT_CHANGE_EMAIL – একাধিক ইমেইল add/change করতে পারবে কি না।
+
+ACCOUNT_EMAIL_MAX_LENGTH – maximum email length।
+
+ACCOUNT_UNIQUE_EMAIL – email uniqueness enforce করা হবে কি না।
+
+১১. User Model (User field behavior)
+
+ACCOUNT_PRESERVE_USERNAME_CASING – username lowercase হবে না কি preserve করা হবে।
+
+ACCOUNT_USERNAME_BLACKLIST – blacklist usernames।
+
+ACCOUNT_USER_DISPLAY – user display name callable।
+
+ACCOUNT_USER_MODEL_EMAIL_FIELD / ACCOUNT_USER_MODEL_USERNAME_FIELD – custom user model field name।
+
+ACCOUNT_USERNAME_MIN_LENGTH – username minimum length।
+
+ACCOUNT_USERNAME_VALIDATORS – custom username validators।

@@ -1,0 +1,11 @@
+Django 5 pre-requisites
+
+1. Python 3.10 or higher
+2. pip
+3. Text Editor (VS Code, PyCharm, etc.)
+4. Web Browser (Chrome, Firefox, etc.)
+5. HTML, CSS, JavaScript
+Optional:
+6. Git
+7. Docker
+

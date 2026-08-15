@@ -1,0 +1,145 @@
+Django relationship মানে হলো মডেলগুলোর (models) মধ্যে সম্পর্ক (relation) তৈরি করা।
+তুমি যখন Django তে একাধিক টেবিল (models) তৈরি করো, তখন অনেক সময় এক টেবিলের তথ্য অন্য টেবিলের সাথে সম্পর্কিত থাকে — ঠিক সেই সম্পর্কটা Django তে Model Relationship দিয়ে বোঝানো হয়।
+
+Django তে প্রধান ৩ ধরনের Relationship আছে:
+Relationship	Django Field	Example	বর্ণনা
+One to One	OneToOneField	একজন User এর একটি মাত্র Profile থাকে	এক টেবিলের এক রো অন্য টেবিলের এক রো এর সাথে যুক্ত থাকে
+One to Many (Many to One)	ForeignKey	একটি Category তে অনেক Product থাকে	এক টেবিলের এক রো অন্য টেবিলের একাধিক রো এর সাথে যুক্ত থাকতে পারে
+Many to Many	ManyToManyField	একজন Student অনেক Course নিতে পারে, আর এক Course এ অনেক Student থাকতে পারে	দুই টেবিলের একাধিক রো পরস্পরের সাথে যুক্ত থাকে
+
+১. OneToOneField (এক-এক সম্পর্ক)
+from django.db import models
+from django.contrib.auth.models import User
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+
+
+এখানে প্রতিটি User এর একটি করে Profile আছে।
+
+২. ForeignKey (এক-একাধিক সম্পর্ক)
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    price = models.FloatField()
+
+
+এক Category তে অনেকগুলো Product থাকতে পারে।
+(অর্থাৎ Product → Category হলো Many to One সম্পর্ক)
+
+৩. ManyToManyField (অনেক-অনেক সম্পর্ক)
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    students = models.ManyToManyField(Student)
+
+
+একজন Student অনেকগুলো Course নিতে পারে, আর একটি Course এ অনেক Student থাকতে পারে।
+
+Bonus Tip:
+
+প্রতিটি relationship এ on_delete প্যারামিটার থাকে:
+
+models.CASCADE → parent delete হলে child ও delete হবে।
+
+models.SET_NULL → parent delete হলে child এ NULL বসবে।
+
+models.PROTECT → parent delete হতে দেবে না।
+
+models.DO_NOTHING → কিছুই করবে না।
+
+"কিভাবে বুঝবো কখন relationship দরকার?" — এই জিনিসটাই Django (বা যেকোনো database design)-এর main logic বোঝার চাবিকাঠি
+
+Step-by-Step ভাবার পদ্ধতি
+
+তুমি যখন Django মডেল বানাও, তখন প্রতিটা মডেল এক একটা table হয় (যেমন: Shop, Product, Order ইত্যাদি)।
+এখন তোমার কাজ — ভাবা, “এই টেবিলগুলোর মধ্যে কোনো সম্পর্ক আছে কি না?”
+
+
+Step 1: প্রশ্ন করো —
+
+এই জিনিসটা অন্য জিনিসের সাথে যুক্ত কি না?
+
+যদি উত্তর “হ্যাঁ” হয়, তাহলে relationship লাগবে।
+
+Example দিয়ে বুঝো
+
+ধরো তুমি একটা Market Project বানাচ্ছো।
+
+তোমার মডেল আছে:
+
+Shop
+
+Product
+
+Customer
+
+Order
+
+এখন প্রতিটার সম্পর্ক চিন্তা করো:
+Shop & Product
+
+এক দোকানে অনেক প্রোডাক্ট থাকতে পারে?
+হ্যাঁ।
+
+তাহলে এটা One-to-Many সম্পর্ক → ForeignKey
+
+class Product(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+
+Customer & Order
+
+একজন কাস্টমার অনেক অর্ডার দিতে পারে?
+হ্যাঁ।
+
+তাহলে এটাও One-to-Many → ForeignKey
+
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+Order & Product
+
+এক অর্ডারে অনেক প্রোডাক্ট থাকতে পারে?
+হ্যাঁ।
+
+আর একই প্রোডাক্ট অনেক অর্ডারে থাকতে পারে?
+হ্যাঁ।
+
+তাহলে এটা Many-to-Many সম্পর্ক।
+
+class Order(models.Model):
+    products = models.ManyToManyField(Product)
+
+🪪 Customer & Profile
+
+একজন কাস্টমারের একটাই প্রোফাইল থাকে?
+হ্যাঁ।
+
+তাহলে এটা One-to-One সম্পর্ক।
+
+class Profile(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+
+সম্পর্কের ধরন	কখন ব্যবহার হবে	Django Field
+একটির সাথে একটি	যেমন একজন user-এর একটাই profile থাকে	OneToOneField
+একটির সাথে অনেক	যেমন এক category-তে অনেক product থাকে	ForeignKey
+অনেকের সাথে অনেক	যেমন এক student অনেক course নিতে পারে, এক course-এ অনেক student থাকতে পারে	ManyToManyField
+Shortcut Formula:
+
+একটি → একটি → OneToOneField
+একটি → অনেক → ForeignKey
+অনেক → অনেক → ManyToManyField
+
+আরও সহজভাবে বুঝতে:
+
+যখন তোমার মনে হবে —
+
+“এই model-এর ডেটা অন্য model-এর ওপর নির্ভর করছে”
+তখনই relationship দরকার।

@@ -1,0 +1,20 @@
+[project]
+name = "assignment-18"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asgiref==3.11.1",
+    "certifi==2026.1.4",
+    "charset-normalizer==3.4.4",
+    "django==4.2.16",
+    "faker==40.1.2",
+    "idna==3.11",
+    "pillow==12.1.0",
+    "requests==2.32.5",
+    "sqlparse==0.5.5",
+    "tzdata==2025.3",
+    "urllib3==2.6.3",
+    "validate-email==1.3",
+]

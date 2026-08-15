@@ -1,0 +1,50 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Sign Up {% endblock title %} 
+{% block main_content %}
+  <!-- ============================ COMPONENT Sign up   ================================= -->
+    <main>
+        <!-- account-area-start -->
+        <div class="account-area mt-70 mb-70">
+            <div class="container">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-lg-6">
+                        <div class="basic-login">
+                            <h5>Sign Up</h5>
+                            <form id="form" method="post" action="" class="border p-4 rounded shadow-sm bg-light" novalidate>
+                                {% csrf_token %}
+                                <div class="alert alert-success alert-success mb-3" style="display: none;"></div> 
+                                <div class="alert alert-danger alert-error mb-3" style="display: none;"></div>
+
+                                <div class="form-group mb-3">
+                                    {{ form.username }}
+                                    {{form.errors.username}}
+                                </div>
+                                <div class="form-group mb-3">
+                                    {{ form.email }}
+                                    {{form.errors.email}}
+                                </div>
+                                <div class="form-group mb-3">
+                                    {{ form.password }}
+                                    {{form.errors.password}}
+                                </div>
+                                <div class="form-group mb-3">
+                                    {{ form.password2 }}
+                                    {{form.errors.password2}}
+                                </div>
+
+                                <button id="sign-up-btn" type="submit" class="tp-in-btn w-100">Sign Up Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- account-area-end -->
+
+    </main>
+
+  <!-- ============================ COMPONENT sign up  END.// ================================= -->
+
+{% include "ajax/validate-signup.html" %}
+{% endblock main_content %}

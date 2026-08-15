@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %} Cart Details {% endblock title %}
+
+{% block main_content %}
+<main>
+    <!-- breadcrumb__area-start -->
+    <section class="breadcrumb__area box-plr-75">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__wrapper">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a href="{% url "home" %}">Home</a></li>
+                                <li class="breadcrumb-item {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><a href="{% url "shop" %}">Shop</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb__area-end -->
+
+    <section class="cart-area pt-10 pb-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+
+                    <div class="table-content table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Images</th>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>Unit Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if cart_items %}
+                                    {% for item in cart_items %}
+                                        <tr class="cart-item" data-id="{{ item.id }}">
+                                            <!-- Image -->
+                                            <td>
+                                                <a href="{% url 'product-detail' item.product.slug item.product.id %}">
+                                                    <img style="width:70px;height:80px;"
+                                                        src="{% if item.variant and item.variant.image_url %}
+                                                        {{ item.variant.image_url }}
+                                                         {% elif item.product.images.all.0 %}
+                                                         {{ item.product.images.all.0.image.url }}
+                                                          {% else %}
+                                                          /media/defaults/default.jpg
+                                                          {% endif %}"
+                                                        alt="{{ item.product.title }}">
+                                                </a>
+                                            </td>
+
+                                            <!-- Product Name -->
+                                            <td>
+                                                <a href="{% url 'product-detail' item.product.slug item.product.id %}">
+                                                    {{ item.product.title|title }}
+                                                </a>
+                                            </td>
+
+                                            <!-- Variant -->
+                                            <td>
+                                                {% if item.variant %}
+                                                    {{ item.variant.color.title|default:'' }} - {{ item.variant.size.code|default:'' }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+
+                                            <!-- Unit Price -->
+                                            <td>{{ item.stored_unit_price }} TK</td>
+
+                                            <!-- Quantity -->
+                                            <td>
+                                                <button class="btn btn-sm qty-btn" data-action="dec">-</button>
+                                                <span class="quantity" id="quantity">{{ item.quantity }}</span>
+                                                <button class="btn btn-sm qty-btn" data-action="inc">+</button>
+                                            </td>
+
+                                            <!-- Subtotal -->
+                                            <td><span class="item-total" id="item-total">{{ item.subtotal }} TK</span></td>
+
+                                            <!-- Remove -->
+                                            <td>
+                                                <button class="btn btn-sm remove-cart-item">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row justify-content-end">
+                        <div class="col-md-5">
+                            <div class="cart-page-total p-3 border rounded">
+                                <h2>Cart totals</h2>
+                                <ul class="list-unstyled mb-3">
+                                    <li class="d-flex justify-content-between">
+                                        <span>Shipping Cost</span>
+                                        <span id="shipping-cost">{{shipping_cost}} TK</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between">
+                                        <span>Subtotal</span>
+                                        <span id="sub-total">{{total_price}} TK</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between fw-bold">
+                                        <span>Total</span>
+                                        <span id="grand-total">{{grand_total}} TK</span>
+                                    </li>
+                                </ul>
+                                <a class="cart-btn" href="{% url "checkout" %}">Proceed to checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock main_content %}

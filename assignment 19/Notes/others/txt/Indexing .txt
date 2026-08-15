@@ -1,0 +1,113 @@
+Database Indexing — A to Z Notes
+1. Indexing কী
+
+Database-এ data দ্রুত search করার জন্য যে technique ব্যবহার করা হয় তাকে indexing বলে।
+
+সহজভাবে:
+বইয়ের শেষে থাকা index page যেমন দ্রুত তথ্য খুঁজতে সাহায্য করে, তেমনি database indexing data দ্রুত খুঁজে পেতে সাহায্য করে।
+
+2. কেন Index ব্যবহার করা হয়
+Query speed বাড়ানোর জন্য
+Large data handle করার জন্য
+Filtering দ্রুত করার জন্য
+Database performance improve করার জন্য
+3. Index না থাকলে কী হয়
+Full table scan হয়
+প্রতিটি row check করতে হয়
+বড় data হলে query অনেক slow হয়
+4. Index থাকলে কী হয়
+Direct lookup করা যায়
+B-Tree structure ব্যবহার হয়
+Query অনেক দ্রুত execute হয়
+5. Django-তে Index Types
+(A) db_index
+
+Single field index তৈরি করে
+
+email = models.EmailField(db_index=True)
+
+ব্যবহার:
+
+email, username, phone number
+(B) indexes (Meta class)
+
+Multiple বা composite index তৈরি করে
+
+class Meta:
+    indexes = [
+        models.Index(fields=['city', 'age']),
+    ]
+
+ব্যবহার:
+
+একাধিক field একসাথে query হলে
+6. db_index vs indexes
+বিষয়	db_index	indexes
+Level	field level	model level
+Fields	1 field	multiple fields
+Use case	simple search	complex query
+Flexibility	কম	বেশি
+7. Composite Index
+
+একাধিক field একসাথে index করা
+
+Index(fields=['city', 'age'])
+
+ব্যবহার:
+
+city + age একসাথে filter হলে
+8. কখন Index ব্যবহার করা উচিত
+frequent search হয় এমন field
+filtering বেশি হয় এমন field
+foreign key fields
+login related fields (email, username)
+9. কখন Index ব্যবহার করা উচিত না
+ছোট table
+খুব বেশি insert/update/delete হয়
+unnecessary fields
+10. Index এর disadvantages
+extra storage লাগে
+insert/update slow হয়
+বেশি index থাকলে performance degrade হতে পারে
+11. Common Indexed Fields
+email
+username
+phone
+created_at
+foreign keys
+12. Django Query Example
+Student.objects.filter(email="test@gmail.com")
+
+email indexed থাকলে query দ্রুত হবে।
+
+13. Internal Working
+
+Database index সাধারণত B-Tree structure ব্যবহার করে।
+এটি direct memory location থেকে data খুঁজে পায়।
+
+14. Real Life Example
+
+Index ছাড়া:
+পুরো বই খুঁজে তথ্য বের করা
+
+Index সহ:
+index page দেখে সরাসরি page number খুঁজে বের করা
+
+15. Best Practice
+শুধুমাত্র প্রয়োজনীয় field এ index দাও
+over indexing avoid করো
+query pattern বুঝে index design করো
+Summary
+
+Indexing database query speed বাড়ানোর একটি technique।
+db_index single field-এর জন্য এবং indexes multiple field optimization-এর জন্য ব্যবহার হয়।
+
+
+
+# শুধু লেটেস্টটি না নিয়ে সব একটিভ ওটিপি চেক করা (যদি প্রয়োজন মনে করেন)
+active_otps = cls.objects.select_for_update().filter(user=user, is_used=False).order_by("-created_at")
+
+for otp_obj in active_otps:
+    if hmac.compare_digest(cls.hash_otp(otp_code, otp_obj.otp_salt), otp_obj.otp_hash):
+        # ম্যাচ করলে এখানে কাজ শেষ করুন
+        ...

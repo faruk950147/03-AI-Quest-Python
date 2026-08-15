@@ -1,0 +1,175 @@
+# ===============================
+# Django ORM A to Z Cheat Sheet
+# ===============================
+
+# 1. All Data
+students = Student.objects.all()
+
+# 2. Filter
+students = Student.objects.filter(department='CMT')
+
+# 3. Multiple Filter
+students = Student.objects.filter(department='CMT', age=20)
+
+# 4. Exclude
+students = Student.objects.exclude(department='BBA')
+
+# 5. Get Single Object
+student = Student.objects.get(pk=1)
+
+# 6. First
+student = Student.objects.first()
+
+# 7. Last
+student = Student.objects.last()
+
+# 8. Order By Ascending
+students = Student.objects.order_by('name')
+
+# 9. Order By Descending
+students = Student.objects.order_by('-name')
+
+# 10. Random Order
+students = Student.objects.order_by('?')
+
+# 11. Count
+total = Student.objects.count()
+
+# 12. Values
+students = Student.objects.values('name','department')
+
+# 13. Values List
+students = Student.objects.values_list('name','department')
+
+# 14. Create
+Student.objects.create(
+    name="Faruk",
+    department="CMT",
+    roll=101
+)
+
+# 15. Get Or Create
+student, created = Student.objects.get_or_create(
+    name="Faruk",
+    department="CMT"
+)
+
+# 16. Update
+Student.objects.filter(pk=1).update(name="Ahmed")
+
+# 17. Update Or Create
+student, created = Student.objects.update_or_create(
+    pk=1,
+    defaults={'name':"Ahmed"}
+)
+
+# 18. Delete
+Student.objects.filter(pk=1).delete()
+
+# 19. Delete Single Object
+student = Student.objects.get(pk=1)
+student.delete()
+
+# 20. Bulk Create
+Student.objects.bulk_create([
+    Student(name="A"),
+    Student(name="B"),
+    Student(name="C")
+])
+
+# 21. Bulk Update
+students = Student.objects.filter(department='CMT')
+
+for s in students:
+    s.department = "BBA"
+
+Student.objects.bulk_update(students,['department'])
+
+# 22. In Bulk
+students = Student.objects.in_bulk([1,2,3])
+
+# 23. Range
+students = Student.objects.filter(roll__range=(101,110))
+
+# 24. IN
+students = Student.objects.filter(id__in=[1,2,3])
+
+# 25. Less Than
+students = Student.objects.filter(age__lt=20)
+
+# 26. Greater Than
+students = Student.objects.filter(age__gt=20)
+
+# 27. Less Than Equal
+students = Student.objects.filter(age__lte=20)
+
+# 28. Greater Than Equal
+students = Student.objects.filter(age__gte=20)
+
+# 29. Exact
+students = Student.objects.filter(name__exact='Faruk')
+
+# 30. Case Insensitive
+students = Student.objects.filter(name__iexact='faruk')
+
+# 31. Contains
+students = Student.objects.filter(name__contains='aru')
+
+# 32. IContains
+students = Student.objects.filter(name__icontains='aru')
+
+# 33. Startswith
+students = Student.objects.filter(name__startswith='F')
+
+# 34. Endswith
+students = Student.objects.filter(name__endswith='k')
+
+# 35. Regex
+students = Student.objects.filter(name__regex=r'^F')
+
+# 36. Dates
+students = Student.objects.dates('passed_in_year','year')
+
+# 37. Latest
+student = Student.objects.latest('created_at')
+
+# 38. Earliest
+student = Student.objects.earliest('created_at')
+
+# ===============================
+# Aggregation
+# ===============================
+
+from django.db.models import Avg,Sum,Max,Min,Count
+
+Student.objects.aggregate(Avg('marks'))
+Student.objects.aggregate(Sum('marks'))
+Student.objects.aggregate(Max('marks'))
+Student.objects.aggregate(Min('marks'))
+Student.objects.aggregate(Count('id'))
+
+# ===============================
+# Annotate
+# ===============================
+
+from django.db.models import Count
+
+students = Student.objects.values('department').annotate(total=Count('id'))
+
+# ===============================
+# Using Database
+# ===============================
+
+students = Student.objects.using('default')
+
+# ===============================
+# Reverse
+# ===============================
+
+students = Student.objects.order_by('pk').reverse()
+
+# ===============================
+# Raw SQL
+# ===============================
+
+students = Student.objects.raw("SELECT * FROM home_student")

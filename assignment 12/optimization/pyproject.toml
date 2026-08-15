@@ -1,0 +1,13 @@
+[project]
+name = "optimization"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asgiref==3.11.1",
+    "django==4.2.16",
+    "pillow==12.1.1",
+    "sqlparse==0.5.5",
+    "tzdata==2025.3",
+]

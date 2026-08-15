@@ -1,0 +1,328 @@
+/* =================== Color Variables =============== */
+:root {
+  /* Background Colors */
+  --bodyColor: #b7bab8;
+  --bgColor-light: #f1f2f6;
+  --bgColor-mid: #dfe4ea;
+  --bgColor-dark: #ced6e0;
+  --bgColorRgba: rgba(197, 187, 187, 0.521);
+
+  /* Primary Colors */
+  --primaryColor: #000000;
+  --primaryColor-light: #747d8c28;
+  --primaryColor-dark: #57606f;
+
+  /* Action Colors */
+  --hoverColor: #1abc9c;  
+  --hoverUnderline: #f0f0f0;
+  --activeColor: #7d5fff;
+
+  /* Text Colors */
+  --textColor: #2f3542;
+
+  /* shadow */
+  --outerBoxShadow: 0 4px 30px rgba(0, 0, 0, 0.2);  
+  --innerBoxShadow: inset 0 4px 30px rgba(0, 0, 0, 0.2);  
+  --textShadow: 2px 2px 10px rgba(0, 0, 0, 0.137);  
+}
+
+/* ===================== Global ===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  scroll-behavior: smooth;
+  text-decoration: none !important;
+  list-style: none !important;
+}
+
+body { 
+  font-family:'Segoe UI', sans-serif; 
+  width: 100%;
+  min-height:100vh; 
+  overflow-x:hidden; 
+  background: linear-gradient(45deg, var(--bodyColor) 0%, var(--bodyColor) 100%);
+  background-blend-mode: multiply;
+}
+/* ===================== Container ===================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* global start */
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primaryColor);
+  text-shadow: var(--textShadow);
+}
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primaryColor);
+  text-shadow: var(--textShadow);
+}
+.para {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: var(--textColor);
+  line-height: 1.6;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--primaryColor);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: var(--outerBoxShadow);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+  background-color: var(--hoverColor);
+  transform: translateY(-3px);
+}
+.img{
+  max-width: 250px;
+}
+img {
+  width: 100%;
+  object-fit: cover;
+}
+.line {
+  width: 300px;
+  margin: 0 auto;
+}
+
+/* Header Begin */
+
+/* ===================== Header ===================== */
+#header {
+  width: 100%;
+  background-color: var(--bodyColor);
+  box-shadow: var(--outerBoxShadow);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  position: sticky;  
+  top: 0;             
+  z-index: 1000;     
+}
+
+/* ===================== Navbar ===================== */
+#header .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+}
+
+/* ================= Logo =================================*/
+#header .logo a {
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: var(--primaryColor);
+  cursor: pointer;
+  font-variant: small-caps;
+  font-weight: 700;
+  text-shadow: var(--textShadow);
+  font-family: "Times New Roman", serif;
+}
+
+
+/* ===================== Hamburger (2 Lines) ===================== */
+#header .hamburger {
+  width: 30px;
+  height: 20px;
+  cursor: pointer;
+  display: none;
+  position: relative;
+}
+
+#header .hamburger span {
+  display: none; /* hidden middle line */
+}
+
+#header .hamburger::before,
+#header .hamburger::after {
+  content: '';
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: var(--primaryColor); /* primary color */
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+#header .hamburger::before { top: 0; }
+#header .hamburger::after { bottom: 0; }
+
+/* Hamburger active animation (cross/X) */
+#header .hamburger.active::before {
+  transform: rotate(45deg);
+  top: 8px;
+}
+
+#header .hamburger.active::after {
+  transform: rotate(-45deg);
+  bottom: 8px;
+}
+
+/* Main Menu */
+#header .main-menu {
+  display: flex;
+  gap: 25px;
+  transition: all 0.3s ease;
+}
+
+#header .main-menu a {
+  color: var(--primaryColor); /* primary color */
+  font-weight: 700;
+  position: relative;
+  transition: 0.3s;
+}
+
+#header .main-menu a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 2px;
+  background: var(--primaryColor); /* hover underline */
+  transition: 0.3s;
+}
+
+#header .main-menu a:hover::after {
+  width: 100%;
+}
+
+#header .main-menu a:hover {
+  color: var(--textColor);
+}
+#header .main-menu a.active::after {
+  width: 100%;
+}
+/* Header End */
+
+
+/* ===================== Hero ===================== */
+#hero {
+  width: 100%;
+  min-height: 100vh;
+  padding: 10% 0;
+}
+
+#about {
+  width: 100%;
+  height: 100vh;
+
+}
+
+#service {
+  width: 100%;
+  height: 100vh;
+}
+
+#service .content-box {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  box-shadow: var(--outerBoxShadow);
+}
+#service .content-box .icon {
+  display: flex;
+  justify-content: center;  
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  margin: 10px;
+  border-radius: 50%;
+  box-shadow: var(--innerBoxShadow);
+}
+
+#service .content-box .icons {
+  display: flex;
+  justify-content: center;  
+  align-items: center;
+  font-size: 20px;
+}
+/* ===================== Contact ===================== */
+#contact {
+  width: 100%;
+  min-height: 100vh;
+  padding: 80px 0;
+}
+
+#contact .form-control {
+  border-radius: 10px;
+  box-shadow: var(--innerBoxShadow);
+  border: 1px solid #ccc;
+}
+#contact .contactForm input[type="text"],
+#contact .contactForm textarea[type="text"] {
+  background-color: var(--bodyColor);
+}
+#contact .form-control:focus {
+  border-color: var(--hoverColor);
+  box-shadow: 0 0 8px rgba(26, 188, 156, 0.3);
+}
+
+#contact .info-box {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--outerBoxShadow);
+  transition: all 0.3s ease;
+}
+
+#contact .info-box:hover {
+  transform: translateY(-5px);
+}
+
+#contact .info-box i {
+  color: var(--hoverColor);
+}
+
+#contact .info-box h5 {
+  font-weight: 600;
+  margin-top: 5px;
+  color: var(--primaryColor-dark);
+}
+
+/* ===================== Footer ===================== */
+#footer {
+  width: 100%;
+  padding: 20px 0;
+  box-shadow: var(--outerBoxShadow);
+}
+
+#footer .social-links a {
+  color: var(--primaryColor);
+  margin: 0 10px;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+#footer .social-links a:hover {
+  color: var(--hoverColor);
+}
+
+#footer p {
+  font-size: 1rem;
+  color: var(--textColor);
+}
+#footer p a {
+  color: var(--hoverColor);
+  font-weight: 600;
+}

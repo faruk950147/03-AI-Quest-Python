@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+
+{% block main %}
+<div class="container mt-4">
+
+    <!-- ADD BUTTON -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <!-- ADD MODAL -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="addForm" action="{% url 'HomeView' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="name" class="form-control my-2" placeholder="Name" required>
+                        <input type="text" name="department" class="form-control my-2" placeholder="Department" required>
+                        <input type="text" name="phone" class="form-control my-2" placeholder="Phone" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success w-100">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE CONTAINER (AJAX REPLACE) -->
+    <div id="task-table">
+        {% include 'partials/task_table.html' %}
+    </div>
+
+</div>
+
+{% include 'partials/ajax.html' %}
+{% endblock main %}

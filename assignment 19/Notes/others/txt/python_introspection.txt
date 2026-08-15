@@ -1,0 +1,114 @@
+Pure Python Introspection Example
+1. Simple Class
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+product = Product("Laptop", 50000)
+2. type() ব্যবহার
+print(type(product))
+print(type(product).__name__)
+print(type(product).__module__)
+
+Output:
+
+<class '__main__.Product'>
+Product
+__main__
+3. class (same as type)
+print(product.__class__)
+print(product.__class__.__name__)
+
+Output:
+
+<class '__main__.Product'>
+Product
+
+✔ type() আর __class__ basically same কাজ করে
+
+4. isinstance() (Type Checking)
+if isinstance(product, Product):
+    print("This is Product")
+
+Output:
+
+This is Product
+5. dir() → সব attribute/method দেখার জন্য
+print(dir(product))
+
+Output (short):
+
+['__class__', '__init__', 'name', 'price', ...]
+6. vars() → object data dictionary
+print(vars(product))
+
+Output:
+
+{'name': 'Laptop', 'price': 50000}
+7. Generic Function (Django ছাড়া)
+def get_info(obj):
+    return {
+        "class": type(obj).__name__,
+        "module": type(obj).__module__,
+        "data": vars(obj)
+    }
+
+print(get_info(product))
+
+Output:
+
+{
+ 'class': 'Product',
+ 'module': '__main__',
+ 'data': {'name': 'Laptop', 'price': 50000}
+}
+8. Multiple Class Example
+class Customer:
+    def __init__(self, email):
+        self.email = email
+
+customer = Customer("test@gmail.com")
+
+print(get_info(customer))
+
+Output:
+
+{
+ 'class': 'Customer',
+ 'module': '__main__',
+ 'data': {'email': 'test@gmail.com'}
+}
+Summary (Pure Python)
+Method	কাজ
+type(obj)	class/type বের করা
+__class__	same as type
+isinstance()	check object type
+dir()	সব attribute
+vars()	object data
+Shortcut মনে রাখো
+
+type() = basic info
+isinstance() = checking
+vars() = data
+dir() = everything
+
+class Meta:
+    def __init__(self, obj):
+        self.object_name = type(obj).__name__
+        self.module = type(obj).__module__
+        self.fields = list(vars(obj).keys())
+
+
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+        self._meta = Meta(self)
+
+
+p = Product("Laptop", 50000)
+
+print(p._meta.object_name)
+print(p._meta.module)
+print(p._meta.fields)

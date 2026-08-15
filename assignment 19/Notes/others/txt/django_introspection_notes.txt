@@ -1,0 +1,87 @@
+ঠিক আছে — আমি তোমাকে real-life practical example দেখাচ্ছি যাতে পুরো _meta, type(), isinstance() clear হয়ে যায় 👇
+
+Example 1: Generic Function (Multi Model Support)
+
+ধরো তোমার 2টা model আছে:
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+
+class Customer(models.Model):
+    email = models.EmailField()
+
+def show_info(obj):
+    print("App:", obj._meta.app_label)
+    print("Model:", obj._meta.model_name)
+    print("Class Name:", obj._meta.object_name)
+    
+Use:
+product = Product.objects.get(id=1)
+customer = Customer.objects.get(id=1)
+
+show_info(product)
+show_info(customer)
+Output:
+App: shop
+Model: product
+Class Name: Product
+
+App: shop
+Model: customer
+Class Name: Customer
+Example 2: Dynamic JSON API (Very Important)
+from django.http import JsonResponse
+
+def get_data(request):
+    product = Product.objects.get(id=1)
+
+    data = {
+        "model": product._meta.model_name,
+        "app": product._meta.app_label,
+        "name": product.name,
+    }
+
+    return JsonResponse(data)
+Output JSON:
+{
+  "model": "product",
+  "app": "shop",
+  "name": "Laptop"
+}
+Example 3: Type Checking
+product = Product.objects.get(id=1)
+
+if isinstance(product, Product):
+    print("This is Product")
+Example 4: Python Type()
+product = Product.objects.get(id=1)
+
+print(type(product))
+print(type(product).__name__)
+Output:
+<class 'Product'>
+Product
+Example 5: Smart Logging System
+def log_object(obj):
+    print(f"[{obj._meta.app_label}] {obj._meta.object_name} loaded")
+Output:
+[shop] Product loaded
+Example 6: Generic Save Message
+def save_message(obj):
+    return f"{obj._meta.object_name} saved successfully!"
+Output:
+Product saved successfully!
+Customer saved successfully!
+Real বুঝার Shortcut
+
+_meta = Django intelligent info system
+type() = Python basic info
+isinstance() = checking
+
+Pro Tip (Important)
+
+যদি তুমি dynamic system (CRM / API / reusable code) বানাও
+_meta MUST use
+
+যদি শুধু simple check লাগে
+isinstance()

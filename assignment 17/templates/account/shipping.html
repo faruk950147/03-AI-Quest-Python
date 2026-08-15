@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Shipping Address{% endblock title %}
+
+{% block main_content %}
+<main>
+    <div class="account-area mt-70 mb-70">
+        <div class="container">
+            <div class="row">
+
+                <!-- LEFT Account PANEL -->
+                <div class="col-3 mb-4">
+                    {% include "account/sidebar.html" %}
+                </div>
+
+                <!-- RIGHT USER INFO -->
+                <div class="col-9 mx-auto">
+                    <form method="post" class="border p-4 rounded shadow-sm bg-light">
+                        {% csrf_token %}
+                        <h3 class="mb-4">Add Shipping Address</h3>
+                        <div class="form-group mb-3">
+                            {{ form.shipping_choice.label_tag }}
+                            {{ form.shipping_choice }}
+                            {{ form.shipping_choice.errors }}
+                        </div>
+                        </br></br></br></br>
+                        <div class="form-group mb-3">
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.country }}                           
+                            {{ form.country.errors }}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.city }}
+                            {{ form.city.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.home_city }}
+                            {{ form.home_city.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.zip_code }}
+                            {{ form.zip_code.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.address }}
+                            {{ form.address.errors }}
+                        </div>
+
+                        <button type="submit" class="tp-in-btn w-100">Add Now</button>  
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock main_content %}
