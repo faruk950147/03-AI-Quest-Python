@@ -1,0 +1,113 @@
+================ docker hub push ===============
+docker login
+docker tag ac6ff836d5ff faruk950147/docker-test:latest
+
+push:
+docker push faruk950147/docker-test:latest
+
+docker-test:latest	নাম + tag
+ac6ff836d5ff	IMAGE ID
+docker tag	rename / re-label image
+
+
+Django + Docker All Commands (Complete Guide)
+1. Docker Version Check
+docker --version
+docker compose version
+
+2. Docker Image Build
+docker build -t django-app .
+
+================ Image Name =================
+here django-app is image name
+
+3. Docker Container Run
+docker run -p 8000:8000 django-app
+
+================ Browser =================
+
+http://localhost:8000
+4. Background (Detached Mode)
+docker run -d -p 8000:8000 django-app
+
+5. Running Containers List
+docker ps
+
+All container (stopped)
+
+docker ps -a
+6. Stop Container
+docker stop container_id
+
+7. Remove Container
+docker rm container_id
+
+8. Remove Image
+docker rmi image_id
+
+9. Docker Logs (Show Error)
+docker logs container_id
+
+Live logs:
+
+docker logs -f container_id
+Docker Compose (Django + MySQL)
+
+================ Modern Django project structure =================
+
+10. Start Services
+docker compose up
+
+Background:
+
+docker compose up -d
+11. Build + Start
+docker compose up --build
+
+12. Stop Services
+docker compose down
+
+13. Restart Services
+docker compose restart
+
+14. View Running Services
+docker compose ps
+
+15. Logs (Compose)
+docker compose logs
+
+Live logs:
+
+docker compose logs -f
+16. Execute inside Django Container
+docker exec -it container_id bash
+
+================ Django Commands ===============
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+================ Django Common Docker Commands ===============
+Migrations
+python manage.py makemigrations
+python manage.py migrate
+Superuser
+python manage.py createsuperuser
+Docker Clean Commands
+Remove all stopped containers
+docker container prune
+Remove unused images
+docker image prune
+Full system clean
+docker system prune -a
+Bonus (Recommended Django Docker Stack)
+
+Typical setup:
+
+Django
+MySQL / MariaDB
+Redis (optional)
+Summary (Simple)
+docker build → image বানায়
+docker run → container চালায়
+docker compose up → full project start
+docker exec → container ভিতরে ঢুকে কাজ

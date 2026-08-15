@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  python:
+    build: .
+    restart: always
+    command: python main.py
