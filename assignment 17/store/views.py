@@ -66,7 +66,7 @@ class HomeView(generic.View):
             logger.info("Home page request started")
 
             # Sliders
-            sliders_qs = Slider.objects.filter(status='active')
+            sliders_qs = Slider.objects.filter(status='active').select_related("product")
             sliders_dict = {
                 'sliders': sliders_qs.filter(slider_type='slider'),
                 'feature_sliders': sliders_qs.filter(slider_type='feature')[:4],

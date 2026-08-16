@@ -1,0 +1,39 @@
+.rating {
+    padding: 0 10px;
+    display: inline-block;
+    position: relative;
+    font-size: 20px;
+}
+
+.rating > input[type="radio"] {
+    display: none;
+}
+
+.rating > label {
+    color: #ccc; /* inactive color */
+    float: right; /* reverse rating */
+    position: relative;
+    cursor: pointer;
+}
+
+.rating > label::before {
+    content: '\f005'; /* full star */
+    font-family: FontAwesome;
+}
+
+/* Hover effect */
+.rating > label:hover,
+.rating > label:hover ~ label {
+    color: #f5b301;
+}
+
+/* Checked effect */
+.rating > input[type="radio"]:checked ~ label {
+    color: #f5b301;
+}
+
+/* Optional: keep hover color on already checked */
+.rating > input[type="radio"]:checked ~ label:hover,
+.rating > input[type="radio"]:checked ~ label:hover ~ label {
+    color: #916b02;
+}
