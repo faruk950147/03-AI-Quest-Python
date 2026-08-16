@@ -1,98 +1,133 @@
-import json
-import logging
 from channels.consumer import AsyncConsumer
-from channels.db import database_sync_to_async
-# from chat.models import ChatMessage  
-
-logger = logging.getLogger(__name__)
+import json
 
 class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self, event):
-        """Handle websocket connection"""
-        try:
-            # Room name directly from URL
-            self.room_name = self.scope['url_route']['kwargs']['room_name']
-            self.room_group_name = f"chat_{self.room_name}"
+        """
+        Called when a WebSocket connection is opened.
+        All clients join the same fixed group "chat".
+        """
+        self.group_name = "chat"
 
-            # Join group
-            await self.channel_layer.group_add(
-                self.room_group_name,
-                self.channel_name
-            )
+        # Join the fixed chat group
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
 
-            # Accept connection
-            await self.send({"type": "websocket.accept"})
-            logger.info(f"WebSocket connected: {self.channel_name} in room {self.room_name}")
-            
-            print('WebSocket connected')
-            print('channel name:', self.channel_name)
-            print('room name:', self.room_name)
-            print('room group name:', self.room_group_name)
-            print('scope:==========================', type(self.scope))
-            print('scope:==========================', self.scope)
-
-        except Exception as e:
-            logger.exception(f"Error connecting websocket: {e}")
+        # Accept the WebSocket connection
+        await self.send({
+            "type": "websocket.accept"
+        })
+        print(f"{self.channel_name} connected to {self.group_name}")
 
     async def websocket_receive(self, event):
-        """Receive message from WebSocket"""
+        """
+        Called when a message is received from the WebSocket.
+        Expects a JSON object like {"message": "text"}.
+        """
+        text_data = event.get("text")
+        if not text_data:
+            return
+
         try:
-            message_text = event.get("text")
-            if not message_text:
-                return
+            data = json.loads(text_data)
+            message = data.get("message")
+        except (json.JSONDecodeError, TypeError):
+            return
 
-            data = json.loads(message_text)
-            # Username from authenticated user
-            username = self.scope["user"].username if self.scope["user"].is_authenticated else "Anonymous"
-            text = data.get("message", "").strip()
-            if not text:
-                return
-
-            # Optional: Save message to DB
-            # await self.save_message(username, text)
-
-            # Broadcast message to group
+        if message:
+            # Broadcast the message to the group
             await self.channel_layer.group_send(
-                self.room_group_name,
+                self.group_name,
                 {
-                    "type": "chat_message",
-                    "username": username,
-                    "message": text,
+                    "type": "chat.message",  # will call `chat_message`
+                    "message": message
                 }
             )
 
-        except Exception as e:
-            logger.exception(f"Error processing message: {e}")
-
     async def chat_message(self, event):
-        """Send message to WebSocket client"""
-        try:
-            await self.send({
-                "type": "websocket.send",
-                "text": json.dumps({
-                    "username": event["username"],
-                    "message": event["message"],
-                })
-            })
-        except Exception as e:
-            logger.exception(f"Error sending message: {e}")
+        """
+        Called by group_send to send message to all clients in the group.
+        """
+        message = event["message"]
+
+        # Send message to WebSocket client
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps({"message": message})
+        })
 
     async def websocket_disconnect(self, event):
-        """Handle websocket disconnect"""
-        try:
-            await self.channel_layer.group_discard(
-                self.room_group_name,
+        """
+        Called when the WebSocket disconnects.
+        Removes the client from the group.
+        """
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+        print(f"{self.channel_name} disconnected from {self.group_name}")
+
+'''
+from channels.consumer import AsyncConsumer
+import json
+
+class ChatConsumer(AsyncConsumer):
+
+    async def websocket_connect(self, event):
+        user = self.scope["user"]
+
+        # if user is not authenticated, close the connection
+        if user.is_anonymous:
+            await self.close()
+        else:
+            await self.send({"type": "websocket.accept"})
+
+            # group join
+            await self.channel_layer.group_add(
+                "chat",
                 self.channel_name
             )
-            logger.info(f"WebSocket disconnected: {self.channel_name}")
-        except Exception as e:
-            logger.exception(f"Error disconnecting websocket: {e}")
 
-    # Optional DB save method
-    # @database_sync_to_async
-    # def save_message(self, username, message):
-    #     ChatMessage.objects.create(room=self.room_name, username=username, message=message)
+            print("User connected:", user.username)
 
 
+    async def websocket_receive(self, event):
+        user = self.scope["user"]
 
-    
+        data = json.loads(event.get("text", ""))
+
+        message = data.get("message", "")
+
+        print(f"{user.username} says:", message)
+
+        await self.channel_layer.group_send(
+            "chat",
+            {
+                "type": "chat.message",
+                "user": user.username,
+                "text": message
+            }
+        )
+
+
+    async def websocket_disconnect(self, event):
+        print("Disconnected:", self.scope["user"])
+
+        await self.channel_layer.group_discard(
+            "chat",
+            self.channel_name
+        )
+
+
+    async def chat_message(self, event):
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps({
+                "user": event["user"],
+                "message": json.dumps(event["text"])
+            })
+        })
+
+'''
