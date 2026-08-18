@@ -21,12 +21,12 @@ from store.models import (
 
 logger = logging.getLogger('project')
 
-def get_product_variants(product):
+def get_product_variants(product, selected_size_id=None):
     """
     Given a product, returns a dictionary containing:
-    - first active variant
+    - selected variant (matching selected_size_id) or fallback to first active variant
     - unique sizes
-    - colors available for the first variant's size (if any)
+    - colors available for the selected variant's size (if any)
     """
     variants = ProductVariant.objects.filter(
         product=product,
@@ -34,11 +34,8 @@ def get_product_variants(product):
         available_stock__gt=0
     ).select_related('size', 'color').order_by('id')
 
-    if not variants:
+    if not variants.exists():
         return {'sizes': [], 'colors': [], 'variant': None}
-
-    # Get the first active variant
-    variant = variants[0]
 
     # Collect unique sizes
     sizes, seen_sizes = [], set()
@@ -47,14 +44,21 @@ def get_product_variants(product):
             sizes.append({'id': v.size.id, 'code': v.size.title})
             seen_sizes.add(v.size.id)
 
-    # All variants showing
+    # Match selected_size_id or fallback to the first active variant
+    variant = None
+    if selected_size_id:
+        variant = next((v for v in variants if v.size and str(v.size.id) == str(selected_size_id)), None)
+
+    if not variant:
+        variant = variants[0]
+
+    # Filter colors based on the selected variant's size
     if variant.size:
         colors = [v for v in variants if v.size == variant.size]
     else:
         colors = [v for v in variants if v.color]
 
     return {'sizes': sizes, 'colors': colors, 'variant': variant}
-
 
 # =========================================================
 # HOME VIEW
@@ -142,7 +146,7 @@ class ProductDetailView(generic.View):
                 available_stock__gt=0
             )
 
-            # Visit count
+            # Visit count increment
             session_key = f'viewed_product_{product.id}'
             if not request.session.get(session_key):
                 Product.objects.filter(id=product.id).update(visited=F('visited') + 1)
@@ -155,39 +159,32 @@ class ProductDetailView(generic.View):
                 status='active',
             ).exclude(id=product.id).order_by('-visited')[:4]
 
-            context = {'product': product, 'related_products': related_products, 'sizes': [], 'colors': [], 'variant': None}
+            context = {
+                'product': product, 
+                'related_products': related_products, 
+                'sizes': [], 
+                'colors': [], 
+                'variant': None
+            }
 
-            # Variant logic
+            # Variant logic integration
             if product.variant != 'none':
-                # context.update(get_product_variants(product))
-                
-                variants = ProductVariant.objects.filter(
-                    product=product,
-                    status='active',
-                    available_stock__gt=0
-                ).select_related('size', 'color').order_by('id')
-
-                if variants.exists():
-                    variant = variants[0]
-                    sizes, seen_sizes = [], set()
-                    for v in variants:
-                        if v.size and v.size.id not in seen_sizes:
-                            sizes.append({'id': v.size.id, 'code': v.size.title})
-                            seen_sizes.add(v.size.id)
-                    # All variants showing
-                    if variant.size:
-                        colors = [v for v in variants if v.size == variant.size]
-                    else:
-                        colors = [v for v in variants if v.color]
-
-                    context.update({'sizes': sizes, 'colors': colors, 'variant': variant})
+                selected_size_id = request.GET.get('size')
+                variant_data = get_product_variants(product, selected_size_id=selected_size_id)
+                context.update(variant_data)  # Pass variant_data inside context.update()
 
             return render(request, 'store/product-detail.html', context)
 
+
         except Exception as e:
             logger.error(f"ProductDetailView GET error: {e}", exc_info=True)
-            return render(request, 'store/product-detail.html', {'product': None, 'related_products': [], 'sizes': [], 'colors': [], 'variant': None})
-
+            return render(request, 'store/product-detail.html', {
+                'product': None, 
+                'related_products': [], 
+                'sizes': [], 
+                'colors': [], 
+                'variant': None
+            })
 
 # =========================================================
 # AJAX: Get Variant by Size

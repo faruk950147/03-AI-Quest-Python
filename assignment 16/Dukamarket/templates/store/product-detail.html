@@ -134,42 +134,41 @@
                     </div>
                     {% endif %}
 
-                   <!-- ================= VARIANTS SECTION ================= -->
+                    <!-- ================= VARIANTS SECTION ================= -->
                     {% if product.variant == "color-size" %}
-                    <!-- COLORS -->
-                    <div style="display:flex; align-items:flex-start; margin-bottom:20px;">
-                        <label style="min-width:80px; font-weight:bold;">Colors:</label>
-                        <div class="colors-show" style="display:flex; flex-wrap:wrap; gap:15px;">
-                            {% include "store/components/color_options.html" %}
+                        <!-- COLORS -->
+                        <div style="display:flex; align-items:flex-start; margin-bottom:20px;">
+                            <label style="min-width:80px; font-weight:bold;">Colors:</label>
+                            <div class="colors-show" style="display:flex; flex-wrap:wrap; gap:15px;">
+                                {% include "store/components/color_options.html" %}
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- SIZES -->
-                    <div style="display:flex; align-items:center; margin-bottom:15px;">
-                        <label style="min-width:80px; font-weight:bold;">Sizes:</label>
+                        <!-- SIZES -->
+                        <div style="display:flex; align-items:center; margin-bottom:15px;">
+                            <label style="min-width:80px; font-weight:bold;">Sizes:</label>
+                            <select name="size-select" class="size-select">
+                                {% include "store/components/size_options.html" %}
+                            </select>
+                        </div>
 
-                        <select name="size-select" class="size-select">
-                            {% include "store/components/size_options.html" %}
-                        </select>
-                    </div>
                     {% elif product.variant == "color" %}
-                    <!-- ONLY COLORS -->
-                    <div style="display:flex; align-items:flex-start; margin-bottom:20px;">
-                        <label style="min-width:80px; font-weight:bold;">Colors:</label>
-                        <div class="colors-show" style="display:flex; flex-wrap:wrap; gap:15px;">
+                        <!-- ONLY COLORS -->
+                        <div style="display:flex; align-items:flex-start; margin-bottom:20px;">
+                            <label style="min-width:80px; font-weight:bold;">Colors:</label>
+                            <div class="colors-show" style="display:flex; flex-wrap:wrap; gap:15px;">
+                                {% include "store/components/color_options.html" %}
+                            </div>
                         </div>
-                            {% include "store/components/color_options.html" %}
-                        </div>
-                    </div>
-                    {% elif product.variant == "size" %}
-                    <!-- ONLY SIZES -->
-                    <div style="display:flex; align-items:center; margin-bottom:15px;">
-                        <label style="min-width:80px; font-weight:bold;">Sizes:</label>
 
-                        <select name="size-select" class="size-select">
-                            {% include "store/components/size_options.html" %}
-                        </select>
-                    </div>
+                    {% elif product.variant == "size" %}
+                        <!-- ONLY SIZES -->
+                        <div style="display:flex; align-items:center; margin-bottom:15px;">
+                            <label style="min-width:80px; font-weight:bold;">Sizes:</label>
+                            <select name="size-select" class="size-select">
+                                {% include "store/components/size_options.html" %}
+                            </select>
+                        </div>
                     {% endif %}
 
                     <!-- ================= ADD TO CART ================= -->

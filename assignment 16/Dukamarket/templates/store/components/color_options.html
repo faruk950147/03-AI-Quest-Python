@@ -1,24 +1,29 @@
 {% for variant_color in colors %}
-<label style="cursor:pointer; display:inline-block; margin-right:10px; text-align:center;">
+<label for="variant_{{ variant_color.id }}" style="cursor:pointer; display:inline-block; margin-right:10px; text-align:center;">
 
     <input type="radio"
         name="variant_radio"
         id="variant_{{ variant_color.id }}"
         value="{{ variant_color.id }}"
-        data-size="{{ variant_color.size.id }}"
+        data-size="{{ variant_color.size_id|default:'' }}"
         data-price="{{ variant_color.variant_price }}"
-        {% if variant and variant_color.id == variant.id %}checked{% endif %}
+        {% if selected_size_id %}
+            {% if variant_color.size_id|slugify == selected_size_id|slugify and variant and variant_color.id == variant.id %}checked{% endif %}
+        {% else %}
+            {% if variant and variant_color.id == variant.id %}checked{% endif %}
+        {% endif %}
         hidden>
 
     <span style="font-size:12px;">{{ variant_color.color.title }}</span><br>
 
     {% if variant_color.image_url %}
         <img src="{{ variant_color.image_url }}"
+            alt="{{ variant_color.color.title }}"
             width="35"
             height="35"
-            style="border:2px solid {% if variant and variant_color.id == variant.id %}black{% else %}#ccc{% endif %}; padding:2px;">
+            style="border:2px solid {% if selected_size_id %}{% if variant_color.size_id|slugify == selected_size_id|slugify and variant and variant_color.id == variant.id %}#000{% else %}#ccc{% endif %}{% else %}{% if variant and variant_color.id == variant.id %}#000{% else %}#ccc{% endif %}{% endif %}; padding:2px; border-radius:4px;">
     {% else %}
-        <div style="width:35px;height:35px;border:1px solid #ccc;line-height:35px;font-size:10px;">
+        <div style="width:35px; height:35px; border:1px solid #ccc; line-height:35px; font-size:10px; border-radius:4px; display:inline-block;">
             No Img
         </div>
     {% endif %}

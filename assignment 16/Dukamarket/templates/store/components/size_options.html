@@ -1,6 +1,6 @@
-<option value="">Select Size</option>
 {% for variant_size in sizes %}
-    <option value="{{ variant_size.id }}">
+    <option value="{{ variant_size.id }}" 
+        {% if selected_size_id and variant_size.id|slugify == selected_size_id|slugify %}selected{% elif not selected_size_id and variant and variant.size_id|slugify == variant_size.id|slugify %}selected{% endif %}>
         {{ variant_size.code }}
     </option>
 {% endfor %}
