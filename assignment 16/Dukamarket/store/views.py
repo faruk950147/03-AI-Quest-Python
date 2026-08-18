@@ -47,7 +47,7 @@ def get_product_variants(product):
             sizes.append({'id': v.size.id, 'code': v.size.title})
             seen_sizes.add(v.size.id)
 
-    # Get colors for the selected variant
+    # All variants showing
     if variant.size:
         colors = [v for v in variants if v.size == variant.size]
     else:
@@ -174,6 +174,7 @@ class ProductDetailView(generic.View):
                         if v.size and v.size.id not in seen_sizes:
                             sizes.append({'id': v.size.id, 'code': v.size.title})
                             seen_sizes.add(v.size.id)
+                    # All variants showing
                     if variant.size:
                         colors = [v for v in variants if v.size == variant.size]
                     else:
