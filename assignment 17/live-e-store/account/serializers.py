@@ -99,7 +99,7 @@ class SignupSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"email": "Unable to create verification token."})
 
             transaction.on_commit(
-                lambda user=user.email, tok=token: send_verification_email(user, tok)
+                lambda user=user.email, tok=token: send_verification_email.delay(user, tok)
             )
 
         return user
@@ -349,7 +349,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
             if token is not None:
                 transaction.on_commit(
-                    lambda user=user.email, tok=token: send_password_reset_email(user, tok)
+                    lambda user=user.email, tok=token: send_password_reset_email.delay(user, tok)
                 )
 
         return {"message": generic_message}
@@ -458,7 +458,7 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
 
             if token is not None:
                 transaction.on_commit(
-                    lambda user=user.email, tok=token: send_verification_email(user, tok)
+                    lambda user=user.email, tok=token: send_verification_email.delay(user, tok)
                 )
 
         return {"message": generic_message}
