@@ -157,13 +157,8 @@ class PasswordResetRequestView(View):
 @method_decorator(never_cache, name="dispatch")
 class PasswordResetConfirmView(View):
     def get(self, request):
-        initial = {}
-        token = request.GET.get("token")
 
-        if token:
-            initial["token"] = token
-
-        return render(request, "account/reset_confirm.html", {"form": PasswordResetConfirmForm(initial=initial)})
+        return render(request, "account/reset_confirm.html", {"form": PasswordResetConfirmForm()})
 
     def post(self, request):
         form = PasswordResetConfirmForm(request.POST)

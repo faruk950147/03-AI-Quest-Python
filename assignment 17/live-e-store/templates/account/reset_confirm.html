@@ -13,6 +13,11 @@
                             {% include 'non-field-errors.html' %}
                             <div class="row">
                                 <div class="col-md-12">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{ form.email.errors }}
+                                </div>
+                                <div class="col-md-12">
                                     <label>Token</label>
                                     {{form.token}}
                                     {{ form.token.errors }}
