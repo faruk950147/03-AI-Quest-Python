@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Resend Email {% endblock title %}
+
+{% block content %}
+    <!-- Resend Start -->
+    <div class="resend">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="resend-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{form.email.errors}}
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Resend Email Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Resend End -->
+        
+{% endblock content %}

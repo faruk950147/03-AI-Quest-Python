@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}        
+    <!-- Main Category Start -->
+    <div class="header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="dropdown">
+                        <button class="btn btn-lg dropdown-toggle"
+                                type="button"
+                                data-toggle="dropdown">
+                            <i class="fa fa-bars"></i> Categories
+                        </button>
+
+                        {% if categories %}
+                        <ul class="dropdown-menu">
+                            {% for category in categories %}
+                                <li class="nav-item">
+                                    <!-- Parent Category URL -->
+                                    <a class="nav-link" href="{% url 'category-products' category.slug category.id %}">
+                                        <i class="{{category.icon}} mr-2"></i>{{category.title|title}}
+                                    </a>
+                                    
+                                    {% if category.children.exists %}
+                                        <ul>
+                                            {% for levelOne in category.children.all %}
+                                                <li class="nav-item">
+                                                    <!-- Level One Child URL -->
+                                                    <a class="nav-link" href="{% url 'category-products' levelOne.slug levelOne.id %}">
+                                                        <i class="{{levelOne.icon}} mr-2"></i>{{levelOne.title|title}}
+                                                    </a>
+                                                </li>
+                                                
+                                                {% if levelOne.children.exists %}
+                                                    <ul>
+                                                        {% for levelTwo in levelOne.children.all %}
+                                                            <li class="nav-item">
+                                                                <!-- Level Two Child URL -->
+                                                                <a class="nav-link" href="{% url 'category-products' levelTwo.slug levelTwo.id %}">
+                                                                    <i class="{{levelTwo.icon}} mr-2"></i>{{levelTwo.title|title}}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="header-slider normal-slider">
+                        {% if sliders %}
+                        {% for slider in sliders %}
+                        <div class="header-slider-item">
+                            <img src="{{slider.image.url|safe}}" alt="Slider Image" / style="width:100%; height: 400px;">
+                            <div class="header-slider-caption">
+                                <p>{{slider.product.title|title}}</p>
+                                <p>{{slider.headline|title}}</p>
+                                <a class="btn" href=""><i class="fa fa-shopping-cart"></i> {{slider.button|upper}} </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    
+                    <div class="header-img">
+                        {% if featured %}
+                        {% for feature in featured %}
+                        <div class="img-item mb-3">
+                            <img src="{{feature.image.url}}" />
+                            <a class="img-text" href="">
+                                <p>{{feature.headline|title}}</p>
+                            </a>
+                        </div>
+                        {% endfor %}                          
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Category End -->        
+    
+    <!-- Brand Start -->
+    <div class="brand">
+        <div class="container-fluid">
+            <div class="brand-slider">
+                {% if brands %}
+                    {% for brand in brands %}
+                    <div class="brand-item"><img src="{{brand.image.url}}" style="width: 150px; height: 100px;" alt=""></div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Brand End -->     
+    
+    <!-- Feature Start-->
+    <div class="feature">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                {% if allow_payments %}
+                {% for allow_payment in allow_payments %}
+                <div class="col-lg-3 col-md-6 feature-col">
+                    <div class="feature-content">
+                        <img src="{{allow_payment.image.url}}" style="width: 40px; height: 40px;" alt="">
+                        <h2>{{allow_payment.title|title}}</h2>
+                        <p>
+                            {{allow_payment.help_time|safe}}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Feature End-->     
+    
+    <!-- Category Start-->
+    <div class="category">
+        <div class="container-fluid">
+            <div class="row gx-1">
+                {% if cats %}
+                {% for cat in cats %}
+                <div class="col-md-3">
+                    <div class="category-item ch-400">
+                        <img src="{{cat.image.url}}" />
+                        <a class="category-name" href="">
+                            <p>{{cat.title|title}}</p>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Category End-->         
+    
+    <!-- Featured Product Start -->
+    <div class="featured-product product">
+        <div class="container-fluid">
+            <div class="section-header">
+                <h1>Featured Product</h1>
+            </div>
+            <div class="row align-items-center product-slider product-slider-4">
+
+                {% if featured_products %}
+                {% for product in featured_products %}
+                <div class="col-lg-3">
+                    <div class="product-item">
+
+                        <div class="product-title">
+                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                {{ product.title|title }}
+                            </a>
+
+                            <div class="ratting">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.avg_rate %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="product-image">
+                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                {% if product.galleries.first %}
+                                    <img
+                                        style="width: 100%; height: 450px; object-fit: cover;"
+                                        src="{{ product.galleries.first.image.url }}"
+                                        alt="{{ product.title }}"
+                                    >
+                                {% endif %}
+                            </a>
+
+                            <div class="product-action">
+                                <a
+                                    href="#"
+                                    class="add-to-wish"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-slug="{{ product.slug }}">
+                                    <i class="fa fa-heart"></i>
+                                </a>
+
+                                <a href="{% url 'product-detail' product.slug product.id %}">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="product-price">
+                            <h3>
+                                {{ product.sale_price|safe }} TK
+                            </h3>
+
+                            <a class="btn" href="#">
+                                <i class="fa fa-shopping-cart"></i>
+                                Buy Now
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <!-- Featured Product End -->             
+    
+    <!-- Deal Product Start -->
+    <div class="deal-product product">
+        <div class="container-fluid">
+            <div class="section-header d-flex justify-content-between align-items-center">
+                <h1 class="fw-bold">Deals Days Product</h1>
+                <h4><a href="{% url 'shopping' %}" class="fw-bold">Shopping List</a></h4>
+            </div>
+            <div class="row align-items-center product-slider product-slider-4">
+            
+                {% if deal_products %}
+                {% for product in deal_products %}
+                <div class="col-lg-3">
+                    <div class="product-item">
+
+                        <div class="product-title">
+                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                {{ product.title|title }}
+                            </a>
+
+                            <div class="ratting">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.avg_rate %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="product-image">
+                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                {% if product.galleries.first %}
+                                    <img
+                                        style="width: 100%; height: 450px; object-fit: cover;"
+                                        src="{{ product.galleries.first.image.url }}"
+                                        alt="{{ product.title }}"
+                                    >
+                                {% endif %}
+                            </a>
+
+                            <div class="product-action">
+                                <a
+                                    href="#"
+                                    class="add-to-wish"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-slug="{{ product.slug }}">
+                                    <i class="fa fa-heart"></i>
+                                </a>
+
+                                <a href="{% url 'product-detail' product.slug product.id %}">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="product-price">
+                            <h3>
+                                {{ product.sale_price|safe }} TK
+                            </h3>
+
+                            <a class="btn" href="#">
+                                <i class="fa fa-shopping-cart"></i>
+                                Buy Now
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Deal Product End -->
+    
+    <!-- Review Start -->
+    <div class="review">
+        <div class="container-fluid">
+            <div class="row align-items-center review-slider normal-slider mt-5">
+
+            {% if reviews %}
+                {% for review in reviews %}
+                    <div class="col-md-6">
+                        <div class="review-slider-item">
+
+                            <div class="review-img">
+                                <img style="width: 200px; height: 200px; border-radius: 50%;" src="{{ review.user.image.url }}" alt="Image">
+                            </div>
+
+                            <div class="review-text">
+                                <h2>{{ review.user.username|title }}</h2>
+                                <h2>{{ review.product.title|title }}</h2>
+                                <p>{{ review.subject|truncatewords:2 }}</p>
+                                <p>{{ review.comment|truncatewords:3 }}</p>
+
+                                <div class="ratting">
+                                    {% for i in "12345" %}
+                                        <i class="fa fa-star"></i>
+                                    {% endfor %}
+                                </div>
+
+                                <p>
+                                    {{ review.review }}
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <!-- Review End -->        
+{% endblock content %}

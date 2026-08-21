@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Detail{% endblock title %}
+
+{% block content %}  
+    <!-- Product Detail Start -->
+    <div class="product-detail">
+        <div class="container-fluid">
+            <div class="row align-items-start">
+                <div class="col-lg-12">
+                    <div class="product-detail-top">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="product-slider-single normal-slider">
+                                    {% if product.galleries.all %}
+                                        {% for gallery in product.galleries.all %}
+                                            <img id="variant-image" style="width: 100%; height: 500px;" src="{{ gallery.image.url }}" alt="{{ product.title }}">
+                                        {% endfor %}
+                                    {% else %}
+                                        <img src="/media/defaults/default.jpg" alt="{{ product.title }}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="product-slider-single-nav normal-slider">
+                                    {% if product.galleries.all %}
+                                        {% for gallery in product.galleries.all %}
+                                            <div class="slider-nav-img">
+                                                <img style="width: 100%; height: 100px;" src="{{ gallery.image.url }}" alt="{{ product.title }}">
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="slider-nav-img">
+                                            <img src="/media/defaults/default.jpg" alt="{{ product.title }}">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="product-content">
+                                    <h2>{{product.title|title}}</h2>
+                                    
+                                    <span class="ratting">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= product.avg_rate %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span>({{ product.avg_rate|floatformat:1 }})</span>
+                                    </span>
+
+                                    <p class="my-3">
+                                        <strong>Variant Stock: </strong>
+                                        {% if variant_data.selected_variant %}
+                                            <span id="product-stock">{{ variant_data.selected_variant.stock }}</span>
+                                        {% endif %}
+                                    </p>
+                                    
+                                    <p class="my-3">
+                                        <strong>Main Stock: </strong>
+                                        {% if product.stock %}
+                                            <span>{{ product.stock }}</span>
+                                        {% endif %}
+                                    </p>
+
+                                    <p class="my-3">
+                                        <strong>Price: </strong>
+
+                                        {% if variant_data.selected_variant %}
+                                            <span id="product-price">{{ variant_data.selected_variant.price }} TK</span>
+                                        {% else %}
+                                            <span id="product-price">{{ product.sale_price }} TK</span>
+                                        {% endif %}
+
+                                        {% if product.old_price %}
+                                            - <del>{{ product.old_price }} TK</del>
+                                        {% endif %}
+                                    </p>
+
+
+                                    <div class="variant-options">
+                                        {% if product.variants_type == "size" or product.variants_type == "color_size" %}
+                                            <div class="p-size mb-3 d-flex align-items-center">
+                                                <p class="mb-0 me-2 mr-3"><strong>Sizes: </strong></p>
+                                                <div class="btn-group btn-group-sm" id="size-options">
+                                                    {% for size in variant_data.sizes %}
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-outline-dark size-option {% if forloop.first %}active{% endif %}"
+                                                            data-size-id="{{ size.id }}"
+                                                        >
+                                                            {{ size.code }}
+                                                        </button>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <p class="my-3"><strong>Selected Size: </strong>
+                                                <span id="product-size">{{ variant_data.selected_variant.size }}</span>
+                                            </p>
+                                        {% endif %}
+
+                                        {% if product.variants_type == "color" or product.variants_type == "color_size" %}
+                                            <div class="p-color mb-3 d-flex align-items-center">
+                                                <p class="mb-0 me-2 mr-3"><strong>Colors: </strong></p>
+                                                <div class="btn-group btn-group-sm" id="color-options">
+                                                    {% for color in variant_data.colors %}
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-outline-dark color-option {% if forloop.first %}active{% endif %}"
+                                                            data-color-id="{{ color.id }}"
+                                                            data-variant-id="{{ color.variant_id }}"
+                                                            data-price="{{ color.price }}"
+                                                            data-image-id="{{ color.image_id }}"
+                                                        >
+                                                            {{ color.title }}
+                                                        </button>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <p class="my-3"><strong>Selected Color: </strong>
+                                                <span id="product-color">{{ variant_data.selected_variant.color }}</span>
+                                            </p>
+                                        {% endif %}
+
+                                        <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+                                        <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
+
+                                    </div>
+                                    <div class="action">
+                                        <form method="POST" id="cart-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" id="product-slug" value="{{ product.slug }}" name="product-slug">
+                                            <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+                                            <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
+
+                                            <div class="product-quantity">
+                                                <label class="mr-3"> <strong>Quantity: </strong> </label>
+                                                <input type="number" name="quantity" value="1" min="1"
+                                                    max="{% if variant %}{{ variant.stock }}{% else %}{{ product.stock }}{% endif %}">
+
+                                            </div>
+                                            {% if request.user.is_authenticated %}
+                                                <button type="submit" class="btn my-3 mx-5"><i class="fa fa-shopping-cart mr-1"></i>Add to Cart</button>
+                                                <button type="submit" class="btn my-3 my"><i class="fa fa-shopping-bag mr-1"></i>Buy Now</button>
+                                            {% else %}
+                                            <a href="{% url "login" %}" class="btn my-3 mx-5">Login</a>
+                                            <a href="{% url "signup" %}" class="btn my-3">Signup</a>
+                                            {% endif %}
+                                        </form>
+
+
+                                    </div>
+
+                                    <p class="my-3">
+                                        <strong>SKU: </strong>
+
+                                        {% if variant_data.selected_variant %}
+                                            <span id="product-sku">{{ variant_data.selected_variant.sku }}</span>
+                                        {% endif %}
+                                    </p>
+
+                                    <p class="my-3">
+                                        <strong>Tag: </strong>
+                                        {% if product.tag %}
+                                            <span>{{ product.tag|title }}</span>
+                                        {% endif %}
+                                    </p>
+
+                                    <p class="my-3">
+                                        <strong>Categories: </strong>
+                                        {% if product.category.title %}
+                                            <span>{{ product.category.title|title }}</span>
+                                        {% endif %}
+                                    </p>
+
+                                    <p class="my-3">
+                                        <strong>Brands: </strong>
+                                        {% if product.brand.title %}
+                                            <span>{{ product.brand.title|title }}</span>
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row product-detail-bottom">
+                        <div class="col-lg-12">
+                            <ul class="nav nav-pills nav-justified">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="pill" href="#description">Description</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="pill" href="#specification">Specification</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="pill" href="#reviews">
+                                        Reviews (<span id="reviews-count">{{ product.reviews.all|length }}</span>)
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="description" class="container tab-pane active">
+                                    <h4>{{product.prev_des|title}}</h4>
+                                    <p>
+                                        {{product.short_des|safe}}
+                                    </p>
+                                    <h4>{{product.add_des|title}}</h4>
+                                    <p>
+                                        {{product.long_des|safe}}
+                                    </p>
+                                </div>
+                                <div id="specification" class="container tab-pane fade">
+                                    <h4>{{product.keyword|title}}</h4>
+                                    <p>{{product.description|safe}}</p>
+                                </div>
+                                <!-- Reviews Tab -->
+                                <div id="reviews" class="container tab-pane fade">
+                                    <div id="reviews-items" class="reviews-submitted">
+                                        {% for review in product.reviews.all %}
+                                            <div class="review-item">
+                                                <!-- Reviewer -->
+                                                <div class="reviewer">
+                                                    {{ review.user.username|title }}
+                                                    -
+                                                    <span>{{ review.created_at|date:"d M Y" }}</span>
+                                                </div>
+
+                                                <!-- Rating -->
+                                                <div class="ratting">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= review.rating %}
+                                                            <i class="fa fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa fa-star-o"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+
+                                                <!-- Review Subject -->
+                                                {% if review.subject %}
+                                                    <h5>{{ review.subject|safe }}</h5>
+                                                {% endif %}
+
+                                                <!-- Review Comment -->
+                                                <p>{{ review.comment|safe }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="reviews-submit">
+                                        <h4 class="text-center">Given your Review</h4>
+                                        <form method="POST" id="review-form" novalidate>
+                                            {% csrf_token %}
+                                            <input type="hidden" id="product-slug" value="{{ product.slug }}" name="product-slug">
+                                            <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+
+                                            <div class="rating">
+                                                <input type="radio" name="rating" id="rating5" value="5" required>
+                                                <label for="rating5" title="5"></label>
+
+                                                <input type="radio" name="rating" id="rating4" value="4">
+                                                <label for="rating4" title="4"></label>
+
+                                                <input type="radio" name="rating" id="rating3" value="3">
+                                                <label for="rating3" title="3"></label>
+
+                                                <input type="radio" name="rating" id="rating2" value="2">
+                                                <label for="rating2" title="2"></label>
+
+                                                <input type="radio" name="rating" id="rating1" value="1">
+                                                <label for="rating1" title="1"></label>
+                                                {{ form.rating.errors }}
+                                            </div>
+
+                                            <div class="row form">
+                                                <div class="col-sm-12">
+                                                    {{ form.subject }}
+                                                    {{ form.subject.errors }}
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    {{ form.comment }}
+                                                    {{ form.comment.errors }}
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <button type="submit" class="form-control">
+                                                        Submit
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product">
+                        <div class="section-header">
+                            <h1>Related Products</h1>
+                        </div>
+
+                        <div class="row align-items-center product-slider product-slider-3">
+                            {% if related_products %}
+                            {% for product in related_products %}
+                            <div class="col-lg-3">
+                                <div class="product-item">
+
+                                    <div class="product-title">
+                                        <a href="{% url 'product-detail' product.slug product.id %}">
+                                            {{ product.title|title }}
+                                        </a>
+
+                                        <div class="ratting">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= product.avg_rate %}
+                                                    <i class="fa fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa fa-star-o"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="product-image">
+                                        <a href="{% url 'product-detail' product.slug product.id %}">
+                                            {% if product.galleries.first %}
+                                                <img
+                                                    style="width: 100%; height: 450px; object-fit: cover;"
+                                                    src="{{ product.galleries.first.image.url }}"
+                                                    alt="{{ product.title }}"
+                                                >
+                                            {% endif %}
+                                        </a>
+
+                                        <div class="product-action">
+                                            <a
+                                                href="#"
+                                                class="add-to-wish"
+                                                data-product-id="{{ product.id }}"
+                                                data-product-slug="{{ product.slug }}">
+                                                <i class="fa fa-heart"></i>
+                                            </a>
+
+                                            <a href="{% url 'product-detail' product.slug product.id %}">
+                                                <i class="fa fa-search"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="product-price">
+                                        <h3>
+                                            {{ product.sale_price|safe }} TK
+                                        </h3>
+
+                                        <a class="btn" href="#">
+                                            <i class="fa fa-shopping-cart"></i>
+                                            Buy Now
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Product Detail End -->
+{% endblock content %}

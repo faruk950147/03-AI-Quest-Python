@@ -1,0 +1,62 @@
+{% if products_qs %}
+    {% for product in products_qs %}
+        <div class="col-lg-4">
+            <div class="product-item">
+
+                <div class="product-title">
+                    <a href="{% url 'product-detail' product.slug product.id %}">
+                        {{ product.title|title }}
+                    </a>
+
+                    <div class="ratting">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.avg_rate %}
+                                <i class="fa fa-star"></i>
+                            {% else %}
+                                <i class="fa fa-star-o"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="product-image">
+                    <a href="{% url 'product-detail' product.slug product.id %}">
+                        {% if product.galleries.first %}
+                            <img
+                                style="width: 100%; height: 450px; object-fit: cover;"
+                                src="{{ product.galleries.first.image.url }}"
+                                alt="{{ product.title }}"
+                            >
+                        {% endif %}
+                    </a>
+
+                    <div class="product-action">
+                        <a
+                            href="#"
+                            class="add-to-wish"
+                            data-product-id="{{ product.id }}"
+                            data-product-slug="{{ product.slug }}">
+                            <i class="fa fa-heart"></i>
+                        </a>
+
+                        <a href="{% url 'product-detail' product.slug product.id %}">
+                            <i class="fa fa-search"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="product-price">
+                    <h3>
+                        {{ product.sale_price|safe }} TK
+                    </h3>
+
+                    <a class="btn" href="#">
+                        <i class="fa fa-shopping-cart"></i>
+                        Buy Now
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,16 @@
+__pycache__
+db.sqlite3
+env
+railway.env
+env
+.venv
+node_modules
+dist
+build
+coverage
+*.log
+*.tmp
+.DS_Store
+.idea
+.vscode
+*.suo

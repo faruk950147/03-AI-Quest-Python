@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout{% endblock title %}
+
+{% block content %}   
+    <!-- Checkout Start -->
+    <div class="checkout">
+        <div class="container-fluid"> 
+            <form action="" method="post" id="checkout-form">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Left Column: Checkout Summary + Coupon -->
+                    <div class="col-md-6">
+                        <h4>Checkout Summary</h4>
+                        <hr>
+                        <div class="card mb-2">
+                            <div class="table-content table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Images</th>
+                                            <th>Product</th>
+                                            <th>Variant</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in cart_items %}
+                                        <tr>
+                                            <td>
+                                                <img style="width:70px;height:80px;"
+                                                    src="{% if item.variant and item.variant.image_url %}{{ item.variant.image_url }}{% elif item.product.galleries %}{{ item.product.galleries.first.image.url }}{% else %}/media/defaults/default.jpg{% endif %}"
+                                                    alt="{{ item.product.title }}">
+                                            </td>
+                                            <td>{{ item.product.title|title }}</td>
+                                            <td>{% if item.variant %}{{ item.variant.color.title|default:'' }} - {{ item.variant.size.code|default:'' }}{% else %}—{% endif %}</td>
+                                            <td>{{ item.stored_unit_price }} TK</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.subtotal }} TK</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Coupon Input -->
+                        <div class="coupon mb-3">
+                            <input class="w-50" style="border: 1px solid #FF6F61;" 
+                            id="coupon-code" name="coupon_code" value="{{ coupon_code|default:'' }}" placeholder="Coupon code" type="text">
+                            <button style="border: 1px solid #FF6F61;" type="button" id="apply-coupon-btn">Apply Coupon</button>
+                        </div>
+
+                        <!-- Totals -->
+                        <p class="text-end me-3" id="sub-total">Subtotal: {{ subtotal }} TK</p> 
+                        <p class="text-end me-3">Shipping Cost: {{ shipping_cost }} TK</p>
+                        <p class="text-end me-3" id="discount-amount">Discount: {{ discount_amount }} TK</p> 
+                        <p class="text-end me-3 fw-bold" id="grand-total">Grand Total: {{ grand_total }} TK</p>
+                    </div>
+
+                    <!-- Right Column: Shipping + Payment -->
+                    <div class="col-md-5 offset-md-1">
+
+                        <!-- Shipping Address -->
+                        <h4>
+                            <i class="fa fa-location-dot me-2"></i> Select Shipping Address
+                        </h4>
+                        <hr>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% for ship_add in shipping_address %}
+
+                                <div class="form-check border rounded p-2 mb-2 d-flex align-items-start">
+
+                                    <input 
+                                        class="form-check-input me-2" 
+                                        type="radio" 
+                                        name="address" 
+                                        value="{{ ship_add.id }}" 
+                                        id="address{{ forloop.counter }}"
+                                        {% if forloop.first %}checked{% endif %}>
+
+                                    <label class="form-check-label flex-grow-1" for="address{{ forloop.counter }}">
+                                        <strong>{{ ship_add.shipping_choice }}</strong><br>
+                                        <small>{{ ship_add.name }}, {{ ship_add.country }}, {{ ship_add.city }}, {{ ship_add.home_city }}</small><br>
+                                        <small>{{ ship_add.zip_code }} | {{ ship_add.phone }}</small><br>
+                                        <small>{{ ship_add.address }}</small>
+                                    </label>
+
+                                    <!-- Edit Icon -->
+                                    <a href="{% url 'shipping-edit' ship_add.id %}"
+                                    class="text-primary ms-2"
+                                    title="Edit Address">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                </div>
+
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <h4>Payment Method</h4>
+                        <hr>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% for value, label in payment_methods %}
+                                <div class="form-check mb-2">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="radio" 
+                                        name="payment_method" 
+                                        value="{{ value }}" 
+                                        id="pay_{{ value }}"
+                                        {% if forloop.first %}checked{% endif %}>
+
+                                    <label class="form-check-label" for="pay_{{ value }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button class="btn cart-btn w-100" type="submit">
+                            <i class="fa fa-lock me-2"></i> Place Checkout
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+            <div id="checkout-config"
+                data-success-url="/checkout/success/0/">
+            </div>
+        </div>
+    </div>
+    <!-- Checkout End -->
+
+{% endblock content %}

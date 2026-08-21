@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Reset Password Confirmation{% endblock title %}
+
+{% block content %}
+    <!-- Changes Start -->
+    <div class="changes">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="changes-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{ form.email.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Token</label>
+                                    {{form.token}}
+                                    {{ form.token.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <label>New Password</label>
+                                    {{form.new_password}}
+                                    {{ form.new_password.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Confirm Password</label>
+                                    {{form.new_password2}}
+                                    {{ form.new_password2.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Reset Password Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Changes End -->
+        
+{% endblock content %}

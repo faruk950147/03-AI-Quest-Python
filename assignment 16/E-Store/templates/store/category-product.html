@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Categories{% endblock title %}
+
+{% block content %}   
+    <!-- Product List Start -->
+    <div class="product-view">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Side Bar Start -->
+                <div class="col-lg-3 sidebar">
+                    {% include "store/components/filter.html" %}
+                </div>
+                <!-- Side Bar End -->
+                <div class="col-lg-9">
+                    <div class="product-view-top">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="product-search">
+                                    <select name="per_page" id="per_page">
+                                        {% for page in per_page_options %}
+                                            <option value="{{ page }}" {% if page == selected_per_page %}selected{% endif %}>
+                                                {{ page }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="product-short">
+                                    <select name="sort" id="sort">
+                                        {% for sort in sort_options %}
+                                            <option value="{{ sort }}" {% if sort == selected_sort %}selected{% endif %}>
+                                                {{ sort|title }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="product-grid">
+                        {% include "store/components/grid.html" %}
+                    </div>
+                    
+                    <!-- Pagination Start -->
+                    <div class="col-md-12">
+                        <nav aria-label="Page navigation" id="pagination">
+                            {% include "store/components/pagination.html" %}
+                        </nav>
+                    </div>
+                    <!-- Pagination End -->
+                </div>           
+            </div>
+        </div>
+    </div>
+    <!-- Product List End -->  
+{% endblock content %}

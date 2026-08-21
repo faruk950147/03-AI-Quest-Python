@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock title %}
+
+{% block content %}    
+    <!-- Login Start -->
+    <div class="login">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="login-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Username</label>
+                                    {{form.username}}
+                                    {{form.username.errors}}
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Password</label>
+                                    {{form.password}}
+                                    {{form.password.errors}}
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-6 custom-control custom-checkbox">
+                                            {{form.keep_logged_in}} Keep me logged in
+                                        </div>
+                                        <div class="col-6 custom-control forgot-password">
+                                            <a href="{% url 'reset-password' %}">Forgot Password?</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Login</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Login End -->
+        
+{% endblock content %}

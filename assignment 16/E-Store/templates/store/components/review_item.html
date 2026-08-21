@@ -1,0 +1,27 @@
+<div class="review-item">
+    <!-- Reviewer -->
+    <div class="reviewer">
+        {{ review.user.username|title }}
+        -
+        <span>{{ review.created_at|date:"d M Y" }}</span>
+    </div>
+
+    <!-- Rating -->
+    <div class="ratting">
+        {% for i in "12345" %}
+            {% if forloop.counter <= review.rating %}
+                <i class="fa fa-star"></i>
+            {% else %}
+                <i class="fa fa-star-o"></i>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Review Subject -->
+    {% if review.subject %}
+        <h5>{{ review.subject|safe }}</h5>
+    {% endif %}
+
+    <!-- Review Comment -->
+    <p>{{ review.comment|safe }}</p>
+</div>

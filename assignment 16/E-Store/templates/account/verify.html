@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Verify {% endblock title %}
+
+{% block content %}
+    <!-- Verify Start -->
+    <div class="verify">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="verify-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{form.email.errors}}
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Token</label>
+                                    {{form.token}}
+                                    {{form.token.errors}}
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Verify Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- verify End -->
+        
+{% endblock content %}
