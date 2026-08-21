@@ -86,62 +86,101 @@
 
                         <!-- Shipping Address -->
                         <h4 class="text-muted">
-                            <i class="fa fa-location-dot me-2"></i> Select Shipping Address
+                            <i class="fa fa-location-dot me-2"></i>
+                            Select Shipping Address
                         </h4>
+
                         <hr>
 
                         <div class="card mb-4">
                             <div class="card-body">
+
                                 {% for ship_add in shipping_address %}
+
                                 <div class="form-check border rounded p-2 mb-2">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="radio" 
-                                        name="address" 
-                                        value="{{ ship_add.id }}" 
-                                        id="address{{ forloop.counter }}">
+
+                                    <input class="form-check-input" type="radio" name="address" value="{{ ship_add.id }}"
+                                        id="address{{ forloop.counter }}" {% if forloop.first %}checked{% endif %}>
 
                                     <label class="form-check-label" for="address{{ forloop.counter }}">
-                                        <strong>{{ ship_add.shipping_choice }}</strong><br>
-                                        <small>{{ ship_add.name }}, {{ ship_add.country }}, {{ ship_add.city }}, {{ ship_add.home_city }}</small><br>
-                                        <small>{{ ship_add.zip_code }} | {{ ship_add.phone }}</small><br>
-                                        <small>{{ ship_add.address }}</small>
+                                        <strong>
+                                            {{ ship_add.shipping_choice }}
+                                        </strong>
+                                        <br>
+
+                                        <small>
+                                            {{ ship_add.name }},
+                                            {{ ship_add.country }},
+                                            {{ ship_add.city }},
+                                            {{ ship_add.home_city }}
+                                        </small>
+                                        <br>
+
+                                        <small>
+                                            {{ ship_add.zip_code }} |
+                                            {{ ship_add.phone }}
+                                        </small>
+                                        <br>
+
+                                        <small>
+                                            {{ ship_add.address }}
+                                        </small>
                                     </label>
+
                                 </div>
+
+                                {% empty %}
+
+                                <p class="text-muted mb-0">
+                                    No shipping address available.
+                                </p>
+
                                 {% endfor %}
+
                             </div>
                         </div>
 
 
                         <!-- Payment Method -->
                         <h4 class="text-muted">
-                            <i class="fa fa-credit-card me-2"></i> Payment Method
+                            <i class="fa fa-credit-card me-2"></i>
+                            Payment Method
                         </h4>
+
                         <hr>
 
                         <div class="card mb-4">
                             <div class="card-body">
+
                                 {% for value, label in payment_methods %}
+
                                 <div class="form-check mb-2">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="radio" 
-                                        name="payment_method" 
-                                        value="{{ value }}" 
-                                        id="pay_{{ value }}">
+
+                                    <input class="form-check-input" type="radio" name="payment_method" value="{{ value }}"
+                                        id="pay_{{ value }}" {% if forloop.first %}checked{% endif %}>
 
                                     <label class="form-check-label" for="pay_{{ value }}">
                                         {{ label }}
                                     </label>
+
                                 </div>
+
+                                {% empty %}
+
+                                <p class="text-muted mb-0">
+                                    No payment method available.
+                                </p>
+
                                 {% endfor %}
+
                             </div>
                         </div>
 
 
                         <!-- Submit Button -->
                         <button class="btn cart-btn w-100" type="submit">
-                            <i class="fa fa-lock me-2"></i> Place Checkout
+                            <i class="fa fa-lock me-2"></i>
+                            Place Checkout
                         </button>
 
                     </div>
