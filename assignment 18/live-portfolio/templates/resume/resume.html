@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Resume{% endblock title %}
+{% load static %}
+
+{% block main %}
+
+<main class="main">
+
+  <!-- Page Title -->
+  <div class="page-title" data-aos="fade">
+    <div class="heading">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-8">
+            <h1>{{description.title|title}}</h1>
+            <p class="mb-0">
+              {{description.description|safe}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="breadcrumbs">
+      <div class="container">
+        <ol>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li class="current">Resume</li>
+        </ol>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Resume Section -->
+  <section id="resume" class="resume section">
+
+    <div class="container">
+
+      <div class="row">
+
+        <!-- Left Side -->
+        <div class="col-lg-6" data-aos="fade-up">
+
+          <!-- Summary -->
+          <h3 class="resume-title">Summary</h3>
+
+          <div class="resume-item pb-0">
+            <h4>{{resume.title|title}}</h4>
+
+            <p>
+              {{resume.description|safe}}
+            </p>
+
+            <ul>
+              <li> {{resume.location|safe}} </li>
+              <li> {{resume.phone|safe}} </li>
+              <li> {{resume.email|safe}} </li>
+              <li> {{resume.github|safe}} </li>
+              <li> {{resume.linkedin|safe}} </li>
+            </ul>
+          </div>
+
+          <!-- Education -->
+          <h3 class="resume-title">Education</h3>
+          {% for education in educations %}
+            <div class="resume-item">
+              <h4>{{education.qualification|title}}</h4>
+              <h5>
+                {{ education.learn_start|date:"M Y" }} - 
+                {{ education.learn_end|date:"M Y" }}
+              </h5>
+              <p><em>{{education.institute|safe}}</em></p>
+              <p>{{education.board|safe}}</p>
+            </div>
+          {% endfor %}
+
+          <!-- Technical Skills -->
+          <h3 class="resume-title">Technical Skills</h3>
+          {% for skill in skills %}
+            <div class="resume-item">
+
+              <h4> {{skill.typed|title}} </h4>
+              <p> {{skill.title|title}} </p>
+
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Right Side -->
+        <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+          <!-- Training -->
+          <h3 class="resume-title">Training & Certification</h3>
+          {% for training in trainings %}
+            <div class="resume-item">
+              <h4>{{ training.title|title }}</h4>
+              
+              <h5>
+                {{ training.learn_start|date:"M Y" }} - 
+                {{ training.learn_end|date:"M Y" }}
+              </h5>
+
+              <p><em>{{ training.institute|safe }}</em></p>
+              <p>
+                {{ training.description|safe }}
+              </p>
+            </div>
+          {% endfor %}
+          
+          <!-- Projects -->
+          <h3 class="resume-title">Projects</h3>
+          {% for project in projects %}
+            <div class="resume-item">
+              <h4> {{project.title|title}} </h4>
+              <p>
+                {{project.description|safe}}
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+{% endblock main %}

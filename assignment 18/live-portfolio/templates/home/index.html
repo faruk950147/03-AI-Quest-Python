@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock title %}
+{% load static %}
+
+{% block main %}
+  <main class="main">
+    <!-- Hero Section -->
+    <section id="hero" class="hero section dark-background">
+      <img src="{{ hero.image.url }}" alt="{{ hero.image.alt }}" data-aos="fade-in">
+
+      <div class="container" data-aos="zoom-out" data-aos-delay="100">
+        <h2>{{ hero.title|title }}</h2>
+        <p class="lead fs-6 moving-text">{{ hero.tag|title }}</p>
+        <p>I'm <span class="typed" data-typed-items="{{ hero.typed_items|default:'' }}"></span><span class="typed-cursor typed-cursor--blink"></span></p>
+        
+        <div class="social-links">
+          {% for social in social_links %}
+          <a href="{{social.url|safe}}" target="_blank">
+            <i class="{{social.icon|safe}}"></i>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+  </main>
+{% endblock main %}
