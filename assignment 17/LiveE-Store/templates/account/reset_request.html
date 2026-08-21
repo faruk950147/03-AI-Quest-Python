@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Reset Password{% endblock title %}
+
+{% block content %}
+    <!-- Reset Start -->
+    <div class="reset">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="reset-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{form.email.errors}}
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Request Password Reset Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Reset End -->
+        
+{% endblock content %}

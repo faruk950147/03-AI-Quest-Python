@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Contact Me{% endblock title %}
+{% load static %}
+
+{% block main %}
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>{{ description.title|title }}</h1>
+              <p class="mb-0">{{ description.description|safe }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li class="current">Contact</li>
+          </ol>
+        </div>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row gy-4">
+          {% for info in contact_info %}
+            <div class="col-md-6">
+              <div class="info-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="200">
+                <i class="{{info.icon|safe}}"></i>
+                <div>
+                  <h3>{{info.title|title}}</h3>
+                  <p> {% if info.location %}{{ info.location|safe }}{% endif %} {% if info.phone %}{{ info.phone|safe }}{% endif %} {% if info.email %}{{ info.email|safe }}{% endif %} </p>
+                </div>
+              </div>
+            </div><!-- End Info Item -->
+          {% endfor %}
+
+        <form method="post" class="php-email-form" novalidate>
+          <div class="row gy-4">
+            {% csrf_token %}
+            {% include "non-field-errors.html" %}
+            <div class="col-md-6">
+              {{form.name}}
+              {{form.name.errors}}
+            </div>
+
+            <div class="col-md-6 ">
+              {{form.email}}
+              {{form.email.errors}}
+            </div>
+
+            <div class="col-md-12">
+              {{form.subject}}
+              {{form.subject.errors}}
+            </div>
+
+            <div class="col-md-12">
+              {{form.message}}
+              {{form.message.errors}}
+            </div>
+
+            <div class="col-md-12 text-center">
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your message has been sent. Thank you!</div>
+
+              <button type="submit">Send Message</button>
+            </div>
+
+          </div>
+        </form><!-- End Contact Form -->
+
+      </div>
+
+    </section><!-- /Contact Section -->
+
+  </main>
+
+{% endblock main %}

@@ -1,0 +1,9 @@
+{% for variant in colors %}
+    <button
+        type="button"
+        class="btn color-option"
+        data-variant-id="{{ variant.id }}"
+    >
+        {{ variant.color.title }}
+    </button>
+{% endfor %}

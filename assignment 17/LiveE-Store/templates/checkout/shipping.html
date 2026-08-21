@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Shipping Address{% endblock title %}
+
+{% block content %}
+    <!-- Shipping Address Start -->
+    <div class="shipping-address">
+        <div class="container-fluid">
+
+            <div class="row justify-content-center align-items-center">
+
+                <!-- Add or Edit Shipping Address -->
+                <div class="col-lg-8">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Add Shipping Address</h4>
+                        </div>
+
+                        <div class="card-body">
+                        <form method="POST" novalidate>
+                                {% csrf_token %}
+                                {% include 'non-field-errors.html' %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Shipping Choices</label>
+                                        {{form.shipping_choice}}
+                                        {{form.shipping_choice.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Name</label>
+                                        {{form.name}}
+                                        {{form.name.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Country</label>
+                                        {{form.country}}
+                                        {{form.country.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>City</label>
+                                        {{form.city}}
+                                        {{form.city.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Home City</label>
+                                        {{form.home_city}}
+                                        {{form.home_city.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Zip Code</label>
+                                        {{form.zip_code}}
+                                        {{form.zip_code.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Phone</label>
+                                        {{form.phone}}
+                                        {{form.phone.errors}}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Address</label>
+                                        {{form.address}}
+                                        {{form.address.errors}}
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="btn form-control">Shipping Changes</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Shipping Address End -->
+
+{% endblock content %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Signup{% endblock title %}
+
+{% block content %}
+    <!-- Signup Start -->
+    <div class="signup">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="signup-form">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {% include 'non-field-errors.html' %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Username</label>
+                                    {{form.username}}
+                                    {{ form.username.errors }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Email</label>
+                                    {{form.email}}
+                                    {{ form.email.errors }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Phone</label>
+                                    {{form.phone}}
+                                    {{ form.phone.errors }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Password</label>
+                                    {{form.password}}
+                                    {{ form.password.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Confirm Password</label>
+                                    {{form.password2}}
+                                    {{ form.password2.errors }}
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn form-control">Sign Up Now</button>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <p class="form-text text-center">
+                                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Signup End -->
+        
+{% endblock content %}

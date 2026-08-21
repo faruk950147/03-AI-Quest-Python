@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Searching Product{% endblock title %}
+
+{% block content %}  
+    <!-- Product List Start -->
+    <div class="product-view">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Side Bar Start -->
+                <div class="col-lg-3 sidebar">
+                    {% include "store/components/filter.html" %}
+                </div>
+                <!-- Side Bar End -->
+                <div class="col-lg-9">
+                    <div class="row" id="product-grid">
+                        {% include "store/components/grid.html" %}
+                    </div>
+                </div>           
+            </div>
+        </div>
+    </div>
+    <!-- Product List End -->
+{% endblock content %}

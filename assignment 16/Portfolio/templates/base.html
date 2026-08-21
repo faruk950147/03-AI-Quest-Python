@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %} {% endblock title %}</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'assets/img/favicon.svg' %}">
+  <link rel="apple-touch-icon" href="{% static 'assets/img/apple-touch-icon.png' %}">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,6<PASSWORD>;0,7<PASSWORD>;0,8<PASSWORD>;0,9<PASSWORD>;1,1<PASSWORD>;1,2<PASSWORD>;1,3<PASSWORD>;1,4<PASSWORD>;1,5<PASSWORD>;1,6<PASSWORD>;1,7<PASSWORD>;1,8<PASSWORD>;1,9<PASSWORD>&family=Raleway:ital,wght@0,1<PASSWORD>;0,2<PASSWORD>;0,3<PASSWORD>;0,4<PASSWORD>;0,5<PASSWORD>;<|fim_suffix|">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
+  <!-- Default theme -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css"/>
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static "assets/vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+  <link href="{% static "assets/vendor/bootstrap-icons/bootstrap-icons.css" %}" rel="stylesheet">
+  <link href="{% static "assets/vendor/aos/aos.css" %}" rel="stylesheet">
+  <link href="{% static "assets/vendor/swiper/swiper-bundle.min.css" %}" rel="stylesheet">
+  <link href="{% static "assets/vendor/glightbox/css/glightbox.min.css" %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static "assets/css/main.css" %}" rel="stylesheet">
+
+</head>
+
+<body class="index-page">
+    <header id="header" class="header d-flex align-items-center fixed-top">
+        <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+            <a href="{% url 'home' %}" class="logo d-flex align-items-center">
+                {% if logo %}
+                    <h1 class="sitename">{{logo.title|upper}}</h1>
+                {% endif %}
+            </a>
+            <nav id="navmenu" class="navmenu">
+                <ul>
+                    {% if request.user.is_authenticated %}
+                        {% if menubars %}
+                            {% for menu in menubars %}
+                                {% if menu.children.count %}
+                                    <li class="dropdown">
+
+                                        <a href="{{ menu.get_url }}"
+                                        class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+                                            <span>{{ menu.title|upper }}</span>
+                                            <i class="bi bi-chevron-down toggle-dropdown"></i>
+                                        </a>
+
+                                        <ul>
+
+                                            {% for child in menu.children.all %}
+
+                                                <li>
+                                                    <a href="{{ child.get_url }}"
+                                                    class="{% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
+                                                        {{ child.title|upper }}
+                                                    </a>
+                                                </li>
+
+                                            {% endfor %}
+
+                                        </ul>
+
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a href="{{ menu.get_url }}"
+                                        class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+                                            {{ menu.title|upper }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        <li class="dropdown profile-dropdown">
+                            <a href="#">
+                                <span><i class="bi bi-people fs-5 m-2"></i> {{request.user.username|upper}} </span>
+                                <i class="bi bi-chevron-down toggle-dropdown"></i>
+                            </a>
+
+                            <ul>
+                                <li class="text-center"><a href="{% url "profile" %}">Account</a></li>
+                            </ul>
+                        </li>
+
+                    {% else %}
+                        <li>
+                            <a href="{% url "login" %}">
+                                <span><i class="bi bi-people fs-5 m-2"></i>LOGIN </span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+            </nav>
+        </div>
+    </header>
+
+    {% block main %}
+    
+    {% endblock main %}
+
+    <footer id="footer" class="footer dark-background">
+        <div class="container text-center">
+            <h3 class="sitename">{{footer.title|upper}}</h3>
+            
+            <span> {{footer.tag|safe}} </span>
+
+            <p>
+                {{footer.paragraph|safe}}
+            </p>
+
+            <div class="social-links d-flex justify-content-center">
+                {% for social in social_links %}
+                <a href="{{social.url|safe}}" target="_blank">
+                <i class="{{social.icon|safe}}"></i>
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="mt-3">
+                <p>
+                <i class="bi bi-geo-alt-fill"></i>
+                {{copyright.location}}
+                </p>
+            </div>
+
+            <div class="copyright mt-3">
+            {{copyright.designed}}
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Preloader -->
+    <div id="preloader"></div> 
+
+    <!-- Vendor JS Files -->
+    <script src="{% static "assets/vendor/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+    <script src="{% static "assets/vendor/typed.js/typed.umd.js" %}"></script>
+    <script src="{% static "assets/vendor/aos/aos.js" %}"></script>
+    <script src="{% static "assets/vendor/purecounter/purecounter_vanilla.js" %}"></script>
+    <script src="{% static "assets/vendor/waypoints/noframework.waypoints.js" %}"></script>
+    <script src="{% static "assets/vendor/swiper/swiper-bundle.min.js" %}"></script>
+    <script src="{% static "assets/vendor/glightbox/js/glightbox.min.js" %}"></script>
+    <script src="{% static "assets/vendor/imagesloaded/imagesloaded.pkgd.min.js" %}"></script>
+    <script src="{% static "assets/vendor/isotope-layout/isotope.pkgd.min.js" %}"></script>
+
+    <!-- Main JS File -->
+    <script src="{% static "assets/js/main.js" %}"></script>
+
+    <!-- JavaScript -->
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
+    {% include "alert.html" %}
+</body>
+
+</html>

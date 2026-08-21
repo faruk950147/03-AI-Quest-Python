@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <title>{% block title %}E Store | {% endblock title %}</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="eCommerce HTML Template Free Download" name="keywords">
+        <meta content="eCommerce HTML Template Free Download" name="description">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+        
+        <!-- Alertify CSS -->
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
+        <!-- Default theme -->
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css"/>
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&family=Source+Code+Pro:wght@700;900&display=swap" rel="stylesheet">
+                
+        <!-- CSS Libraries -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="{% static 'lib/slick/slick.css' %}" rel="stylesheet">
+        <link href="{% static 'lib/slick/slick-theme.css' %}" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link href="{% static 'css/style.css' %}" rel="stylesheet">
+        <link href="{% static 'css/rating.css' %}" rel="stylesheet">
+    </head>
+    <body>
+        <!-- Top bar Start -->
+        {% include 'components/top-bar.html' %}
+        <!-- Top bar End -->
+        
+        <!-- Nav Bar Start -->
+        {% include 'components/nav-bar.html' %}
+        <!-- Nav Bar End -->      
+        
+        <!-- Bottom Bar Start -->
+        {% include 'components/bottom-bar.html' %}
+        <!-- Bottom Bar End -->       
+        
+        {% block content %}
+        
+        {% endblock content %}
+        
+        <!-- Footer Start -->
+        {% include 'components/footer.html' %}
+        <!-- Footer End -->
+        
+        <!-- Footer Bottom Start -->
+        {% include 'components/footer-bottom.html' %}
+        <!-- Footer Bottom End -->       
+        
+        <!-- Back to Top -->
+        <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+        
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Alertify JS -->
+        <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+        {% include "alert.html" %}
+        
+        <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+        <script src="{% static 'lib/slick/slick.min.js' %}"></script>
+        
+        <!-- Template Javascript -->
+        <script src="{% static 'js/main.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const countdowns = document.querySelectorAll("[data-countdown]");
+
+                countdowns.forEach(function (countdown) {
+
+                    const dateString = countdown.getAttribute("data-date");
+                    const targetDate = new Date(dateString).getTime();
+
+                    if (isNaN(targetDate)) {
+                        console.error("Invalid countdown date:", dateString);
+                        return;
+                    }
+
+                    function updateCountdown() {
+
+                        const now = new Date().getTime();
+                        const distance = targetDate - now;
+
+                        const days = countdown.querySelector("[data-days]");
+                        const hours = countdown.querySelector("[data-hours]");
+                        const minutes = countdown.querySelector("[data-minutes]");
+                        const seconds = countdown.querySelector("[data-seconds]");
+
+                        if (distance <= 0) {
+                            days.textContent = "0";
+                            hours.textContent = "0";
+                            minutes.textContent = "0";
+                            seconds.textContent = "0";
+                            return;
+                        }
+
+                        days.textContent = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+                        hours.textContent = Math.floor(
+                            (distance % (1000 * 60 * 60 * 24)) /
+                            (1000 * 60 * 60)
+                        );
+
+                        minutes.textContent = Math.floor(
+                            (distance % (1000 * 60 * 60)) /
+                            (1000 * 60)
+                        );
+
+                        seconds.textContent = Math.floor(
+                            (distance % (1000 * 60)) /
+                            1000
+                        );
+                    }
+
+                    updateCountdown();
+                    setInterval(updateCountdown, 1000);
+                });
+
+            });
+        </script>
+    </body>
+</html>

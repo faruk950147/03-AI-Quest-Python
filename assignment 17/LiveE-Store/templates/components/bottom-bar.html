@@ -1,0 +1,56 @@
+
+{% load static %}
+<!-- Bottom Bar Start -->
+<div class="bottom-bar">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <div class="logo">
+                    <a href="{% url "home" %}">
+                        <img src="{% static 'img/logo.png' %}" alt="Logo">
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <form action="{% url 'searching-product' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="search">
+                        <input
+                            id="search-input"
+                            name="q"
+                            value="{{ request.POST.q|default:'' }}"
+                            autocomplete="off"
+                            type="text"
+                            placeholder="Search"
+                        >
+
+                        <button type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                        <div
+                            id="autocomplete-display"
+                            class="list-group position-absolute w-100"
+                            style="z-index: 1000; top: 100%;"
+                        ></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-3">
+                <div class="user">
+                    <a href="{% url "wishlist" %}" class="btn wishlist">
+                        <i class="fa fa-heart"></i>
+                        <span id="wish-count">({{ wish_count|default:"0" }})</span>
+                    </a>
+
+                    <a href="{% url "detail-view" %}" class="btn cart">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span id="cart-count">({{ cart_count|default:"0" }})</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bottom Bar End --> 

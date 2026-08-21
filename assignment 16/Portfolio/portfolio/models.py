@@ -1,0 +1,170 @@
+from django.core.exceptions import ValidationError
+from django.db import models
+from ckeditor.fields import RichTextField
+from django.utils.translation import gettext_lazy as _
+from mixins.mixing import ImageTagMixin, StripMixin
+# ==========================================================
+# STATUS CHOICES
+# ==========================================================
+class StatusChoices(models.TextChoices):
+    ACTIVE = "active", _("Active")
+    INACTIVE = "inactive", _("Inactive")
+
+
+# ==========================================================
+# BASE MODEL
+# ==========================================================
+class BaseMixin(models.Model):
+    """
+    Abstract base model containing common fields.
+    """
+
+    status = models.CharField(
+        _("Status"),
+        max_length=20,
+        choices=StatusChoices.choices,
+        default=StatusChoices.ACTIVE
+    )
+
+    created_at = models.DateTimeField(
+        _("Created At"),
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        _("Updated At"),
+        auto_now=True,
+    )
+
+    class Meta:
+        abstract = True
+
+
+# ==========================================================
+# SINGLETON MODEL
+# ==========================================================
+class SingletonModel(BaseMixin):
+    """
+    Abstract model that allows only one database record.
+    """
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+
+        if self.__class__.objects.exclude(pk=self.pk).exists():
+            raise ValidationError(
+                _("Only one %(model)s instance is allowed."),
+                params={"model": self._meta.verbose_name},
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+class Description(SingletonModel, StripMixin):
+    """
+    Stores the heading and description
+    displayed in the About section.
+    """
+
+    title = models.CharField(
+        _("Title"),
+        max_length=255,
+        help_text=_("Enter the section title."),
+    )
+
+    description = RichTextField(
+        _("Description"),
+        help_text=_("Enter the section description."),
+    )
+
+    class Meta:
+        db_table = "portfolio_description"
+        verbose_name = _("01. Description")
+        verbose_name_plural = _("01. Description")
+        ordering = ["id"]
+        
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__}("
+            f"id={self.pk}, "
+            f"status={self.status!r})>"
+        )
+  
+
+class Portfolio(BaseMixin, StripMixin):
+    TYPES_CHOICES = [
+        ('apps', 'Apps'),
+        ('webs', 'Webs'),
+        ('apis', 'Apis'),
+        ('books', 'Books'),
+    ]
+
+    title = models.CharField(_("Title"), max_length=150)
+    types = models.CharField(
+        _("Types"),
+        max_length=20,
+        choices=TYPES_CHOICES,
+        default='apps'
+    )
+    description = RichTextField(_("Description"), help_text="Your description")
+    
+    class Meta:
+        db_table = "portfolio_portfolio"
+        verbose_name = _("02 Portfolio")
+        verbose_name_plural = _("02 Portfolio")
+        ordering = ["id"]
+            
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__}("
+            f"id={self.pk}, "
+            f"status={self.status!r})>"
+        )
+
+
+class Gallery(BaseMixin, ImageTagMixin):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="galleries")
+    image = models.FileField(_("Image"), upload_to='portfolio/')
+    
+    class Meta:
+        db_table = "portfolio_galleries"
+        verbose_name = _("03 Galleries")
+        verbose_name_plural = _("03 Galleries")
+        ordering = ["id"]
+            
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return self.portfolio.title
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__}("
+            f"id={self.pk}, "
+            f"status={self.status!r})>"
+        )
+
