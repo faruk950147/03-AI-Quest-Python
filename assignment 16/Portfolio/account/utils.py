@@ -1,24 +1,16 @@
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-import threading
 import re
-class EmailThread(threading.Thread):
-    def __init__(self, subject, message, email):
-        self.subject = subject
-        self.message = message
-        self.email = email
-        super().__init__()
 
-    def run(self):
-        send_mail(
-            subject=self.subject,
-            message=self.message,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[self.email],
-            fail_silently=False,
-        )
-
+def send_email(subject, message, email):
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        fail_silently=False,
+    )
 
 def normalize_phone_number(phone):
     if not phone:

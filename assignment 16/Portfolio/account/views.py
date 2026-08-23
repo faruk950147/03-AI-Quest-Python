@@ -12,7 +12,6 @@ from account.forms import (
     PasswordResetForm,
     PasswordResetConfirmForm,
     ResendVerifyEmailForm,
-    ProfileForm,
 )
 from mixins.mixing import LoginRequiredMixin, LogoutRequiredMixin
 
@@ -210,10 +209,3 @@ class ProfileView(LoginRequiredMixin, generic.View):
             return redirect("profile")
 
         return render(request, self.template_name, {"form": form})
-
-
-
-
-
-
-

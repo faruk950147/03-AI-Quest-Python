@@ -132,7 +132,7 @@ class SignupForm(StyledForm, forms.ModelForm):
             OTPService.save(user.email, otp)
 
             transaction.on_commit(
-                lambda: send_verification_email(user.email, otp)
+                lambda: send_verification_email.delay(user.email, otp)
             )
 
         return user
@@ -152,7 +152,7 @@ class SignupForm(StyledForm, forms.ModelForm):
                 otp = OTPService.generate()
                 OTPService.save(user.email, otp)
 
-                transaction.on_commit(lambda: send_verification_email(user.email, otp))
+                transaction.on_commit(lambda: send_verification_email.delay(user.email, otp))
 
         return user
 
@@ -352,7 +352,7 @@ class PasswordResetForm(StyledForm):
         if not OTPService.save(self.user.email, otp):
             raise forms.ValidationError({"email": "Please wait before requesting another OTP."})
 
-        transaction.on_commit(lambda: send_password_reset_email(self.user.email, otp))
+        transaction.on_commit(lambda: send_password_reset_email.delay(self.user.email, otp))
 
         return self.user
 
@@ -464,11 +464,11 @@ class ResendVerifyEmailForm(StyledForm):
         if not OTPService.save(user.email, otp):
             raise forms.ValidationError({"email": "Please wait before requesting another OTP."})
 
-        transaction.on_commit(lambda: send_verification_email(user.email, otp))
+        transaction.on_commit(lambda: send_verification_email.delay(user.email, otp))
 
         return user
-    
-
+        
+            
 # ===================== PROFILE ================================
 class ProfileForm(StyledForm, forms.ModelForm):
     class Meta:
@@ -480,9 +480,11 @@ class ProfileForm(StyledForm, forms.ModelForm):
                 "accept": "image/*",
             }),
         }
-
-
-
+  
+    
+    
+    
+    
     
     
     

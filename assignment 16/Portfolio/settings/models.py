@@ -21,19 +21,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -71,7 +71,7 @@ class SingletonModel(BaseMixin):
 # ==========================================================
 class Logo(SingletonModel):
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
 
@@ -98,10 +98,10 @@ class Menubar(BaseMixin):
     )
     
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
-    url_name = models.CharField(max_length=100, null=True, blank=True)
+    url_name = models.CharField(_("url_name"), max_length=100, null=True, blank=True)
 
     def get_url(self):
         if self.url_name:
@@ -123,17 +123,17 @@ class Menubar(BaseMixin):
 # ==========================================================
 class Footer(SingletonModel):
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
     
     tag = models.CharField(
-        _("Tag"),
+        _("tag"),
         max_length=250
     )
     
     paragraph =  RichTextField(
-        _("Paragraph"),
+        _("paragraph"),
         blank=True,
         null=True,
     )
@@ -153,12 +153,12 @@ class Footer(SingletonModel):
 # ==========================================================
 class Copyright(SingletonModel):
     location = models.CharField(
-        _("Location"),
+        _("location"),
         max_length=150,
     )
 
     designed = models.CharField(
-        _("Designed"),
+        _("designed"),
         max_length=150,
     )
 
@@ -177,12 +177,12 @@ class Copyright(SingletonModel):
 # ==========================================================
 class SocialLink(BaseMixin):
     icon = models.CharField(
-        _("Icon"),
+        _("icon"),
         max_length=100,
         help_text=_("Example: fa-brands fa-facebook"),
     )
 
-    url = models.URLField(_("Url"))
+    url = models.URLField(_("url"))
 
     class Meta:
         db_table = "settings_socialLink"

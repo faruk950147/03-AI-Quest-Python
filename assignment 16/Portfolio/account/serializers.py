@@ -33,7 +33,6 @@ def validate_password(password):
 
     return password
 
-
 # ========================= SIGNUP =========================
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -107,11 +106,10 @@ class SignupSerializer(serializers.ModelSerializer):
                 **validated_data,
             )
 
-            transaction.on_commit(lambda: send_verification_email(email, otp))
+            transaction.on_commit(lambda: send_verification_email.delay(email, otp))
 
         return user
-
-
+    
 # ========================= EMAIL VERIFICATION =========================
 class VerifyEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -301,7 +299,7 @@ class PasswordResetSerializer(serializers.Serializer):
         if not OTPService.save(self.user.email, otp):
             raise serializers.ValidationError({"email": "Please wait before requesting another OTP."})
 
-        transaction.on_commit(lambda: send_password_reset_email(self.user.email, otp))
+        transaction.on_commit(lambda: send_password_reset_email.delay(self.user.email, otp))
 
         return self.user
 
@@ -392,6 +390,6 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
         if not OTPService.save(user.email, otp):
             raise serializers.ValidationError({"email": "Please wait before requesting another OTP."})
 
-        transaction.on_commit(lambda: send_verification_email(user.email, otp))
+        transaction.on_commit(lambda: send_verification_email.delay(user.email, otp))
 
         return user

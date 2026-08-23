@@ -1,13 +1,22 @@
+from celery import shared_task
 from django.conf import settings
-from account.utils import EmailThread
+from account.utils import send_email
+
 
 
 BASE_URL = settings.BASE_URL.rstrip("/") + "/"
 
 
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_jitter=True,
+    retry_kwargs={"max_retries": 3}
+)
 def send_verification_email(email, otp):
     web_based_endpoint = f"{BASE_URL}account/verify/email/"
     api_based_endpoint = f"{BASE_URL}api/account/verify/email/"
+    
 
     subject = "Account Verification"
 
@@ -20,8 +29,7 @@ def send_verification_email(email, otp):
 
         Endpoint:
         {web_based_endpoint}
-
-        If you want API based:
+        if you want api based 
         {api_based_endpoint}
 
         Body:
@@ -29,7 +37,7 @@ def send_verification_email(email, otp):
             "otp": "{otp}"
         }}
 
-        This OTP will expire in 5 minutes.
+        This otp will expire in 5 minute.
 
         If you did not create this account, ignore this email.
 
@@ -37,17 +45,23 @@ def send_verification_email(email, otp):
         Your Team
         """
 
-    EmailThread(subject, message, email).start()
+    send_email(subject, message, email)
 
 
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_jitter=True,
+    retry_kwargs={"max_retries": 3}
+)
 def send_password_reset_email(email, otp):
+
     web_based_endpoint = f"{BASE_URL}account/password/reset/confirm/"
     api_based_endpoint = f"{BASE_URL}api/account/password/reset/confirm/"
 
     subject = "Reset Your Password"
 
     message = f"""Hello,
-
         We received a request to reset your password.
 
         Your reset OTP:
@@ -55,16 +69,14 @@ def send_password_reset_email(email, otp):
 
         Endpoint:
         {web_based_endpoint}
-
-        If you want API based:
+        if you want api based 
         {api_based_endpoint}
-
         Body:
         {{
             "otp": "{otp}"
         }}
 
-        This OTP will expire in 5 minutes.
+        This otp will expire in 5 minute.
 
         If you did not request this, ignore this email.
 
@@ -72,4 +84,5 @@ def send_password_reset_email(email, otp):
         Your Team
         """
 
-    EmailThread(subject, message, email).start()
+    send_email(subject, message, email)  
+    

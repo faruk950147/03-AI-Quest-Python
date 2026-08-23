@@ -21,19 +21,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -72,13 +72,13 @@ class Description(SingletonModel, StripMixin):
     """
 
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=255,
         help_text=_("Enter the section title."),
     )
 
     description =  RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Enter the section description."),
     )
 
@@ -106,36 +106,36 @@ class Description(SingletonModel, StripMixin):
     
 class Resume(SingletonModel, StripMixin):
     title = models.CharField(
-        _("Name"),
+        _("title"),
         max_length=150,
     )
 
     description = models.CharField(
-        _("Description"),
+        _("description"),
         max_length=255,
         help_text=_("Enter a brief summary."),
     )
 
     location = models.CharField(
-        _("Location"),
+        _("location"),
         max_length=255,
     )
 
     phone = models.CharField(
-        _("Phone"),
+        _("phone"),
         max_length=20,
     )
 
     email = models.EmailField(
-        _("Email"),
+        _("email"),
     )
 
     github = models.URLField(
-        _("GitHub"),
+        _("gitHub"),
     )
 
     linkedin = models.URLField(
-        _("LinkedIn"),
+        _("linkedIn"),
     )
     
     class Meta:
@@ -167,11 +167,11 @@ class Education(BaseMixin, StripMixin):
         related_name="educations",
     )
 
-    qualification = models.CharField(_("Degree"), max_length=255)
-    institute = models.CharField(_("Institution"), max_length=255)
-    board = models.CharField(_("Board / University"), max_length=255)
-    learn_start = models.DateField(_("Start Date"))
-    learn_end = models.DateField(_("End Date"))
+    qualification = models.CharField(_("qualification"), max_length=255)
+    institute = models.CharField(_("institute"), max_length=255)
+    board = models.CharField(_("board"), max_length=255)
+    learn_start = models.DateField(_("learn_start"))
+    learn_end = models.DateField(_("learn_end"))
 
     class Meta:
         db_table = "resume_education"
@@ -208,12 +208,12 @@ class Skill(BaseMixin, StripMixin):
         related_name="skills",
     )
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
 
     typed = models.CharField(
-        _("Typed Text"),
+        _("typed"),
         max_length=100,
     )
         
@@ -245,27 +245,27 @@ class Training(BaseMixin, StripMixin):
         related_name="trainings",
     )
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=255,
     )
 
     institute = models.CharField(
-        _("Institute"),
+        _("institute"),
         max_length=255,
     )
 
     learn_start = models.DateField(
-        _("Start Date"),
+        _("learn_start"),
     )
 
     learn_end = models.DateField(
-        _("End Date"),
+        _("learn_end"),
         blank=True,
         null=True,
     )
 
     description =  RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Training description."),
     )
     
@@ -305,12 +305,12 @@ class Project(BaseMixin, StripMixin):
     )
 
     title = models.CharField(
-        _("Project Title"),
+        _("title"),
         max_length=255,
     )
 
     description =  RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Project description."),
     )
     

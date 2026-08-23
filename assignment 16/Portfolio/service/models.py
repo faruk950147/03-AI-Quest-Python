@@ -70,11 +70,11 @@ class SingletonModel(BaseMixin):
 # ==========================================================
 class Description(SingletonModel):
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
     description =  RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Describe your service."),
     )
 
@@ -103,23 +103,23 @@ class Description(SingletonModel):
 # ==========================================================
 class Service(BaseMixin):
     icon = models.CharField(
-        _("Icon"),
+        _("icon"),
         max_length=50,
         help_text=_("Bootstrap Icon. Example: bi bi-code-slash"),
     )
 
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=100,
     )
 
     additional =  RichTextField(
-        _("Additional Description"),
+        _("additional"),
         help_text=_("Additional description."),
     )
 
     description =  RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Describe your service."),
     )
 
