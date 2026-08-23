@@ -25,19 +25,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -74,8 +74,8 @@ class SingletonModel(BaseMixin):
 # CONTACT MODEL
 # ==========================================================
 class Description(BaseMixin, StripMixin):
-    title = models.CharField(_("Title"), max_length=200)
-    description = RichTextField(_("Description"), help_text="Description")
+    title = models.CharField(_("title"), max_length=200)
+    description = RichTextField(_("description"), help_text="Description")
     
     class Meta:
         db_table = "description"
@@ -87,11 +87,11 @@ class Description(BaseMixin, StripMixin):
         return self.title
 
 class ContactInfo(BaseMixin, StripMixin):
-    icon = models.CharField(_("Icon"), max_length=100, blank=True, null=True)
-    title = models.CharField(_("Title"), max_length=100, blank=True, null=True)
-    location = models.CharField(_("Location"), max_length=200, blank=True, null=True)
-    phone = models.CharField(_("Phone"), max_length=30, blank=True, null=True)
-    email = models.EmailField(_("Email"), blank=True, null=True)
+    icon = models.CharField(_("icon"), max_length=100, blank=True, null=True)
+    title = models.CharField(_("title"), max_length=100, blank=True, null=True)
+    location = models.CharField(_("location"), max_length=200, blank=True, null=True)
+    phone = models.CharField(_("phone"), max_length=30, blank=True, null=True)
+    email = models.EmailField(_("email"), blank=True, null=True)
 
     class Meta:
         db_table = "contact_info"
@@ -103,10 +103,10 @@ class ContactInfo(BaseMixin, StripMixin):
         return f"{self.email} - {self.location}"
     
 class ContactMe(BaseMixin, StripMixin):
-    name = models.CharField(_("Name"), max_length=100)
-    email = models.EmailField(_("Email"), help_text="Your Email")
-    subject = models.CharField(_("Subject"), max_length=200)
-    message = models.TextField(_("Message"), help_text="Your Messages")
+    name = models.CharField(_("name"), max_length=100)
+    email = models.EmailField(_("email"), help_text="Your Email")
+    subject = models.CharField(_("subject"), max_length=200)
+    message = models.TextField(_("message"), help_text="Your Messages")
     
     class Meta:
         db_table = "contact_me"

@@ -31,19 +31,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -87,13 +87,13 @@ class Description(SingletonModel, StripMixin):
     """
 
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=255,
         help_text=_("Enter the section title."),
     )
 
     description = RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Enter the section description."),
     )
 
@@ -125,46 +125,46 @@ class AboutMe(SingletonModel, ImageTagMixin, StripMixin):
     """
 
     title = models.CharField(
-        _("Title"), max_length=100, help_text=_("Enter the title for the About Me section.")
+        _("title"), max_length=100, help_text=_("Enter the title for the About Me section.")
     )
     phone = models.CharField( 
-        _("Phone"), max_length=20, blank=True, null=True, help_text=_("Valid Phone number"),
+        _("phone"), max_length=20, blank=True, null=True, help_text=_("Valid Phone number"),
         validators=[phone_validator],
     )
     email = models.EmailField(
-        _("Email"), help_text=_("Valid email")
+        _("email"), help_text=_("Valid email")
     )
     github = models.URLField(
-        _("Github"), blank=True, null=True, help_text=_("Github url")
+        _("github"), blank=True, null=True, help_text=_("Github url")
     )
     linkedin = models.URLField(
-        _("LinkedIn"), blank=True, null=True, help_text=_("LinkedIn url")
+        _("linkedin"), blank=True, null=True, help_text=_("LinkedIn url")
     )
     location = models.CharField(
-        _("Location"), max_length=100, blank=True, null=True, help_text=_("Your location")
+        _("location"), max_length=100, blank=True, null=True, help_text=_("Your location")
     )
     education = models.CharField(
-        _("Education"), max_length=100, blank=True, null=True, help_text=_("Your education")
+        _("education"), max_length=100, blank=True, null=True, help_text=_("Your education")
     )
     specialization = models.CharField(
-        _("Specialization"), max_length=100, blank=True, null=True, help_text=_("Your specialization")
+        _("specialization"), max_length=100, blank=True, null=True, help_text=_("Your specialization")
     )
     experience = models.CharField(
-        _("Experience"), max_length=100, blank=True, null=True, help_text=_("Your experience")
+        _("experience"), max_length=100, blank=True, null=True, help_text=_("Your experience")
     )
     availability = models.CharField(
-        _("Availability"), max_length=100, blank=True, null=True, help_text=_("Your availability")
+        _("availability"), max_length=100, blank=True, null=True, help_text=_("Your availability")
     )
     image = models.ImageField(
-        _("Profile Image"),
+        _("image"),
         upload_to="about/",
         validators=[
             validate_file_extension,
             validate_image_size,
         ],
     )
-    additional = RichTextField(_("Additional Description"), help_text=_("Additional description"))
-    description = RichTextField(_("Description"), help_text=_("Description about you"))
+    additional = RichTextField(_("additional"), help_text=_("Additional description"))
+    description = RichTextField(_("description"), help_text=_("Description about you"))
     
     class Meta:
         db_table = "about_me"
@@ -191,10 +191,10 @@ class Stat(BaseMixin, StripMixin):
     """
     Stores the statistics displayed on the About section.
     """
-    icon = models.CharField(_("Icon"), max_length=100, blank=True, null=True, help_text=_("Enter the icon class for the stat."))
-    title = models.CharField(_("Title"), max_length=100, help_text=_("Enter the stat title."))
+    icon = models.CharField(_("icon"), max_length=100, blank=True, null=True, help_text=_("Enter the icon class for the stat."))
+    title = models.CharField(_("title"), max_length=100, help_text=_("Enter the stat title."))
     value = models.PositiveIntegerField(
-        _("Value"), default=0, help_text=_("Enter the stat value as a number."),
+        _("value"), default=0, help_text=_("Enter the stat value as a number."),
         validators=[
             MinValueValidator(0, message=_("Value must be at least 0.")),
             MaxValueValidator(100000, message=_("Value cannot exceed 100000."))
@@ -223,9 +223,9 @@ class Stat(BaseMixin, StripMixin):
         )
         
 class Skill(BaseMixin, StripMixin):
-    title = models.CharField(_("Title"), max_length=100, help_text=_("Enter the skill title."))
+    title = models.CharField(_("title"), max_length=100, help_text=_("Enter the skill title."))
     value = models.PositiveIntegerField(
-        _("Value"),
+        _("value"),
         help_text=_("Enter the skill value as a percentage (0-100)."),
         validators=[
             MinValueValidator(0, message=_("Value must be at least 0.")),
@@ -254,8 +254,8 @@ class Skill(BaseMixin, StripMixin):
         )
 
 class Interest(BaseMixin, StripMixin):
-    icon = models.CharField(_("Icon"), max_length=100, blank=True, null=True, help_text=_("Enter the icon class for the interest."))
-    title = models.CharField(_("Title"), max_length=100, help_text=_("Enter the interest title."))
+    icon = models.CharField(_("icon"), max_length=100, blank=True, null=True, help_text=_("Enter the icon class for the interest."))
+    title = models.CharField(_("title"), max_length=100, help_text=_("Enter the interest title."))
 
     class Meta:
         db_table = "about_interests"
@@ -282,11 +282,11 @@ class Reference(BaseMixin, StripMixin):
     """
     Stores the references/testimonials displayed on the About section.
     """
-    name = models.CharField(_("Name"), max_length=100, help_text=_("Enter the reference's name."))
-    position = models.CharField(_("Position"), max_length=100, blank=True, null=True, help_text=_("Enter the reference's position."))
-    company = models.CharField(_("Company"), max_length=100, blank=True, null=True, help_text=_("Enter the reference's company."))
-    email = models.EmailField(_("Email"), blank=True, null=True, help_text=_("Enter the reference's email."))
-    phone = models.CharField(_("Phone"), max_length=20, blank=True, null=True, validators=[phone_validator], help_text=_("Enter the reference's phone number."))
+    name = models.CharField(_("name"), max_length=100, help_text=_("Enter the reference's name."))
+    position = models.CharField(_("position"), max_length=100, blank=True, null=True, help_text=_("Enter the reference's position."))
+    company = models.CharField(_("company"), max_length=100, blank=True, null=True, help_text=_("Enter the reference's company."))
+    email = models.EmailField(_("email"), blank=True, null=True, help_text=_("Enter the reference's email."))
+    phone = models.CharField(_("phone"), max_length=20, blank=True, null=True, validators=[phone_validator], help_text=_("Enter the reference's phone number."))
 
     class Meta:
         db_table = "about_references"

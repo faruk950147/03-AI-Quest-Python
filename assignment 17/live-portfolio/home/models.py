@@ -24,19 +24,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -73,10 +73,10 @@ class SingletonModel(BaseMixin):
 # HERO MODEL
 # ==========================================================
 class Hero(SingletonModel, StripMixin, ImageTagMixin):
-    title = models.CharField(_("Title"), max_length=200)
-    tag = models.CharField(_("Tag"), max_length=200, blank=True, null=True)
+    title = models.CharField(_("title"), max_length=200)
+    tag = models.CharField(_("tag"), max_length=200, blank=True, null=True)
     typed_items = models.CharField(
-        _("Typed Items"),
+        _("typed_items"),
         max_length=300,
         help_text=_("Comma separated values. Example: Designer, Developer, Freelancer"),
     )

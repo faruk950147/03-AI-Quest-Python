@@ -77,7 +77,7 @@ class UserManager(BaseUserManager):
 
 class User(StripMixin, ImageTagMixin, AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
-        _("Username"),
+        _("username"),
         max_length=150,
         unique=True,
         validators=[username_validator],
@@ -88,13 +88,13 @@ class User(StripMixin, ImageTagMixin, AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(
-        _("Email"),
+        _("email"),
         unique=True,
         help_text=_("Required. Enter a valid email address."),
     )
 
     phone = models.CharField(
-        _("Phone"),
+        _("phone"),
         max_length=15,
         unique=True,
         validators=[phone_validator],
@@ -102,7 +102,7 @@ class User(StripMixin, ImageTagMixin, AbstractBaseUser, PermissionsMixin):
     )
 
     image = models.ImageField(
-        _("Profile Image"),
+        _("image"),
         upload_to="users/%Y/%m/%d/",
         blank=True,
         null=True,
@@ -113,27 +113,27 @@ class User(StripMixin, ImageTagMixin, AbstractBaseUser, PermissionsMixin):
     )
 
     is_active = models.BooleanField(
-        _("Active"),
+        _("active"),
         default=False,
     )
 
     is_staff = models.BooleanField(
-        _("Staff Status"),
+        _("staff Status"),
         default=False,
     )
 
     is_verified = models.BooleanField(
-        _("Verified"),
+        _("is_verified"),
         default=False,
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 

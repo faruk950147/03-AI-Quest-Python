@@ -20,19 +20,19 @@ class BaseMixin(models.Model):
     """
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=20,
         choices=StatusChoices.choices,
         default=StatusChoices.ACTIVE
     )
 
     created_at = models.DateTimeField(
-        _("Created At"),
+        _("created_at"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        _("Updated At"),
+        _("updated_at"),
         auto_now=True,
     )
 
@@ -71,13 +71,13 @@ class Description(SingletonModel, StripMixin):
     """
 
     title = models.CharField(
-        _("Title"),
+        _("title"),
         max_length=255,
         help_text=_("Enter the section title."),
     )
 
     description = RichTextField(
-        _("Description"),
+        _("description"),
         help_text=_("Enter the section description."),
     )
 
@@ -112,14 +112,14 @@ class Portfolio(BaseMixin, StripMixin):
         ('books', 'Books'),
     ]
 
-    title = models.CharField(_("Title"), max_length=150)
+    title = models.CharField(_("title"), max_length=150)
     types = models.CharField(
-        _("Types"),
+        _("types"),
         max_length=20,
         choices=TYPES_CHOICES,
         default='apps'
     )
-    description = RichTextField(_("Description"), help_text="Your description")
+    description = RichTextField(_("description"), help_text="Your description")
     
     class Meta:
         db_table = "portfolio_portfolio"
@@ -145,7 +145,7 @@ class Portfolio(BaseMixin, StripMixin):
 
 class Gallery(BaseMixin, ImageTagMixin):
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="galleries")
-    image = models.FileField(_("Image"), upload_to='portfolio/')
+    image = models.FileField(_("image"), upload_to='portfolio/')
     
     class Meta:
         db_table = "portfolio_galleries"
