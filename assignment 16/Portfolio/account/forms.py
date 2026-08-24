@@ -1,9 +1,7 @@
 import re
 from typing import Any
-
 from django import forms
 from django.db import transaction
-from django.db.models import Q
 from django.contrib.auth import authenticate, get_user_model, update_session_auth_hash
 
 from account.services import OTPService
@@ -16,25 +14,14 @@ User = get_user_model()
 def validate_password_strength(password: str) -> str:
     if not password:
         raise forms.ValidationError("Password is required.")
-
     if len(password) < 8:
         raise forms.ValidationError("Password must be at least 8 characters.")
-
     if not re.search(r"[A-Z]", password):
-        raise forms.ValidationError(
-            "Password must contain at least one uppercase letter."
-        )
-
+        raise forms.ValidationError("Password must contain at least one uppercase letter.")
     if not re.search(r"[a-z]", password):
-        raise forms.ValidationError(
-            "Password must contain at least one lowercase letter."
-        )
-
+        raise forms.ValidationError("Password must contain at least one lowercase letter.")
     if not re.search(r"\d", password):
-        raise forms.ValidationError(
-            "Password must contain at least one number."
-        )
-
+        raise forms.ValidationError("Password must contain at least one number.")
     return password
 
 
@@ -58,21 +45,18 @@ class StyledForm(forms.Form):
                 field.widget.attrs.setdefault("class", "form-control")
 
 
-# ========================= SIGNUP FORM =========================
-class SignupForm(StyledForm, forms.ModelForm):
+# ========================= SIGNUP FORM =======================
+class SignupForm(forms.ModelForm, StyledForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your Password"}),
-        strip=True
     )
-
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Confirm Your Password"}),
-        strip=True
     )
+
     class Meta:
         model = User
-        fields = ["username", "email", "phone", "password", "password2"]
-        
+        fields = ["username", "email", "phone", "password"]
         widgets = {
             "username": forms.TextInput(attrs={"placeholder": "Your username"}),
             "email": forms.EmailInput(attrs={"placeholder": "Your email"}),
@@ -80,79 +64,55 @@ class SignupForm(StyledForm, forms.ModelForm):
         }
 
     def clean_username(self) -> str:
-        username = self.cleaned_data["username"].strip().lower()
-
-        if User.objects.filter(username__iexact=username).exists():
+        username = self.cleaned_data.get("username", "").strip().lower()
+        if username and User.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError("Username already exists.")
-
         return username
 
     def clean_email(self) -> str:
-        email = self.cleaned_data["email"].strip().lower()
-
-        if User.objects.filter(email__iexact=email).exists():
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if email and User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Email already exists.")
-
         return email
 
-    def clean_phone(self) -> str:
+    def clean_phone(self) -> str | None:
         phone = self.cleaned_data.get("phone")
-
-        if User.objects.filter(phone=phone).exists():
+        if phone and User.objects.filter(phone=phone).exists():
             raise forms.ValidationError("Phone number already exists.")
-
         return phone
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-
         password = cleaned_data.get("password")
         password2 = cleaned_data.get("password2")
 
         if password and password2:
             if password != password2:
-                raise forms.ValidationError("Passwords do not match.")
-
-            validate_password_strength(password)
+                self.add_error("password2", "Passwords do not match.")
+            else:
+                try:
+                    validate_password_strength(password)
+                except forms.ValidationError as error:
+                    self.add_error("password", error)
 
         return cleaned_data
-    '''
-    def create(self) -> User:
-        with transaction.atomic():
-            user = User.objects.create_user(
-                username=self.cleaned_data["username"],
-                email=self.cleaned_data["email"],
-                phone=self.cleaned_data["phone"],
-                password=self.cleaned_data["password"],
-                is_active=False,
-                is_verified=False,
-            )
 
-            otp = OTPService.generate()
-            OTPService.save(user.email, otp)
-
-            transaction.on_commit(
-                lambda: send_verification_email.delay(user.email, otp)
-            )
-
-        return user
-    '''
-    
     def save(self, commit: bool = True) -> User:
         user = super().save(commit=False)
+        password = self.cleaned_data.get("password")
+        if password:
+            user.set_password(password)
 
-        user.set_password(self.cleaned_data["password"])
         user.is_active = False
         user.is_verified = False
 
         if commit:
             with transaction.atomic():
                 user.save()
-
+                email = user.email
                 otp = OTPService.generate()
-                OTPService.save(user.email, otp)
-
-                transaction.on_commit(lambda: send_verification_email.delay(user.email, otp))
+                OTPService.save(email, otp)
+                transaction.on_commit(lambda e=email, o=otp: send_verification_email(e, o))
 
         return user
 
@@ -160,27 +120,27 @@ class SignupForm(StyledForm, forms.ModelForm):
 # ========================= VERIFY EMAIL =======================
 class VerifyEmailForm(StyledForm):
     email = forms.EmailField(
-        widget=forms.TextInput(attrs={
-            "placeholder": "Your Email"
-        }),
+        widget=forms.EmailInput(attrs={"placeholder": "Your Email"}),
     )
-
     otp = forms.CharField(
         min_length=6,
         max_length=6,
-        strip=True,
         widget=forms.TextInput(attrs={
             "placeholder": "Your 6-digit OTP",
             "maxlength": "6"
         })
     )
-    
+
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
 
-        email = cleaned_data.get("email", "").strip().lower()
-        otp = cleaned_data.get("otp", "").strip()
+        email = cleaned_data.get("email")
+        otp = cleaned_data.get("otp")
 
+        if not email or not otp:
+            return cleaned_data
+
+        email = email.strip().lower()
         user = User.objects.filter(email__iexact=email).first()
 
         if user is None:
@@ -195,37 +155,34 @@ class VerifyEmailForm(StyledForm):
             self.add_error("otp", "Invalid or expired OTP.")
             return cleaned_data
 
-        cleaned_data["user"] = user
+        self.user = user
         return cleaned_data
 
     def save(self, commit: bool = True) -> User:
-        user = self.cleaned_data["user"]
+        user = getattr(self, "user", None)
+        if not user:
+            raise ValueError("Cannot save form without valid user.")
 
-        with transaction.atomic():
-            user.is_verified = True
-            user.is_active = True
-            user.save(update_fields=[
-                "is_verified",
-                "is_active",
-            ])
+        user.is_verified = True
+        user.is_active = True
 
-        return user 
+        if commit:
+            with transaction.atomic():
+                user.save(update_fields=["is_verified", "is_active"])
+
+        return user
 
 
 # ========================= LOGIN FORM =========================
 class LoginForm(StyledForm):
     username = forms.CharField(
         max_length=150,
-        strip=True,
         required=True,
         widget=forms.TextInput(attrs={"placeholder": "Your Username"})
     )
-
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your Password"}),
-        strip=True
     )
-
     keep_logged_in = forms.BooleanField(
         required=False,
         initial=False,
@@ -241,13 +198,13 @@ class LoginForm(StyledForm):
             return cleaned_data
 
         user = authenticate(
-            self.request if hasattr(self, "request") else None,
+            self.request,
             username=username,
             password=password,
         )
 
         if user is None:
-            raise forms.ValidationError("Invalid username or email or phone or password.")
+            raise forms.ValidationError("Invalid credentials.")
 
         if not user.is_active:
             raise forms.ValidationError("Your account is inactive.")
@@ -255,9 +212,7 @@ class LoginForm(StyledForm):
         if not user.is_verified:
             raise forms.ValidationError("Please verify your email first.")
 
-        # Store authenticated user
         cleaned_data["user"] = user
-
         return cleaned_data
 
 
@@ -265,27 +220,18 @@ class LoginForm(StyledForm):
 class ChangePasswordForm(StyledForm):
     old_password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your Old Password"}),
-        strip=True,
     )
-
     new_password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your New Password"}),
-        strip=True,
     )
-
     new_password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Confirm Your Password"}),
-        strip=True,
     )
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
 
-        old_password = cleaned_data.get("old_password")
-        new_password = cleaned_data.get("new_password")
-        new_password2 = cleaned_data.get("new_password2")
-
-        if not self.request:
+        if not self.request or not hasattr(self.request, "user"):
             raise forms.ValidationError("Request context is required.")
 
         user = self.request.user
@@ -293,32 +239,38 @@ class ChangePasswordForm(StyledForm):
         if not user.is_authenticated:
             raise forms.ValidationError("Authentication required.")
 
-        # Check old password
+        old_password = cleaned_data.get("old_password")
+        new_password = cleaned_data.get("new_password")
+        new_password2 = cleaned_data.get("new_password2")
+
+        if not old_password or not new_password or not new_password2:
+            return cleaned_data
+
         if not user.check_password(old_password):
-            raise forms.ValidationError({"old_password": "Incorrect old password."})
+            self.add_error("old_password", "Incorrect old password.")
 
-        # Match new passwords
         if new_password != new_password2:
-            raise forms.ValidationError({"new_password2": "Passwords do not match."})
+            self.add_error("new_password2", "Passwords do not match.")
 
-        # Same password check
         if old_password == new_password:
-            raise forms.ValidationError({"new_password": "New password must be different from old password."})
+            self.add_error("new_password", "New password must be different from old password.")
 
-        # Password strength
-        validate_password_strength(new_password)
+        try:
+            validate_password_strength(new_password)
+        except forms.ValidationError as e:
+            self.add_error("new_password", e)
 
         return cleaned_data
 
     def save(self, commit: bool = True) -> User:
         user = self.request.user
+        new_password = self.cleaned_data["new_password"]
 
         with transaction.atomic():
-            user.set_password(self.validated_data["new_password"])
+            user.set_password(new_password)
             user.save(update_fields=["password"])
 
-        update_session_auth_hash(self.context["request"], user)
-
+        update_session_auth_hash(self.request, user)
         return user
 
 
@@ -328,61 +280,58 @@ class PasswordResetForm(StyledForm):
         widget=forms.TextInput(attrs={"placeholder": "Your Email"})
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = None
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        email = cleaned_data.get("email", "").strip().lower()
 
-    def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
+        if not email:
+            return cleaned_data
 
-        self.user = User.objects.filter(
+        user = User.objects.filter(
             email__iexact=email,
             is_active=True,
             is_verified=True,
         ).first()
 
-        return email
+        self.user = user
 
-    def save(self, commit: bool = True) -> User:
-        if not self.user:
+        if user and hasattr(OTPService, 'can_send_otp'):
+            if not OTPService.can_send_otp(user.email):
+                self.add_error("email", "Please wait before requesting another OTP.")
+
+        return cleaned_data
+
+    def save(self, commit: bool = True) -> User | None:
+        user = getattr(self, "user", None)
+        if not user:
             return None
 
         otp = OTPService.generate()
+        OTPService.save(user.email, otp)
 
-        if not OTPService.save(self.user.email, otp):
-            raise forms.ValidationError({"email": "Please wait before requesting another OTP."})
-
-        transaction.on_commit(lambda: send_password_reset_email.delay(self.user.email, otp))
-
-        return self.user
+        email = user.email
+        transaction.on_commit(lambda e=email, o=otp: send_password_reset_email(e, o))
+        return user
 
 
 # ========================= PASSWORD RESET CONFIRM =========================
 class PasswordResetConfirmForm(StyledForm):
     email = forms.EmailField(
-        widget=forms.TextInput(attrs={
-            "placeholder": "Your Email"
-        })
+        widget=forms.TextInput(attrs={"placeholder": "Your Email"})
     )
-
     otp = forms.CharField(
         min_length=6,
         max_length=6,
-        strip=True,
         widget=forms.TextInput(attrs={
             "placeholder": "Your 6-digit OTP",
             "maxlength": "6"
         })
     )
-   
     new_password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your New Password"}),
-        strip=True,
     )
-
     new_password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Confirm Your Password"}),
-        strip=True,
     )
 
     def clean(self) -> dict[str, Any]:
@@ -393,15 +342,17 @@ class PasswordResetConfirmForm(StyledForm):
         password = cleaned_data.get("new_password")
         password2 = cleaned_data.get("new_password2")
 
-        # Password match check
-        if password and password2:
-            if password != password2:
-                raise forms.ValidationError({"new_password2": "Passwords do not match."})
+        if not email or not otp or not password or not password2:
+            return cleaned_data
 
-        # Password validation
-        validate_password_strength(password)
+        if password != password2:
+            self.add_error("new_password2", "Passwords do not match.")
+        else:
+            try:
+                validate_password_strength(password)
+            except forms.ValidationError as e:
+                self.add_error("new_password", e)
 
-        # User check
         user = User.objects.filter(
             email__iexact=email,
             is_active=True,
@@ -409,22 +360,23 @@ class PasswordResetConfirmForm(StyledForm):
         ).first()
 
         if user is None:
-            raise forms.ValidationError({"email": "Invalid email."})
+            self.add_error("email", "Invalid email.")
+            return cleaned_data
 
-        # OTP verify
         if not OTPService.verify(user.email, otp):
-            raise forms.ValidationError({"otp": "Invalid or expired OTP."})
+            self.add_error("otp", "Invalid or expired OTP.")
+            return cleaned_data
 
-        cleaned_data["user"] = user
-
+        self.user = user
         return cleaned_data
 
     def save(self, commit: bool = True) -> User:
-        user = self.cleaned_data["user"]
+        user = getattr(self, "user", None)
+        if not user:
+            raise ValueError("Cannot reset password without valid user context.")
 
         with transaction.atomic():
             user.set_password(self.cleaned_data["new_password"])
-
             user.save(update_fields=["password"])
 
         return user
@@ -438,58 +390,64 @@ class ResendVerifyEmailForm(StyledForm):
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-
         email = cleaned_data.get("email", "").strip().lower()
 
-        user = User.objects.filter(
-            email__iexact=email
-        ).first()
+        if not email:
+            return cleaned_data
+
+        user = User.objects.filter(email__iexact=email).first()
 
         if user is None:
-            raise forms.ValidationError({"email": "User does not exist."})
+            self.add_error("email", "User does not exist.")
+            return cleaned_data
 
         if user.is_verified:
-            raise forms.ValidationError({"email": "Email is already verified."})
+            self.add_error("email", "Email is already verified.")
+            return cleaned_data
 
-        cleaned_data["user"] = user
-        cleaned_data["email"] = email
+        if hasattr(OTPService, 'can_send_otp') and not OTPService.can_send_otp(user.email):
+            self.add_error("email", "Please wait before requesting another OTP.")
 
+        self.user = user
         return cleaned_data
 
     def save(self, commit: bool = True) -> User:
-        user = self.cleaned_data["user"]
+        user = getattr(self, "user", None)
+        if not user:
+            raise ValueError("User context missing.")
 
         otp = OTPService.generate()
 
-        if not OTPService.save(user.email, otp):
-            raise forms.ValidationError({"email": "Please wait before requesting another OTP."})
-
-        transaction.on_commit(lambda: send_verification_email.delay(user.email, otp))
+        OTPService.save(user.email, otp)
+        email = user.email
+        transaction.on_commit(lambda e=email, o=otp: send_verification_email(e, o))
 
         return user
-        
-            
+
+
 # ===================== PROFILE ================================
-class ProfileForm(StyledForm, forms.ModelForm):
+class ProfileForm(forms.ModelForm, StyledForm):
     class Meta:
         model = User
         fields = ["username", "email", "phone", "image"]
-
         widgets = {
-            "image": forms.FileInput(attrs={
-                "accept": "image/*",
-            }),
+            "image": forms.FileInput(attrs={"accept": "image/*"}),
         }
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    def clean_username(self) -> str:
+        username = self.cleaned_data.get("username", "").strip().lower()
+        if User.objects.filter(username__iexact=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Username already taken by another user.")
+        return username
+
+    def clean_email(self) -> str:
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Email already used by another user.")
+        return email
+
+    def clean_phone(self) -> str | None:
+        phone = self.cleaned_data.get("phone")
+        if phone and User.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Phone number already used by another user.")
+        return phone
