@@ -6,6 +6,7 @@ from django.contrib.auth import (
     get_user_model,
     update_session_auth_hash,
 )
+from django.contrib.auth.password_validation import validate_password as django_validate_password
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import TokenError
@@ -24,9 +25,9 @@ User = get_user_model()
 # PASSWORD VALIDATION
 # ============================================================
 
-def validate_password(password: str) -> str:
+def validate_password_strength(password: str) -> str:
     """
-    Validate application password policy.
+    Validate application custom password policy.
     """
     if len(password) < 8:
         raise serializers.ValidationError("Password must be at least 8 characters.")
@@ -55,10 +56,6 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "email", "phone", "password", "password2"]
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         email = attrs.get("email")
         if email:
@@ -70,12 +67,16 @@ class SignupSerializer(serializers.ModelSerializer):
         if password != password2:
             raise serializers.ValidationError({"password2": "Password mismatching."})
 
-        validate_password(password)
-        return attrs
+        # Custom Rules
+        validate_password_strength(password)
 
-    # ========================================================
-    # CREATE
-    # ========================================================
+        # Django Built-in Rules
+        try:
+            django_validate_password(password)
+        except serializers.ValidationError as exc:
+            raise serializers.ValidationError({"password": list(exc.messages)})
+
+        return attrs
 
     def create(self, validated_data: dict[str, Any]) -> User:
         password = validated_data.pop("password")
@@ -99,7 +100,7 @@ class SignupSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"email": "Unable to create verification token."})
 
             transaction.on_commit(
-                lambda user=user.email, tok=token: send_verification_email.delay(user, tok)
+                lambda u=user.email, t=token: send_verification_email.delay(u, t)
             )
 
         return user
@@ -112,10 +113,6 @@ class SignupSerializer(serializers.ModelSerializer):
 class VerifyEmailSerializer(serializers.Serializer):
     token = serializers.CharField(trim_whitespace=True)
     email = serializers.EmailField()
-
-    # ========================================================
-    # VALIDATE
-    # ========================================================
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         email = attrs["email"].strip().lower()
@@ -143,10 +140,6 @@ class VerifyEmailSerializer(serializers.Serializer):
         attrs["user"] = user
 
         return attrs
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> User:
         user = self.validated_data["user"]
@@ -180,10 +173,6 @@ class LoginSerializer(serializers.Serializer):
         required=False,
         default=False,
     )
-
-    # ========================================================
-    # VALIDATE
-    # ========================================================
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         username = attrs["username"].strip().lower()
@@ -227,10 +216,6 @@ class LoginSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(trim_whitespace=True)
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         try:
             token = RefreshToken(attrs["refresh"].strip())
@@ -239,10 +224,6 @@ class LogoutSerializer(serializers.Serializer):
 
         attrs["token_obj"] = token
         return attrs
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> dict[str, str]:
         token: RefreshToken = self.validated_data["token_obj"]
@@ -263,10 +244,6 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, trim_whitespace=False)
     new_password2 = serializers.CharField(write_only=True, trim_whitespace=False)
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         user = self.context["request"].user
 
@@ -281,13 +258,14 @@ class ChangePasswordSerializer(serializers.Serializer):
                 {"new_password": "New password must be different from old password."}
             )
 
-        validate_password(attrs["new_password"])
+        validate_password_strength(attrs["new_password"])
+
+        try:
+            django_validate_password(attrs["new_password"], user=user)
+        except serializers.ValidationError as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)})
 
         return attrs
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> User:
         user = self.context["request"].user
@@ -302,9 +280,6 @@ class ChangePasswordSerializer(serializers.Serializer):
 
         update_session_auth_hash(self.context["request"], user)
 
-        # Optional: Revoke existing user tokens
-        # TokenService.revoke_user_tokens(user)
-
         return user
 
 
@@ -315,17 +290,9 @@ class ChangePasswordSerializer(serializers.Serializer):
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         attrs["email"] = attrs["email"].strip().lower()
         return attrs
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> dict[str, str]:
         email = self.validated_data["email"]
@@ -349,7 +316,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
             if token is not None:
                 transaction.on_commit(
-                    lambda user=user.email, tok=token: send_password_reset_email.delay(user, tok)
+                    lambda u=user.email, t=token: send_password_reset_email.delay(u, t)
                 )
 
         return {"message": generic_message}
@@ -365,10 +332,6 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, trim_whitespace=False)
     new_password2 = serializers.CharField(write_only=True, trim_whitespace=False)
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         email = attrs["email"].strip().lower()
         token = attrs["token"].strip()
@@ -376,7 +339,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         if attrs["new_password"] != attrs["new_password2"]:
             raise serializers.ValidationError({"new_password2": "Password mismatching."})
 
-        validate_password(attrs["new_password"])
+        validate_password_strength(attrs["new_password"])
 
         user = User.objects.filter(
             email=email,
@@ -386,6 +349,11 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
         if not user:
             raise serializers.ValidationError("Invalid password reset request.")
+
+        try:
+            django_validate_password(attrs["new_password"], user=user)
+        except serializers.ValidationError as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)})
 
         is_valid = TokenService.verify(
             identifier=email,
@@ -402,18 +370,11 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
         return attrs
 
-    # ========================================================
-    # SAVE
-    # ========================================================
-
     def save(self) -> dict[str, str]:
         user = self.validated_data["user"]
 
         user.set_password(self.validated_data["new_password"])
         user.save(update_fields=["password", "updated_at"])
-
-        # Optional: Invalidate existing refresh tokens post password reset
-        # TokenService.revoke_user_tokens(user)
 
         return {"message": "Password reset successful."}
 
@@ -425,17 +386,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class ResendVerificationEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         attrs["email"] = attrs["email"].strip().lower()
         return attrs
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> dict[str, str]:
         email = self.validated_data["email"]
@@ -458,7 +411,7 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
 
             if token is not None:
                 transaction.on_commit(
-                    lambda user=user.email, tok=token: send_verification_email.delay(user, tok)
+                    lambda u=user.email, t=token: send_verification_email.delay(u, t)
                 )
 
         return {"message": generic_message}

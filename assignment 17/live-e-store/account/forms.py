@@ -1,11 +1,8 @@
 import re
 from typing import Any
 from django import forms
-from django.contrib.auth import (
-    authenticate,
-    get_user_model,
-)
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.password_validation import validate_password  # Added missing import
 from django.db import transaction
 
 from account.services import TokenService
@@ -13,7 +10,6 @@ from account.tasks import (
     send_password_reset_email,
     send_verification_email,
 )
-
 
 User = get_user_model()
 
@@ -25,7 +21,6 @@ def validate_password_strength(password: str) -> str:
     """
     Validate application password policy.
     """
-
     if len(password) < 8:
         raise forms.ValidationError("Password must be at least 8 characters.")
 
@@ -82,9 +77,9 @@ class SignupForm(StyledForm, forms.ModelForm):
             "phone": forms.TextInput(attrs={"placeholder": "Your phone number"}),
         }
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
+    def clean_email(self) -> str:
+        email: str = self.cleaned_data.get("email", "")
+        return email.strip().lower()
 
     def clean(self) -> dict[str, Any]:
         cleaned_data: dict[str, Any] = super().clean()
@@ -95,18 +90,19 @@ class SignupForm(StyledForm, forms.ModelForm):
         if password and password2 and password != password2:
             self.add_error("password2", "Passwords do not match.")
 
-        # PASSWORD STRENGTH
+        # PASSWORD STRENGTH & DJANGO VALIDATION
         if password:
             try:
                 validate_password_strength(password)
             except forms.ValidationError as exc:
                 self.add_error("password", exc)
 
-        return cleaned_data
+            try:
+                validate_password(password)
+            except forms.ValidationError as exc:
+                self.add_error("password", exc)
 
-    # ========================================================
-    # SAVE
-    # ========================================================
+        return cleaned_data
 
     def save(self, commit: bool = True) -> User:
         user: User = super().save(commit=False)
@@ -127,10 +123,8 @@ class SignupForm(StyledForm, forms.ModelForm):
             )
 
             if token is None:
-                # Cancel the transaction if token generation fails
                 raise RuntimeError("Failed to generate email verification token.")
 
-            # Bind values to closure default arguments to prevent reference leakage
             transaction.on_commit(
                 lambda email=user.email, tok=token: send_verification_email.delay(email, tok)
             )
@@ -154,17 +148,9 @@ class EmailVerificationForm(StyledForm):
         super().__init__(*args, **kwargs)
         self.user: User | None = None
 
-    # ========================================================
-    # VALIDATE EMAIL
-    # ========================================================
-
     def clean_email(self) -> str:
         email: str = self.cleaned_data["email"]
         return email.strip().lower()
-
-    # ========================================================
-    # VALIDATE
-    # ========================================================
 
     def clean(self) -> dict[str, Any]:
         cleaned_data: dict[str, Any] = super().clean()
@@ -174,19 +160,16 @@ class EmailVerificationForm(StyledForm):
         if not email or not token:
             return cleaned_data
 
-        # FIND USER
         user: User | None = User.objects.filter(email=email).first()
 
         if not user:
             self.add_error("email", "Invalid verification request.")
             return cleaned_data
 
-        # ALREADY VERIFIED
         if user.is_verified:
             self.add_error("email", "Account already verified.")
             return cleaned_data
 
-        # VERIFY TOKEN
         is_valid: bool = TokenService.verify(
             identifier=email,
             purpose=TokenService.EMAIL_VERIFICATION,
@@ -199,10 +182,6 @@ class EmailVerificationForm(StyledForm):
 
         self.user = user
         return cleaned_data
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self, commit: bool = True) -> User:
         if not self.user:
@@ -235,7 +214,7 @@ class LoginForm(StyledForm):
 
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Your Password"}),
-        strip=False,  # Never strip whitespace from passwords
+        strip=False,
     )
 
     keep_logged_in = forms.BooleanField(
@@ -247,10 +226,6 @@ class LoginForm(StyledForm):
         self.request = request
         self.user: Any | None = None
         super().__init__(*args, **kwargs)
-
-    # ========================================================
-    # VALIDATE
-    # ========================================================
 
     def clean(self) -> dict[str, Any]:
         cleaned_data: dict[str, Any] = super().clean()
@@ -276,7 +251,6 @@ class LoginForm(StyledForm):
         if not user.is_verified:
             raise forms.ValidationError("Please verify your email first.")
 
-        # Store user instance on form attribute and cleaned_data
         self.user = user
         cleaned_data["user"] = user
 
@@ -307,58 +281,36 @@ class ChangePasswordForm(StyledForm):
         self.user: User = user
         super().__init__(*args, **kwargs)
 
-    # ========================================================
-    # VALIDATE
-    # ========================================================
-
     def clean(self) -> dict[str, Any]:
         cleaned_data: dict[str, Any] = super().clean()
         old_password: str | None = cleaned_data.get("old_password")
         new_password: str | None = cleaned_data.get("new_password")
         new_password2: str | None = cleaned_data.get("new_password2")
 
-        # ----------------------------------------------------
-        # OLD PASSWORD
-        # ----------------------------------------------------
         if not old_password or not self.user.check_password(old_password):
             self.add_error("old_password", "Old password is incorrect.")
 
-        # ----------------------------------------------------
-        # PASSWORD MATCH
-        # ----------------------------------------------------
         if new_password and new_password2 and new_password != new_password2:
             self.add_error("new_password2", "Passwords do not match.")
 
-        # ----------------------------------------------------
-        # DIFFERENT PASSWORD
-        # ----------------------------------------------------
         if old_password and new_password and old_password == new_password:
             self.add_error(
                 "new_password",
                 "New password must be different from old password.",
             )
 
-        # ----------------------------------------------------
-        # PASSWORD STRENGTH & DJANGO VALIDATORS
-        # ----------------------------------------------------
         if new_password:
-            # Custom validation check (if needed)
             try:
                 validate_password_strength(new_password)
             except forms.ValidationError as exc:
                 self.add_error("new_password", exc)
 
-            # Django built-in validation checks (checks settings.AUTH_PASSWORD_VALIDATORS)
             try:
                 validate_password(new_password, user=self.user)
             except forms.ValidationError as exc:
                 self.add_error("new_password", exc)
 
         return cleaned_data
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self, commit: bool = True) -> User:
         self.user.set_password(self.cleaned_data["new_password"])
@@ -380,17 +332,9 @@ class PasswordResetRequestForm(StyledForm):
         widget=forms.EmailInput(attrs={"placeholder": "Your Email"})
     )
 
-    # ========================================================
-    # CLEAN EMAIL
-    # ========================================================
-
     def clean_email(self) -> str:
         email: str = self.cleaned_data["email"]
         return email.strip().lower()
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self) -> dict[str, str]:
         email: str = self.cleaned_data["email"]
@@ -403,9 +347,6 @@ class PasswordResetRequestForm(StyledForm):
             )
         }
 
-        # ----------------------------------------------------
-        # FIND VERIFIED & ACTIVE USER
-        # ----------------------------------------------------
         user: User | None = User.objects.filter(
             email=email,
             is_verified=True,
@@ -415,9 +356,6 @@ class PasswordResetRequestForm(StyledForm):
         if not user:
             return response
 
-        # ----------------------------------------------------
-        # ISSUE TOKEN & SCHEDULE EMAIL (ATOMIC TRANSACTION)
-        # ----------------------------------------------------
         with transaction.atomic():
             token: str | None = TokenService.issue(
                 identifier=email,
@@ -426,7 +364,6 @@ class PasswordResetRequestForm(StyledForm):
             )
 
             if token is None:
-                # Cancel transaction if token generation hard-fails
                 raise RuntimeError("Failed to generate password reset token.")
 
             transaction.on_commit(
@@ -467,17 +404,9 @@ class PasswordResetConfirmForm(StyledForm):
         super().__init__(*args, **kwargs)
         self.user: User | None = None
 
-    # ========================================================
-    # CLEAN EMAIL
-    # ========================================================
-
     def clean_email(self) -> str:
         email: str = self.cleaned_data["email"]
         return email.strip().lower()
-
-    # ========================================================
-    # VALIDATE
-    # ========================================================
 
     def clean(self) -> dict[str, Any]:
         cleaned_data: dict[str, Any] = super().clean()
@@ -486,48 +415,30 @@ class PasswordResetConfirmForm(StyledForm):
         new_password: str | None = cleaned_data.get("new_password")
         new_password2: str | None = cleaned_data.get("new_password2")
 
-        # ----------------------------------------------------
-        # PASSWORD MATCH
-        # ----------------------------------------------------
         if new_password and new_password2 and new_password != new_password2:
             self.add_error("new_password2", "Passwords do not match.")
 
-        # ----------------------------------------------------
-        # PASSWORD STRENGTH
-        # ----------------------------------------------------
         if new_password:
             try:
                 validate_password_strength(new_password)
             except forms.ValidationError as exc:
                 self.add_error("new_password", exc)
 
-        # ----------------------------------------------------
-        # STOP IF BASIC FIELD VALIDATION FAILED
-        # ----------------------------------------------------
-        if (not email or not token or not new_password or not new_password2 or self.errors):
+        if not email or not token or not new_password or not new_password2 or self.errors:
             return cleaned_data
 
-        # ----------------------------------------------------
-        # FIND USER
-        # ----------------------------------------------------
         user: User | None = User.objects.filter(email=email, is_verified=True, is_active=True).first()
 
         if not user:
             self.add_error(None, "Invalid password reset request.")
             return cleaned_data
 
-        # ----------------------------------------------------
-        # DJANGO SYSTEM PASSWORD VALIDATORS
-        # ----------------------------------------------------
         try:
             validate_password(new_password, user=user)
         except forms.ValidationError as exc:
             self.add_error("new_password", exc)
             return cleaned_data
 
-        # ----------------------------------------------------
-        # VERIFY TOKEN
-        # ----------------------------------------------------
         is_valid: bool = TokenService.verify(
             identifier=email,
             purpose=TokenService.PASSWORD_RESET,
@@ -540,10 +451,6 @@ class PasswordResetConfirmForm(StyledForm):
 
         self.user = user
         return cleaned_data
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     def save(self, commit: bool = True) -> User:
         if not self.user:
@@ -568,24 +475,13 @@ class ResendVerificationEmailForm(StyledForm):
         widget=forms.EmailInput(attrs={"placeholder": "Your Email"})
     )
 
-    # ========================================================
-    # CLEAN EMAIL
-    # ========================================================
-
     def clean_email(self) -> str:
         email: str = self.cleaned_data["email"]
         return email.strip().lower()
 
-    # ========================================================
-    # SAVE
-    # ========================================================
-
     def save(self) -> dict[str, str]:
         email: str = self.cleaned_data["email"]
 
-        # ----------------------------------------------------
-        # GENERIC RESPONSE (Prevents User Enumeration)
-        # ----------------------------------------------------
         response: dict[str, str] = {
             "message": (
                 "If the account exists and requires verification, "
@@ -593,9 +489,6 @@ class ResendVerificationEmailForm(StyledForm):
             )
         }
 
-        # ----------------------------------------------------
-        # FIND UNVERIFIED USER
-        # ----------------------------------------------------
         user: User | None = User.objects.filter(
             email=email,
             is_verified=False,
@@ -604,9 +497,6 @@ class ResendVerificationEmailForm(StyledForm):
         if not user:
             return response
 
-        # ----------------------------------------------------
-        # ISSUE TOKEN & SCHEDULE EMAIL (ATOMIC TRANSACTION)
-        # ----------------------------------------------------
         with transaction.atomic():
             token: str | None = TokenService.issue(
                 identifier=email,
