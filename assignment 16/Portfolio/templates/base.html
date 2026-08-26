@@ -45,45 +45,45 @@
             </a>
             <nav id="navmenu" class="navmenu">
                 <ul>
+                    {% if menubars %}
+                        {% for menu in menubars %}
+                            {% if menu.children.count %}
+                                <li class="dropdown">
+
+                                    <a href="{{ menu.get_url }}"
+                                    class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+                                        <span>{{ menu.title|upper }}</span>
+                                        <i class="bi bi-chevron-down toggle-dropdown"></i>
+                                    </a>
+
+                                    <ul>
+
+                                        {% for child in menu.children.all %}
+
+                                            <li>
+                                                <a href="{{ child.get_url }}"
+                                                class="{% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
+                                                    {{ child.title|upper }}
+                                                </a>
+                                            </li>
+
+                                        {% endfor %}
+
+                                    </ul>
+
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="{{ menu.get_url }}"
+                                    class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+                                        {{ menu.title|upper }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
                     {% if request.user.is_authenticated %}
-                        {% if menubars %}
-                            {% for menu in menubars %}
-                                {% if menu.children.count %}
-                                    <li class="dropdown">
-
-                                        <a href="{{ menu.get_url }}"
-                                        class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
-                                            <span>{{ menu.title|upper }}</span>
-                                            <i class="bi bi-chevron-down toggle-dropdown"></i>
-                                        </a>
-
-                                        <ul>
-
-                                            {% for child in menu.children.all %}
-
-                                                <li>
-                                                    <a href="{{ child.get_url }}"
-                                                    class="{% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
-                                                        {{ child.title|upper }}
-                                                    </a>
-                                                </li>
-
-                                            {% endfor %}
-
-                                        </ul>
-
-                                    </li>
-                                {% else %}
-                                    <li>
-                                        <a href="{{ menu.get_url }}"
-                                        class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
-                                            {{ menu.title|upper }}
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-
                         <li class="dropdown profile-dropdown">
                             <a href="#">
                                 <span><i class="bi bi-people fs-5 m-2"></i> {{request.user.username|upper}} </span>
