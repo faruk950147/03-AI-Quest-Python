@@ -12,6 +12,7 @@ from account.forms import (
     PasswordResetForm,
     PasswordResetConfirmForm,
     ResendVerifyEmailForm,
+    ProfileForm
 )
 from mixins.mixing import LoginRequiredMixin, LogoutRequiredMixin
 
