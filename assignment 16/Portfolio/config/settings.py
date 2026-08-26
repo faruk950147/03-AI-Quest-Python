@@ -1,10 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from datetime import timedelta
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse_lazy
 
 # ========================
 # Base directory
@@ -50,10 +48,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'rest_framework',  # DRF
     'corsheaders',  # CORS
-    'rest_framework_simplejwt',  # JWT auth
-    'rest_framework_simplejwt.token_blacklist',  # JWT token blacklist
     # Local apps
-    'account.apps.AccountConfig',
     'settings.apps.SettingsConfig',
     'home.apps.HomeConfig',
     'about.apps.AboutConfig',
@@ -148,13 +143,6 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# ========================
-# Authentication settings       
-# Custom user model
-# ========================
-AUTH_USER_MODEL = 'account.User'
-
-
 # =========================
 # Static files 
 # =========================
@@ -164,55 +152,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-
-# =========================
-# Email configuration
-# =========================
-EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
-
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
-
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-
-
-# =========================
-# Django REST Framework
-# =========================
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # JWT Authentication this is used for API authentication
-        'rest_framework_simplejwt.authentication.JWTAuthentication', 
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        # Default permission for API views 
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
-
-
-# =========================
-# Simple JWT
-# =========================
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-}
-
 
 # =========================
 # Logging

@@ -82,22 +82,6 @@
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-                    {% if user.is_authenticated %}
-                        <li class="dropdown profile-dropdown">
-                            <a href="#">
-                                <span><i class="bi bi-people fs-5 m-2"></i>{{ user.username|upper }}</span>
-                                <i class="bi bi-chevron-down toggle-dropdown"></i>
-                            </a>
-
-                            <ul>
-                                <li class="text-center"><a href="{% url 'profile' %}">Account</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="{% url 'login' %}"><span><i class="bi bi-people fs-5 m-2"></i>LOGIN</span></a>
-                        </li>
-                    {% endif %}
                 </ul>
 
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
