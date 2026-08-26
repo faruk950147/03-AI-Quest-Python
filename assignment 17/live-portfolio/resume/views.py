@@ -4,18 +4,12 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
-from mixins.mixing import (
-    LoginRequiredMixin, LogoutRequiredMixin
-)
-
 from resume.models import (
     Description, Resume,
 )
 
 @method_decorator(cache_page(60 * 10), name="get")
-class ResumeView(LoginRequiredMixin, generic.View):
-    login_url = "login"
-
+class ResumeView(generic.View):
     def get(self, request):
         description = Description.objects.filter(status="active").first()
         resume = Resume.objects.filter(status="active").prefetch_related(

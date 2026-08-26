@@ -3,7 +3,6 @@ from django.views import generic
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
-from mixins.mixing import LoginRequiredMixin, LogoutRequiredMixin
 
 from about.models import (
     Reference, StatusChoices, 
@@ -12,8 +11,7 @@ from about.models import (
 )
 
 @method_decorator(cache_page(60 * 15), name="dispatch")
-class AboutView(LoginRequiredMixin, generic.View):
-    login_url = 'login'
+class AboutView(generic.View):
     def get(self, request):
         description = Description.objects.filter(status=StatusChoices.ACTIVE).first()
         about_me = AboutMe.objects.filter(status=StatusChoices.ACTIVE).first()
