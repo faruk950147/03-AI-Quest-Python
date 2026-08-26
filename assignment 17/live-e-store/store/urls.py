@@ -2,11 +2,10 @@ from django.urls import path
 from store.views import (
     HomeView, ProductView, GetVariantBySizeView, GetVariantByColorView,
     GetFilterProductsView, ShopView, CategoryProductView,
-    ProductReviewView, SearchingView, AutoSearchComplete, RootView
+    ProductReviewView, SearchingView, AutoSearchComplete,
 )
 urlpatterns = [
-    path('', RootView.as_view(), name='root'),
-    path('home/', HomeView.as_view(), name='home'),
+    path('', HomeView.as_view(), name='home'),
     path('product/detail/<str:slug>/<int:id>/', ProductView.as_view(), name='product-detail'),
     path('get/variant/by/size/', GetVariantBySizeView.as_view(), name='get-variant-by-size'),
     path('get/variant/by/color/', GetVariantByColorView.as_view(), name='get-variant-by-color'),

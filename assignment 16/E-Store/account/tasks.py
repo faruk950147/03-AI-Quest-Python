@@ -1,5 +1,4 @@
 from django.conf import settings
-from account.utils import send_email
 from account.utils import EmailThread
 
 BASE_URL = settings.BASE_URL.rstrip("/") + "/"

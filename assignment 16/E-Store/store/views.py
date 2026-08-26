@@ -101,32 +101,7 @@ def get_product_variants(product, selected_size_id=None):
         "all_variants": variants
     }
 
-# ==============================================================================
-# ROOT PAGE VIEW
-# ==============================================================================
-@method_decorator(never_cache, name="dispatch")
-class RootView(View):
 
-    def get(self, request):
-        base_url ="http://127.0.0.1:8000"
-        return HttpResponse(
-            """
-            <pre style="text-align: center;">
-                Web path:
-                store: base_url/home/
-                cart: base_url/cart/detail/view/
-                checkout: base_url/checkout/view/
-                account: base_url/account/profile/
-
-                API path:
-                store: base_url/api/store/
-                cart: base_url/api/cart/
-                checkout: base_url/api/checkout/
-                account: base_url/api/account/
-            </pre>
-            """,
-            content_type="text/html"
-        )
 # ==============================================================================
 # HOME PAGE VIEW
 # ==============================================================================
