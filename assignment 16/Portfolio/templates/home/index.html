@@ -13,6 +13,10 @@
         <p class="lead fs-6 moving-text">{{ hero.tag|title }}</p>
         <p>I'm <span class="typed" data-typed-items="{{ hero.typed_items|default:'' }}"></span><span class="typed-cursor typed-cursor--blink"></span></p>
         
+        <a href="{% static 'assets/cv/Md-Omar-Faruk.pdf' %}" download>
+            <button class="cv-btn" type="button">CV Download</button>
+        </a>
+
         <div class="social-links">
           {% for social in social_links %}
           <a href="{{social.url|safe}}" target="_blank">

@@ -725,6 +725,18 @@ section,
   border-bottom: 2px solid var(--accent-color);
 }
 
+.hero .cv-btn {
+  display: inline-block;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  color: #fff;
+  padding: 10px 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
 .hero .social-links {
   margin-top: 25px;
 }

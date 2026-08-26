@@ -292,7 +292,25 @@
                                 Buy Now
                             </a>
                         </div>
+                        {% if product.deadline %}
+                        <div class="countdown countdown-small mt-5">
 
+                            <div class="countdown-inner b-radius"
+                                data-countdown=""
+                                data-date="{{ product.deadline|date:'c' }}">
+
+                                <ul class="text-center"
+                                    style="background-color: #FF6F61; color: #000000; padding:0; list-style:none; display:flex; justify-content:center;">
+
+                                    <li><span data-days="">0</span>d</li>
+                                    <li><span data-hours="">0</span>h</li>
+                                    <li><span data-minutes="">0</span>m</li>
+                                    <li><span data-seconds="">0</span>s</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
