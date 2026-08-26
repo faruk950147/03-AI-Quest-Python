@@ -3,12 +3,10 @@ from django.views import generic
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
-from mixins.mixing import LoginRequiredMixin
 from portfolio.models import StatusChoices, Description, Portfolio
 
 @method_decorator(cache_page(60 * 10), name="get")
-class PortfolioView(LoginRequiredMixin, generic.View):
-    login_url = "login"
+class PortfolioView(generic.View):
 
     def get(self, request):
         description = Description.objects.filter(
@@ -26,8 +24,4 @@ class PortfolioView(LoginRequiredMixin, generic.View):
             "portfolios": portfolios,
         }
 
-        return render(
-            request,
-            "portfolio/portfolio.html",
-            context,
-        )
+        return render(request, "portfolio/portfolio.html", context)
