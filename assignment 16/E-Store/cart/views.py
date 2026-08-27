@@ -21,9 +21,9 @@ logger = logging.getLogger('project')
 # ===========================
 # Add to Cart
 # ===========================
-@method_decorator(never_cache, name='dispatch')
+@method_decorator(never_cache, name="dispatch")
 class AddToCartView(LoginRequiredMixin, generic.View):
-    login_url = reverse_lazy('login')
+    login_url = reverse_lazy("login")
 
     def post(self, request):
         product_id = request.POST.get("product-id")
@@ -31,16 +31,22 @@ class AddToCartView(LoginRequiredMixin, generic.View):
         variant_id = request.POST.get("variant-id")
         quantity = int(request.POST.get("quantity", "1"))
 
-        logger.info(f"AddToCart: user={request.user.username}, product_id={product_id}")
+        logger.info(
+            f"AddToCart: user={request.user.username}, " f"product_id={product_id}, " 
+            f"variant_id={variant_id}, "f"quantity={quantity}"
+        )
 
         if not product_id or quantity < 1:
-            return JsonResponse({"status": "error", "message": "Invalid input."})
-
-
             return JsonResponse({
-                "status": "success",
-                "message": "Add to cart successfully"
-            })
+                "status": "error",
+                "message": "Invalid input."
+            }, status=400)
+
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Added to cart successfully."
+        })
 
 
 # ===========================
@@ -92,12 +98,14 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
             if action == "inc":
                 if cart_item.quantity < max_stock:
                     cart_item.quantity += 1
+                    message = "Quantity increased"
                 else:
                     return JsonResponse({"status": "error", "message": "Max stock reached"})
 
             elif action == "dec":
                 if cart_item.quantity > 1:
                     cart_item.quantity -= 1
+                    message = "Quantity decreased"
                 else:
                     return JsonResponse({"status": "error", "message": "Min quantity is 1"})
 
@@ -117,7 +125,7 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
                 "subtotal": str(subtotal),
                 "grand_total": str(subtotal + SHIPPING_COST),
                 "cart_count": cart_count,
-                "message": "Quantity changes successfully"
+                "message": message
             })
 
 
@@ -170,12 +178,7 @@ class AddToWishlistView(LoginRequiredMixin, generic.View):
         )
 
         return render(
-            request,
-            "cart/wishlist.html",
-            {
-                "wish_items": wish_items,
-                "wish_count": wish_items.count(),
-            },
+            request, "cart/wishlist.html", {"wish_items": wish_items, "wish_count": wish_items.count(),},
         )
 
     def post(self, request):
@@ -183,16 +186,10 @@ class AddToWishlistView(LoginRequiredMixin, generic.View):
         product_slug = request.POST.get("product_slug")
 
         product = get_object_or_404(
-            Product,
-            id=product_id,
-            slug=product_slug,
-            status=StatusChoices.Active,
+            Product, id=product_id, slug=product_slug, status=StatusChoices.Active,
         )
 
-        item, created = Wishlist.objects.get_or_create(
-            user=request.user,
-            product=product,
-        )
+        item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
 
         if created:
             status = "added"
@@ -205,9 +202,7 @@ class AddToWishlistView(LoginRequiredMixin, generic.View):
         return JsonResponse({
             "status": status,
             "message": message,
-            "wish_count": Wishlist.objects.filter(
-                user=request.user
-            ).count(),
+            "wish_count": Wishlist.objects.filter(user=request.user).count(),
         })
 
 
