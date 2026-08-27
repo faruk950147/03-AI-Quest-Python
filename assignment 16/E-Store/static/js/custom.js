@@ -336,9 +336,6 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.status === "success") {
                     alertify.success(res.message);
-                    $("#cart-form")[0].reset();  
-                    $("#cart-count").text(res.cart_count);
-                    $("#total-price").html('Your Cart:<br>' + res.subtotal + 'TK');
                 } else {
                     alertify.error(res.message);
                 }
@@ -368,7 +365,7 @@ $(document).ready(function() {
                 if (res.status === 'success') {
                     parent.find('#quantity').text(res.quantity);
                     parent.find("#item-total").text(parseFloat(res.item_total).toFixed(2) + ' TK');
-                    $("#total-price").html('Your Cart:<br>' + parseFloat(res.subtotal).toFixed(2) + ' TK');
+                    $("#total-price").html(parseFloat(res.subtotal).toFixed(2) + ' TK');
                     $('#sub-total').text(parseFloat(res.subtotal).toFixed(2) + ' TK');
                     $('#grand-total').text(parseFloat(res.grand_total).toFixed(2) + ' TK');
 
@@ -403,7 +400,7 @@ $(document).ready(function() {
                     parent.remove();
                     $("#cart-count").text(res.cart_count);
                     // Update totals
-                    $("#total-price").html('Your Cart:<br>' + res.subtotal + ' TK');
+                    $("#total-price").html(res.subtotal + ' TK');
                     $('#sub-total').text(parseFloat(res.subtotal).toFixed(2) + ' TK');
                     $('#grand-total').text(parseFloat(res.grand_total).toFixed(2) + ' TK');
 

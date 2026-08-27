@@ -36,75 +36,9 @@ class AddToCartView(LoginRequiredMixin, generic.View):
         if not product_id or quantity < 1:
             return JsonResponse({"status": "error", "message": "Invalid input."})
 
-        with transaction.atomic():
-            product = get_object_or_404(
-                Product.objects.select_for_update().prefetch_related('galleries'),
-                id=product_id,
-                slug=product_slug,
-                status=StatusChoices.Active
-            )
-
-            variant = None
-            if product.variants_type != VariantType.NONE:
-                if not variant_id:
-                    return JsonResponse({"status": "error", "message": "Please select a variant."})
-
-                variant = get_object_or_404(
-                    VariantOption.objects.select_for_update(),
-                    id=variant_id,
-                    product=product,
-                    status=StatusChoices.Active
-                )
-
-            max_stock = variant.stock if variant else product.stock
-
-            if max_stock <= 0:
-                return JsonResponse({"status": "error", "message": "Out of stock"})
-
-            temp_cart = Cart(user=request.user, product=product, variant=variant)
-            unit_price = temp_cart.unit_price
-
-            cart_item, created = Cart.objects.get_or_create(
-                user=request.user,
-                product=product,
-                variant=variant,
-                paid=False,
-                defaults={"quantity": quantity, "stored_unit_price": unit_price}
-            )
-
-            if not created:
-                new_qty = cart_item.quantity + quantity
-
-                if new_qty > max_stock:
-                    return JsonResponse({"status": "error", "message": f"Cannot exceed stock ({max_stock})"})
-
-                cart_item.quantity = new_qty
-                cart_item.save()
-                final_qty = new_qty
-            else:
-                if quantity > max_stock:
-                    return JsonResponse({"status": "error", "message": f"Cannot exceed stock ({max_stock})"})
-                final_qty = quantity
-
-            summary = Cart.objects.filter(user=request.user, paid=False).aggregate(
-                subtotal=Sum(F('quantity') * F('stored_unit_price'))
-            )
-
-            subtotal = Decimal(summary['subtotal'] or 0).quantize(Decimal('0.01'))
-            cart_count = Cart.objects.filter(user=request.user, paid=False).count()
-
-            image = (
-                variant.image if variant and getattr(variant, 'image', None)
-                else (product.galleries.first().image if product.galleries.exists() else "/media/defaults/default.jpg")
-            )
 
             return JsonResponse({
                 "status": "success",
-                "quantity": final_qty,
-                "cart_count": cart_count,
-                "subtotal": str(subtotal),
-                "grand_total": str((subtotal + SHIPPING_COST).quantize(Decimal('0.01'))),
-                "image_url": str(image),
                 "message": "Add to cart successfully"
             })
 
