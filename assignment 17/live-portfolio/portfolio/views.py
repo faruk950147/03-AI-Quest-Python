@@ -18,10 +18,13 @@ class PortfolioView(generic.View):
             .filter(status=StatusChoices.ACTIVE)
             .prefetch_related("galleries")
         )
+        portfolio_types = Portfolio.TYPES_CHOICES
 
         context = {
             "description": description,
             "portfolios": portfolios,
+            "portfolio_types": portfolio_types
+            
         }
 
         return render(request, "portfolio/portfolio.html", context)
