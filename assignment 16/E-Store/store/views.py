@@ -51,12 +51,7 @@ def get_product_variants(product, selected_size_id=None):
 
     # Return default empty structure if no variants are available
     if not variants:
-        return {
-            "sizes": [],
-            "colors": [],
-            "selected_variant": None,
-            "all_variants": []
-        }
+        return {"sizes": [], "colors": [], "selected_variant": None, "all_variants": []}
 
     # Extract unique size options using a set for lookup
     sizes, seen_sizes = [], set()
