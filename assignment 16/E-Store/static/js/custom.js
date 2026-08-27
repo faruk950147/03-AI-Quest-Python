@@ -325,12 +325,6 @@ $(document).ready(function() {
 
         console.log("Variant ID:", $("#variant-id").val());
 
-        let formData = new FormData(this);
-
-        for (let [key, value] of formData.entries()) {
-            console.log(key, "=>", value);
-        }
-
         $.ajax({
             url: "/cart/add/to/",
             method: "POST",
@@ -342,6 +336,8 @@ $(document).ready(function() {
             },
             success: function(res) {
                 if (res.status === "success") {
+                    // IMPORTANT
+                    $("#variant-id").val(variantId);
                     alertify.success(res.message);
                 } else {
                     alertify.error(res.message);

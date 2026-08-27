@@ -80,8 +80,10 @@
                                         {% endif %}
                                     </p>
 
-
                                     <div class="variant-options">
+                                        <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+                                        <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
+
                                         {% if product.variants_type == "size" or product.variants_type == "color_size" %}
                                             <div class="p-size mb-3 d-flex align-items-center">
                                                 <p class="mb-0 me-2 mr-3"><strong>Sizes: </strong></p>
@@ -124,10 +126,6 @@
                                                 <span id="product-color">{{ variant_data.selected_variant.color }}</span>
                                             </p>
                                         {% endif %}
-
-                                        <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
-                                        <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
-
                                     </div>
                                     <div class="action">
                                         <form method="POST" id="cart-form" novalidate>
