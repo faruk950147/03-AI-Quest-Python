@@ -325,7 +325,6 @@ class GetVariantBySizeView(View):
 
             return JsonResponse({
                     "rendered_colors": html,
-
                     "variant_id": variant.id,
                     "variant_price": str(variant.variant_price),
                     "variant_image": variant.image_url,
