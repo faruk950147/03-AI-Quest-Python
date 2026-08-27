@@ -49,28 +49,20 @@
                         {% for menu in menubars %}
                             {% if menu.children.count %}
                                 <li class="dropdown">
-
-                                    <a href="{{ menu.get_url }}"
-                                    class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+                                    <a href="{{ menu.get_url }}" class="{% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
                                         <span>{{ menu.title|upper }}</span>
                                         <i class="bi bi-chevron-down toggle-dropdown"></i>
                                     </a>
 
                                     <ul>
-
                                         {% for child in menu.children.all %}
-
                                             <li>
-                                                <a href="{{ child.get_url }}"
-                                                class="{% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
+                                                <a href="{{ child.get_url }}" class="{% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
                                                     {{ child.title|upper }}
                                                 </a>
                                             </li>
-
                                         {% endfor %}
-
                                     </ul>
-
                                 </li>
                             {% else %}
                                 <li>

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile{% endblock title %}
+
+{% block main %}
+<main class="main">
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+        <div class="container">
+            <div class="row">
+
+                <!-- LEFT ACCOUNT PANEL -->
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow-sm profile-section border-0">
+                        <div class="card-body">
+
+                            <h6 class="fw-bold mb-3 text-white">
+                                Account PANEL
+                            </h6>
+
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="#"
+                                       class="text-warning fw-semibold text-decoration-none">
+                                        PROFILE
+                                    </a>
+                                </li>
+
+                                <li class="mb-2">
+                                    <a href="{% url 'logout' %}"
+                                       class="text-warning fw-semibold text-decoration-none">
+                                        LOGOUT
+                                    </a>
+                                </li>
+
+                                <li class="mb-2">
+                                    <a href="{% url 'change-password' %}"
+                                       class="text-warning fw-semibold text-decoration-none">
+                                        CHANGE PASSWORD
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PROFILE INFO -->
+                <div class="col-md-9">
+                    <div class="card shadow-sm profile-section border-0">
+                        <div class="card-body">
+
+                            <h6 class="fw-bold border-bottom pb-2 mb-4 text-white">
+                                USER PROFILE INFO
+                            </h6>
+
+                            <!-- Profile Image -->
+                            <div class="text-center mb-4">
+
+                                {% if request.user.image %}
+                                    <img
+                                        src="{{ request.user.image.url }}"
+                                        class="rounded-circle border img-fluid"
+                                        style="width: 120px; height: 120px; object-fit: cover;"
+                                        alt="{{ request.user.username }}"
+                                    >
+                                {% else %}
+                                    <img
+                                        src="{% static 'assets/img/user.jpg' %}"
+                                        class="rounded-circle border img-fluid"
+                                        style="width: 120px; height: 120px; object-fit: cover;"
+                                        alt="{{ request.user.username }}"
+                                    >
+                                {% endif %}
+
+                            </div>
+
+                            <!-- Profile Edit Form -->
+                            <form
+                                method="post"
+                                enctype="multipart/form-data"
+                                class="php-email-form"
+                                novalidate
+                            >
+
+                                {% csrf_token %}
+
+                                <h1 class="section-title text-center">
+                                    Profile Edit
+                                </h1>
+
+                                <div class="row gy-4">
+
+                                    {% include "non-field-errors.html" %}
+
+                                    <!-- Username -->
+                                    <div class="col-md-6">
+                                        {{ form.username }}
+                                        {{ form.errors.username }}
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="col-md-6">
+                                        {{ form.email }}
+                                        {{ form.errors.email }}
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="col-md-6">
+                                        {{ form.phone }}
+                                        {{ form.errors.phone }}
+                                    </div>
+
+                                    <!-- Image -->
+                                    <div class="col-md-6">
+                                        {{ form.image }}
+                                        {{ form.errors.image }}
+                                    </div>
+
+                                    <!-- Submit -->
+                                    <div class="col-md-12 text-center">
+
+                                        <div class="sent-message"></div>
+                                        <div class="error-message"></div>
+
+                                        <button type="submit">
+                                            Changes Now
+                                        </button>
+
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+    <!-- /Contact Section -->
+
+</main>
+{% endblock main %}

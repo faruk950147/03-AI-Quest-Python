@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Signup{% endblock title %}
+{% load static %}
+
+{% block main %}
+  <main class="main">
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+      <div class="container">
+
+        <form method="post" class="php-email-form" novalidate>
+          {% csrf_token %}
+
+          <h1 class="section-title text-center">Signup</h1>
+
+          <div class="row gy-4">
+            {% include "non-field-errors.html" %}
+            <div class="col-md-6">
+              {{form.username}}
+              {{form.errors.username}}
+            </div>
+
+            <div class="col-md-6 ">
+              {{form.email}}
+              {{form.errors.email}}
+            </div>
+              
+            <div class="col-md-6">
+              {{form.phone}}
+              {{form.errors.phone}}
+            </div>
+
+            <div class="col-md-6 ">
+              {{form.password}}
+              {{form.errors.password}}
+            </div>
+
+            <div class="col-md-12 ">
+              {{form.password2}}
+              {{form.errors.password2}}
+            </div>
+
+            <div class="col-md-12 text-center">
+              <div class="sent-message"></div>
+              <div class="error-message"></div>
+              <button type="submit">Signup Now</button>
+            </div>
+            
+            <div class="col-md-12 text-center">
+                Already have an account?
+                <a href="{% url "login" %}" target="_blank" rel="noopener noreferrer">Login</a>
+            </div>
+            </div>
+        </form><!-- End Contact Form -->
+
+      </div>
+
+    </section><!-- /Contact Section -->
+
+  </main>
+{% endblock main %}
