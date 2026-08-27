@@ -13,9 +13,9 @@
         <div class="container">
           <div class="row justify-content-center text-center">
             <div class="col-lg-8">
-              <h1> {{description.title|title}} </h1>
+              <h1> {{ description.title|title }} </h1>
               <p class="mb-0">
-                {{description.description|safe}}
+                {{ description.description|safe }}
               </p>
             </div>
           </div>
@@ -37,16 +37,15 @@
       <div class="container">
         <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
 
-            <!-- Portfolio Filters -->
+            <!-- Dynamic Portfolio Filters -->
             <ul class="portfolio-filters isotope-filters"
                 data-aos="fade-up"
                 data-aos-delay="100">
 
                 <li data-filter="*" class="filter-active">All</li>
-                <li data-filter=".filter-apps">Apps</li>
-                <li data-filter=".filter-webs">Webs</li>
-                <li data-filter=".filter-apis">Apis</li>
-                <li data-filter=".filter-books">Books</li>
+                {% for key, label in categories %}
+                  <li data-filter=".filter-{{ key }}">{{ label }}</li>
+                {% endfor %}
 
             </ul>
 
@@ -62,59 +61,52 @@
                         {% with first_image=portfolio.galleries.first %}
                             {% if first_image %}
                                 <img src="{{ first_image.image.url }}"
-                                    class="img-fluid"
-                                    alt="{{ portfolio.title }}">
+                                     class="img-fluid"
+                                     alt="{{ portfolio.title }}">
                             {% else %}
                                 <img src="{% static 'assets/img/no-image.png' %}"
-                                    class="img-fluid"
-                                    alt="No Image">
+                                     class="img-fluid"
+                                     alt="No Image">
                             {% endif %}
                         {% endwith %}
 
                         <div class="portfolio-info">
 
                             <h4>{{ portfolio.get_types_display }}</h4>
-
                             <h5>{{ portfolio.title }}</h5>
-
                             <p>{{ portfolio.description|safe }}</p>
 
                             {% with first_image=portfolio.galleries.first %}
                                 {% if first_image %}
-
-                                <a href="{{ first_image.image.url }}"
-                                  class="glightbox preview-link"
-                                  data-gallery="portfolio-gallery-{{ portfolio.id }}"
-                                  title="{{ portfolio.title }}">
-                                    <i class="bi bi-zoom-in"></i>
-                                </a>
-
-
-                                <a href="{{portfolio.live_url}}" class="details-link">
-                                  <i class="bi bi-link-45deg"></i>
-                                </a>
-
-
-
-                                {% for gallery in portfolio.galleries.all %}
-                                    {% if not forloop.first %}
-
-                                    <a href="{{ gallery.image.url }}"
-                                      class="glightbox d-none"
-                                      data-gallery="portfolio-gallery-{{ portfolio.id }}"
-                                      title="{{ portfolio.title }}">
-                                    </a>
-
-                                    {% endif %}
-                                {% endfor %}
-
+                                  <!-- Trigger light box only when images exist -->
+                                  <a href="{{ first_image.image.url }}"
+                                     class="glightbox preview-link"
+                                     data-gallery="portfolio-gallery-{{ portfolio.id }}"
+                                     title="{{ portfolio.title }}">
+                                      <i class="bi bi-zoom-in"></i>
+                                  </a>
                                 {% endif %}
                             {% endwith %}
 
+                            {% if portfolio.live_url %}
+                              <a href="{{ portfolio.live_url }}" class="details-link" target="_blank" rel="noopener noreferrer">
+                                <i class="bi bi-link-45deg"></i>
+                              </a>
+                            {% endif %}
+
+                            <!-- Hidden secondary gallery images for lightbox -->
+                            {% for gallery in portfolio.galleries.all %}
+                                {% if not forloop.first %}
+                                <a href="{{ gallery.image.url }}"
+                                   class="glightbox d-none"
+                                   data-gallery="portfolio-gallery-{{ portfolio.id }}"
+                                   title="{{ portfolio.title }}">
+                                </a>
+                                {% endif %}
+                            {% endfor %}
+
                         </div>
-
                     </div>
-
                 </div>
 
                 {% empty %}
@@ -128,9 +120,7 @@
             </div>
 
         </div>
-
       </div>
-
     </section><!-- /Portfolio Section -->
 
   </main>
