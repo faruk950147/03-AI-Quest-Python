@@ -135,7 +135,7 @@ $(document).ready(function() {
     // SIZE CHANGE
     $(document).on('click', '.size-option', function () {
 
-        let size_id = $(this).data('size-id');
+        let size_id = $(this).data('size_id');
         let product_id = $('#product_id').val();
 
         // Selected size
@@ -143,7 +143,7 @@ $(document).ready(function() {
         $(this).addClass('active');
 
         // Reset selected variant
-        $('#variant-id').val('');
+        $('#variant_id').val('');
 
         $.ajax({
             url: "/get/variant/by/size/",
@@ -159,7 +159,7 @@ $(document).ready(function() {
             success: function (res) {
                 $('#color-options').html(res.rendered_colors);
 
-                $('#variant-id').val(res.variant_id);
+                $('#variant_id').val(res.variant_id);
 
                 $("#product-stock").text(res.available_stock || '0');
 
@@ -192,7 +192,7 @@ $(document).ready(function() {
     // COLOR SELECT
     function bindColorEvents() {
         $(document).off('click', '.color-option').on('click', '.color-option', function () {
-            let variant_id = $(this).data('variant-id');
+            let variant_id = $(this).data('variant_id');
 
             if (!variant_id) {
                 alertify.error("Please before select a size than color selected");
@@ -212,7 +212,7 @@ $(document).ready(function() {
                 data: {variant_id: variant_id},
 
                 success: function (res) {
-                    $('#variant-id').val(res.variant_id);
+                    $('#variant_id').val(res.variant_id);
 
                     $("#product-stock").text(res.available_stock || '0');
 
@@ -325,9 +325,8 @@ $(document).ready(function() {
         e.preventDefault();
 
         const formData = new FormData(this);
-        const variant_id = $("#variant-id").val();
-
-        formData.set("variant-id", variant_id);
+        const variant_id = $("#variant_id").val();
+        formData.set("variant_id", variant_id);
 
         console.log("Sending variant ID:", variant_id);
 
@@ -344,7 +343,7 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.status === "success") {
                     alertify.success(res.message);
-                    console.log("Cart added variant ID:", variant_id);
+                    console.log('Variant id' + variant_id)
                 } else {
                     alertify.error(res.message);
                 }

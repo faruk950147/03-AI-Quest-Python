@@ -38,10 +38,10 @@ class AddToCartView(LoginRequiredMixin, generic.View):
             f"Quantity: {quantity} ================================"
         )
 
-        # logger.info(
-        #     f"AddToCart: user={request.user.username}, " f"product_id={product_id}, " 
-        #     f"variant_id={variant_id}, "f"quantity={quantity}"
-        # )
+        logger.info(
+            f"AddToCart: user={request.user.username}, " f"product_id={product_id}, " 
+            f"variant_id={variant_id}, "f"quantity={quantity}"
+        )
 
         if not product_id or quantity < 1:
             return JsonResponse({"status": "error", "message": "Invalid input."}, status=400)

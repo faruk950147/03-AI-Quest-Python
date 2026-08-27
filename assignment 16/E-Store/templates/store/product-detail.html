@@ -92,7 +92,7 @@
                                                         <button
                                                             type="button"
                                                             class="btn btn-outline-dark size-option {% if forloop.first %}active{% endif %}"
-                                                            data-size-id="{{ size.id }}"
+                                                            data-size_id="{{ size.id }}"
                                                         >
                                                             {{ size.code }}
                                                         </button>
@@ -112,10 +112,10 @@
                                                         <button
                                                             type="button"
                                                             class="btn btn-outline-dark color-option {% if forloop.first %}active{% endif %}"
-                                                            data-color-id="{{ color.id }}"
-                                                            data-variant-id="{{ color.variant_id }}"
+                                                            data-color_id="{{ color.id }}"
+                                                            data-variant_id="{{ color.variant_id }}"
                                                             data-price="{{ color.price }}"
-                                                            data-image-id="{{ color.image_id }}"
+                                                            data-image_id="{{ color.image_id }}"
                                                         >
                                                             {{ color.title }}
                                                         </button>
