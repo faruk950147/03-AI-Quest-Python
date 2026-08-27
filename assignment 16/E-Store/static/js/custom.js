@@ -342,8 +342,11 @@ $(document).ready(function() {
 
             success: function(res) {
                 if (res.status === "success") {
+                    console.log(variant_id)
                     alertify.success(res.message);
-                    console.log('Variant id' + variant_id)
+                    $("#cart-form")[0].reset();  
+                    $("#cart-count").text(res.cart_count);
+                    $("#total-price").html(res.subtotal + 'TK');
                 } else {
                     alertify.error(res.message);
                 }
