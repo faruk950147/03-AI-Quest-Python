@@ -75,16 +75,13 @@ def get_product_variants(product, selected_size_id=None):
 
     # Filter color choices based on target selected size
     target_size = variant.size if variant else None
-    colors = [
-        {
-            "id": v.color.id, 
-            "title": v.color.title, 
-            "variant_id": v.id,
-            "price": v.variant_price,
-            "stock": v.stock
-        }
-        for v in variants 
-        if v.color and (target_size is None or v.size == target_size)
+    colors = [{
+        "id": v.color.id, 
+        "title": v.color.title, 
+        "variant_id": v.id,
+        "price": v.variant_price,
+        "stock": v.stock}
+        for v in variants if v.color and (target_size is None or v.size == target_size)
     ]
 
     return {
