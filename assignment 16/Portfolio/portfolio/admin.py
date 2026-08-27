@@ -154,6 +154,7 @@ class PortfolioAdmin(BaseAdmin):
         "id",
         "title",
         "types",
+        "live_url",
         "description",
         "status",
         "created_at",
@@ -188,6 +189,7 @@ class PortfolioAdmin(BaseAdmin):
                 "fields": (
                     "title",
                     "types",
+                    "live_url",
                     "description",
                 ),
             },

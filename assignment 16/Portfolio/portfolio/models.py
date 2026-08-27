@@ -109,15 +109,14 @@ class Portfolio(BaseMixin, StripMixin):
         ('apps', 'Apps'),
         ('webs', 'Webs'),
         ('apis', 'Apis'),
-        ('books', 'Books'),
     ]
 
     title = models.CharField(_("title"), max_length=150)
     types = models.CharField(
-        _("types"),
-        max_length=20,
-        choices=TYPES_CHOICES,
-        default='apps'
+        _("types"), max_length=20, choices=TYPES_CHOICES, default='apps'
+    )
+    live_url = models.URLField(
+        _("live url"), max_length=500, blank=True, null=True, help_text="Live project URL"
     )
     description = RichTextField(_("description"), help_text="Your description")
     
