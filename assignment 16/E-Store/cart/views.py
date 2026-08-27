@@ -26,9 +26,9 @@ class AddToCartView(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy("login")
 
     def post(self, request):
-        product_id = request.POST.get("product-id")
-        product_slug = request.POST.get("product-slug")
-        variant_id = request.POST.get("variant-id")
+        product_id = request.POST.get("product_id")
+        product_slug = request.POST.get("product_slug")
+        variant_id = request.POST.get("variant_id")
         quantity = int(request.POST.get("quantity", "1"))
         
         print(

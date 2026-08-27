@@ -81,8 +81,8 @@
                                     </p>
 
                                     <div class="variant-options">
-                                        <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
-                                        <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
+                                        <input type="hidden" id="product_id" value="{{ product.id }}" name="product_id">
+                                        <input type="hidden" id="variant-_id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant_id">
 
                                         {% if product.variants_type == "size" or product.variants_type == "color_size" %}
                                             <div class="p-size mb-3 d-flex align-items-center">
@@ -130,9 +130,9 @@
                                     <div class="action">
                                         <form method="POST" id="cart-form" novalidate>
                                             {% csrf_token %}
-                                            <input type="hidden" id="product-slug" value="{{ product.slug }}" name="product-slug">
-                                            <input type="hidden" id="product-id" value="{{ product.id }}"  name="product-id">
-                                            <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
+                                            <input type="hidden" id="product_slug" value="{{ product.slug }}" name="product_slug">
+                                            <input type="hidden" id="product_id" value="{{ product.id }}"  name="product_id">
+                                            <input type="hidden" id="variant_id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant_id">
 
                                             <div class="product-quantity">
                                                 <label class="mr-3">
@@ -277,8 +277,8 @@
                                         <h4 class="text-center">Given your Review</h4>
                                         <form method="POST" id="review-form" novalidate>
                                             {% csrf_token %}
-                                            <input type="hidden" id="product-slug" value="{{ product.slug }}" name="product-slug">
-                                            <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+                                            <input type="hidden" id="product_slug" value="{{ product.slug }}" name="product_slug">
+                                            <input type="hidden" id="product_id" value="{{ product.id }}" name="product_id">
 
                                             <div class="rating">
                                                 <input type="radio" name="rating" id="rating5" value="5" required>
@@ -362,8 +362,8 @@
                                             <a
                                                 href="#"
                                                 class="add-to-wish"
-                                                data-product-id="{{ product.id }}"
-                                                data-product-slug="{{ product.slug }}">
+                                                data-product_id="{{ product.id }}"
+                                                data-product_slug="{{ product.slug }}">
                                                 <i class="fa fa-heart"></i>
                                             </a>
 

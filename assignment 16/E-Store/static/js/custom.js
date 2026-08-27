@@ -136,7 +136,7 @@ $(document).ready(function() {
     $(document).on('click', '.size-option', function () {
 
         let size_id = $(this).data('size-id');
-        let product_id = $('#product-id').val();
+        let product_id = $('#product_id').val();
 
         // Selected size
         $('.size-option').removeClass('active');
@@ -158,6 +158,8 @@ $(document).ready(function() {
 
             success: function (res) {
                 $('#color-options').html(res.rendered_colors);
+
+                $('#variant-id').val(res.variant_id);
 
                 $("#product-stock").text(res.available_stock || '0');
 
@@ -319,11 +321,15 @@ $(document).ready(function() {
 
 
     // ============================ For Cart Pages ==================================
-    // Add to Cart form submission via AJAX
     $("#cart-form").on("submit", function(e) {
         e.preventDefault();
 
-        console.log("Variant ID:", $("#variant-id").val());
+        const formData = new FormData(this);
+        const variant_id = $("#variant-id").val();
+
+        formData.set("variant-id", variant_id);
+
+        console.log("Sending variant ID:", variant_id);
 
         $.ajax({
             url: "/cart/add/to/",
@@ -334,18 +340,20 @@ $(document).ready(function() {
             headers: {
                 "X-CSRFToken": csrftoken
             },
+
             success: function(res) {
                 if (res.status === "success") {
-                    // IMPORTANT
-                    $("#variant-id").val(variantId);
                     alertify.success(res.message);
+                    console.log("Cart added variant ID:", variant_id);
                 } else {
                     alertify.error(res.message);
                 }
             },
+
             error: function(xhr, status, error) {
                 console.error("AJAX Error:", error);
-                alert("Something went wrong. Please try again.");
+                console.error("Response:", xhr.responseText);
+                alertify.error("Something went wrong. Please try again.");
             }
         });
     });
@@ -426,8 +434,8 @@ $(document).ready(function() {
 
         e.preventDefault();
 
-        let product_id = $(this).data("product-id");
-        let product_slug = $(this).data("product-slug");
+        let product_id = $(this).data("product_id");
+        let product_slug = $(this).data("product_slug");
 
         $.ajax({
             url: "/cart/wishlist/view/",

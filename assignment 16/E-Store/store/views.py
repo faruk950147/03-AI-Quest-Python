@@ -674,8 +674,8 @@ class ProductReviewView(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = request.user
-            product_slug = request.POST.get('product-slug')
-            product_id = request.POST.get('product-id')
+            product_slug = request.POST.get('product_slug')
+            product_id = request.POST.get('product_id')
             rating = request.POST.get('rating')
             subject = request.POST.get('subject')
             comment = request.POST.get('comment')
