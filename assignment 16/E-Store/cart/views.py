@@ -30,17 +30,21 @@ class AddToCartView(LoginRequiredMixin, generic.View):
         product_slug = request.POST.get("product-slug")
         variant_id = request.POST.get("variant-id")
         quantity = int(request.POST.get("quantity", "1"))
-
-        logger.info(
-            f"AddToCart: user={request.user.username}, " f"product_id={product_id}, " 
-            f"variant_id={variant_id}, "f"quantity={quantity}"
+        
+        print(
+            f"product id: {product_id} =====================",
+            f"product slug: {product_slug} ====================",
+            f"variant id {variant_id} =======================",
+            f"Quantity: {quantity} ================================"
         )
 
+        # logger.info(
+        #     f"AddToCart: user={request.user.username}, " f"product_id={product_id}, " 
+        #     f"variant_id={variant_id}, "f"quantity={quantity}"
+        # )
+
         if not product_id or quantity < 1:
-            return JsonResponse({
-                "status": "error",
-                "message": "Invalid input."
-            }, status=400)
+            return JsonResponse({"status": "error", "message": "Invalid input."}, status=400)
 
 
         return JsonResponse({

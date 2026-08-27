@@ -130,28 +130,50 @@
 
                                     </div>
                                     <div class="action">
-                                        <form method="POST" id="cart-form">
+                                        <form method="POST" id="cart-form" novalidate>
                                             {% csrf_token %}
                                             <input type="hidden" id="product-slug" value="{{ product.slug }}" name="product-slug">
-                                            <input type="hidden" id="product-id" value="{{ product.id }}" name="product-id">
+                                            <input type="hidden" id="product-id" value="{{ product.id }}"  name="product-id">
                                             <input type="hidden" id="variant-id" value="{{ variant_data.selected_variant.id|default:'' }}" name="variant-id">
 
                                             <div class="product-quantity">
-                                                <label class="mr-3"> <strong>Quantity: </strong> </label>
-                                                <input type="number" name="quantity" value="1" min="1"
-                                                    max="{% if variant %}{{ variant.stock }}{% else %}{{ product.stock }}{% endif %}">
+                                                <label class="mr-3">
+                                                    <strong>Quantity:</strong>
+                                                </label>
 
+                                                <input
+                                                    type="number"
+                                                    name="quantity"
+                                                    value="1"
+                                                    min="1"
+                                                    max="{% if variant %}{{ variant.stock }}{% else %}{{ product.stock }}{% endif %}"
+                                                >
                                             </div>
+
                                             {% if request.user.is_authenticated %}
-                                                <button type="submit" class="btn my-3 mx-5"><i class="fa fa-shopping-cart mr-1"></i>Add to Cart</button>
-                                                <button type="submit" class="btn my-3 my"><i class="fa fa-shopping-bag mr-1"></i>Buy Now</button>
+
+                                                <button type="submit" class="btn my-3 mx-5">
+                                                    <i class="fa fa-shopping-cart mr-1"></i>
+                                                    Add to Cart
+                                                </button>
+
+                                                <button type="submit" class="btn my-3">
+                                                    <i class="fa fa-shopping-bag mr-1"></i>
+                                                    Buy Now
+                                                </button>
+
                                             {% else %}
-                                            <a href="{% url "login" %}" class="btn my-3 mx-5">Login</a>
-                                            <a href="{% url "signup" %}" class="btn my-3">Signup</a>
+
+                                                <a href="{% url 'login' %}" class="btn my-3 mx-5">
+                                                    Login
+                                                </a>
+
+                                                <a href="{% url 'signup' %}" class="btn my-3">
+                                                    Signup
+                                                </a>
+
                                             {% endif %}
                                         </form>
-
-
                                     </div>
 
                                     <p class="my-3">

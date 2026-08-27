@@ -322,7 +322,14 @@ $(document).ready(function() {
     // Add to Cart form submission via AJAX
     $("#cart-form").on("submit", function(e) {
         e.preventDefault();
+
+        console.log("Variant ID:", $("#variant-id").val());
+
         let formData = new FormData(this);
+
+        for (let [key, value] of formData.entries()) {
+            console.log(key, "=>", value);
+        }
 
         $.ajax({
             url: "/cart/add/to/",
