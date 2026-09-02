@@ -27,6 +27,17 @@
                             <th>Phone</th>
                             <th>Completed</th>
                             <th>Actions</th>
+                            <th>
+                                <form action="{% url 'HomeView' %}" method="GET">
+                                    <select name="department" id="department" class="form-select" onchange="this.form.submit()">
+                                        {% for department in departments %}
+                                            <option value="{{ department }}" {% if request.GET.department == department %}selected{% endif %}>
+                                                {{ department }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

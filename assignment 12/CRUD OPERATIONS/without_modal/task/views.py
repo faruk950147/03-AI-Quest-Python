@@ -5,9 +5,14 @@ from task.models import Task
 
 class HomeView(View):
     def get(self, request):
-        tasks = Task.objects.all()
+        departments = Task.objects.values_list('department', flat=True).distinct()
+        department = request.GET.get('department')
+        if department:
+            tasks = Task.objects.filter(department=department)
+        else:
+            tasks = Task.objects.all()
         form = TaskForm()
-        return render(request, 'home.html', {'tasks': tasks, 'form': form})
+        return render(request, 'home.html', {'tasks': tasks, 'form': form, 'departments': departments})
     def post(self, request):
         form = TaskForm(request.POST)
         if form.is_valid():
