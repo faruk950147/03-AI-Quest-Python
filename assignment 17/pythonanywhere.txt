@@ -228,4 +228,27 @@ Added CKEditor for rich-text content management and Django Unfold for an enhance
 Implemented CORS handling and environment variable management using python-dotenv.
 Configured production-related tools including WhiteNoise for static files.
 
+DB_ENGINE=django.db.backends.mysql
+DB_NAME=faruk950147$dbms
+DB_USER=faruk950147
+DB_PASSWORD=iloved950147
+DB_HOST=faruk950147.mysql.pythonanywhere-services.com
+DB_PORT=3306
+
+# Django secret key
+SECRET_KEY=django-insecure-*9_(^diffqh45ol_^c5)x6ssscvngn3927%(r7=dkkith@7snxa)
+
+# Debug mode
+DEBUG=True
+ALLOWED_HOSTS=faruk950147.pythonanywhere.com
+BASE_URL=faruk950147.pythonanywhere.com
+
+# ================= EMAIL =================
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_USE_TLS=True
+EMAIL_HOST=smtp.gmail.com
+EMAIL_HOST_USER=md.omarfaruk950147@gmail.com
+EMAIL_HOST_PASSWORD=lqsd vtui jcxf mfqm
+EMAIL_PORT=587
+
 
