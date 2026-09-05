@@ -1,0 +1,261 @@
+PostgreSQL-এর সব কমান্ড এক উত্তরে সম্পূর্ণ দেওয়া বাস্তবে সম্ভব নয়, কারণ PostgreSQL-এ শত শত SQL, psql, system catalog এবং administrative command রয়েছে। তবে একজন Developer হিসেবে আপনার জন্য সবচেয়ে গুরুত্বপূর্ণ PostgreSQL Commands গুলো বিভাগ অনুযায়ী দিলাম।
+
+1. Database Commands
+-- Database তৈরি
+CREATE DATABASE mydb;
+
+-- Database মুছে ফেলা
+DROP DATABASE mydb;
+
+-- Database Rename
+ALTER DATABASE mydb RENAME TO newdb;
+
+-- সব Database দেখুন
+\l
+
+-- Database Connect
+\c mydb
+2. Table Commands
+-- Table তৈরি
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100)
+);
+
+-- Table দেখুন
+\d users
+
+-- সব Table দেখুন
+\dt
+
+-- Table Rename
+ALTER TABLE users RENAME TO customers;
+
+-- Table Delete
+DROP TABLE users;
+
+-- Table Empty
+TRUNCATE TABLE users;
+3. Column Commands
+-- Column Add
+ALTER TABLE users
+ADD age INT;
+
+-- Column Rename
+ALTER TABLE users
+RENAME COLUMN age TO user_age;
+
+-- Column Type Change
+ALTER TABLE users
+ALTER COLUMN user_age TYPE BIGINT;
+
+-- Default Value
+ALTER TABLE users
+ALTER COLUMN user_age SET DEFAULT 18;
+
+-- Remove Default
+ALTER TABLE users
+ALTER COLUMN user_age DROP DEFAULT;
+
+-- Column Delete
+ALTER TABLE users
+DROP COLUMN user_age;
+4. Insert Commands
+INSERT INTO users(name, email)
+VALUES ('Faruk', 'faruk@gmail.com');
+
+INSERT INTO users(name, email)
+VALUES
+('A', 'a@gmail.com'),
+('B', 'b@gmail.com');
+5. Select Commands
+SELECT * FROM users;
+
+SELECT name FROM users;
+
+SELECT * FROM users
+WHERE id = 1;
+
+SELECT * FROM users
+ORDER BY id DESC;
+
+SELECT * FROM users
+LIMIT 5;
+
+SELECT DISTINCT name
+FROM users;
+6. Update Commands
+UPDATE users
+SET name='Ahmed'
+WHERE id=1;
+7. Delete Commands
+DELETE FROM users
+WHERE id=1;
+
+DELETE FROM users;
+8. Conditions
+SELECT * FROM users
+WHERE age > 18;
+
+SELECT * FROM users
+WHERE age BETWEEN 18 AND 30;
+
+SELECT * FROM users
+WHERE age IN (18,20,25);
+
+SELECT * FROM users
+WHERE name LIKE 'F%';
+
+SELECT * FROM users
+WHERE email IS NULL;
+9. Aggregate Functions
+SELECT COUNT(*) FROM users;
+
+SELECT SUM(age) FROM users;
+
+SELECT AVG(age) FROM users;
+
+SELECT MAX(age) FROM users;
+
+SELECT MIN(age) FROM users;
+10. Group By
+SELECT age, COUNT(*)
+FROM users
+GROUP BY age;
+
+SELECT age, COUNT(*)
+FROM users
+GROUP BY age
+HAVING COUNT(*) > 1;
+11. Join Commands
+INNER JOIN
+LEFT JOIN
+RIGHT JOIN
+FULL JOIN
+CROSS JOIN
+SELF JOIN
+
+Example:
+
+SELECT users.name, orders.total
+FROM users
+INNER JOIN orders
+ON users.id = orders.user_id;
+12. Index Commands
+CREATE INDEX idx_name
+ON users(name);
+
+DROP INDEX idx_name;
+13. View Commands
+CREATE VIEW user_view AS
+SELECT * FROM users;
+
+SELECT * FROM user_view;
+
+DROP VIEW user_view;
+14. Sequence Commands
+CREATE SEQUENCE user_seq;
+
+SELECT nextval('user_seq');
+
+DROP SEQUENCE user_seq;
+15. Constraints
+PRIMARY KEY
+FOREIGN KEY
+UNIQUE
+NOT NULL
+CHECK
+DEFAULT
+
+Example:
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE,
+    age INT CHECK(age >= 18)
+);
+16. Transaction Commands
+BEGIN;
+
+UPDATE users
+SET age = 20
+WHERE id = 1;
+
+COMMIT;
+
+Rollback:
+
+BEGIN;
+
+UPDATE users
+SET age = 50;
+
+ROLLBACK;
+17. User & Role Commands
+CREATE ROLE admin;
+
+CREATE USER faruk
+WITH PASSWORD '123456';
+
+GRANT ALL PRIVILEGES
+ON DATABASE mydb
+TO faruk;
+
+REVOKE ALL PRIVILEGES
+ON DATABASE mydb
+FROM faruk;
+
+DROP USER faruk;
+18. Schema Commands
+CREATE SCHEMA shop;
+
+DROP SCHEMA shop;
+
+DROP SCHEMA shop CASCADE;
+19. PostgreSQL psql Commands
+\l      -- Databases
+\c      -- Connect Database
+\dt     -- Tables
+\d      -- Table Structure
+\du     -- Users/Roles
+\dn     -- Schemas
+\df     -- Functions
+\dv     -- Views
+\q      -- Exit
+\?      -- Help
+20. Useful PostgreSQL Data Types
+INTEGER
+BIGINT
+SERIAL
+BIGSERIAL
+VARCHAR(n)
+TEXT
+BOOLEAN
+DATE
+TIME
+TIMESTAMP
+JSON
+JSONB
+UUID
+BYTEA
+PostgreSQL শেখার জন্য সবচেয়ে গুরুত্বপূর্ণ CRUD
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100)
+);
+
+INSERT INTO users(name,email)
+VALUES('Faruk','faruk@gmail.com');
+
+SELECT * FROM users;
+
+UPDATE users
+SET name='Ahmed'
+WHERE id=1;
+
+DELETE FROM users
+WHERE id=1;
+
+এগুলো PostgreSQL-এর দৈনন্দিন ব্যবহারের প্রায় 90% কাজ কভার করে। Django Developer হিসেবে এগুলো ভালোভাবে শিখে নিলে PostgreSQL নিয়ে বেশিরভাগ কাজ করতে পারবেন।
