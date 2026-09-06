@@ -1,0 +1,214 @@
+DBMS IMPORTANT TERMS
+====================
+
+1. INCONSISTENCY
+----------------
+Description:
+যখন একই data database-এর বিভিন্ন জায়গায় ভিন্ন ভিন্ন value হিসেবে থাকে, তখন তাকে Inconsistency বলে।
+
+Example:
+এক table-এ Faruk-এর age = 25
+অন্য table-এ Faruk-এর age = 26
+
+এটি একটি data inconsistency।
+
+
+2. REDUNDANCY
+-------------
+Description:
+একই data প্রয়োজনের চেয়ে বেশি বার database-এ সংরক্ষণ করাকে Redundancy বলে।
+
+Example:
+একজন customer's address তার 10টি order-এর সাথে 10 বার রাখা।
+
+Problem:
+- Storage বেশি লাগে
+- Update করতে সমস্যা হয়
+- Inconsistency তৈরি হতে পারে
+
+
+3. DUPLICATION
+--------------
+Description:
+একই data একাধিক জায়গায় বা record-এ থাকা-কে Duplication বলে।
+
+Example:
+একই customer's phone number একাধিক record-এ একইভাবে রাখা।
+
+Note:
+Duplication-এর কারণে Data Redundancy হতে পারে।
+
+
+4. ANOMALY
+----------
+Description:
+Database-এ data INSERT, UPDATE অথবা DELETE করার সময় যে ধরনের unwanted problem তৈরি হয় তাকে Anomaly বলে।
+
+Types:
+1. Insertion Anomaly
+2. Update Anomaly
+3. Deletion Anomaly
+
+
+5. INSERTION ANOMALY
+--------------------
+Description:
+নতুন data insert করতে গিয়ে অপ্রয়োজনীয় অন্য data দিতে বাধ্য হওয়া অথবা প্রয়োজনীয় data insert করতে না পারাকে Insertion Anomaly বলে।
+
+Example:
+Student এবং Course একই table-এ থাকলে নতুন course add করতে student information প্রয়োজন হতে পারে।
+
+
+6. UPDATE ANOMALY
+-----------------
+Description:
+একই data database-এর একাধিক জায়গায় থাকলে একটি জায়গায় update করার পর অন্য জায়গায় update করতে ভুলে গেলে যে problem হয় তাকে Update Anomaly বলে।
+
+Example:
+একজন teacher-এর department 5টি record-এ আছে।
+Department পরিবর্তন করার সময় 4টি record update করা হলো, 1টি update করা হলো না।
+
+Result:
+Database-এ inconsistent information তৈরি হবে।
+
+
+7. DELETION ANOMALY
+-------------------
+Description:
+কোনো একটি data delete করার সময় ভুলভাবে অন্য প্রয়োজনীয় data-ও delete হয়ে যাওয়াকে Deletion Anomaly বলে।
+
+Example:
+একজন course-এর একমাত্র student record delete করলে course-এর information-ও হারিয়ে যেতে পারে।
+
+
+8. CONSISTENCY
+--------------
+Description:
+Database-এর সব জায়গায় data logically correct এবং একই অবস্থায় থাকাকে Consistency বলে।
+
+Example:
+একজন customer's address সব relevant জায়গায় একই হলে database consistent।
+
+
+9. INTEGRITY
+------------
+Description:
+Database-এর data যেন accurate, valid, reliable এবং properly maintained থাকে—এটি নিশ্চিত করাকে Data Integrity বলে।
+
+Example:
+Age field-এ negative value (-5) allow না করা data integrity-এর একটি example।
+
+
+10. ACCURACY
+------------
+Description:
+Database-এর data বাস্তব বা সঠিক তথ্যের সাথে মিলে গেলে তাকে Accuracy বলে।
+
+Example:
+Customer-এর actual age 25 এবং database-এও age = 25 থাকলে data accurate।
+
+
+11. COMPLETENESS
+---------------
+Description:
+Database-এ প্রয়োজনীয় সব information উপস্থিত থাকাকে Completeness বলে।
+
+Example:
+Customer-এর name, phone এবং address প্রয়োজন হলে তিনটিই database-এ থাকা উচিত।
+
+
+12. AMBIGUITY
+-------------
+Description:
+কোনো data বা statement-এর একাধিক possible meaning থাকলে তাকে Ambiguity বলে।
+
+Example:
+"Java" বলতে Programming Language অথবা Indonesian island—দুটিই বোঝাতে পারে।
+
+
+13. DEPENDENCY
+--------------
+Description:
+একটি attribute-এর value অন্য একটি attribute-এর value-এর ওপর নির্ভর করলে তাকে Dependency বলে।
+
+Example:
+Student_ID থেকে Student_Name নির্ধারণ করা যায়।
+
+Student_ID → Student_Name
+
+
+14. DATA REDUNDANCY
+-------------------
+Description:
+একই information database-এ বারবার সংরক্ষিত হলে তাকে Data Redundancy বলে।
+
+Problem:
+- Storage waste
+- Update problem
+- Inconsistency
+- Maintenance difficulty
+
+
+15. DATA INTEGRITY
+------------------
+Description:
+Data যেন valid, accurate, consistent এবং unauthorized বা incorrect modification থেকে protected থাকে—এটি Data Integrity-এর উদ্দেশ্য।
+
+
+16. NORMALIZATION
+-----------------
+Description:
+Database-এর redundancy এবং anomalies কমানোর জন্য একটি বড় table-কে logically organized একাধিক table-এ ভাগ করার process-কে Normalization বলে।
+
+Main Goals:
+- Redundancy কমানো
+- Inconsistency কমানো
+- Anomaly কমানো
+- Data integrity improve করা
+
+
+17. DENORMALIZATION
+-------------------
+Description:
+Performance improve করার উদ্দেশ্যে database-এ ইচ্ছাকৃতভাবে কিছু redundant data রাখা বা কিছু table combine করার process-কে Denormalization বলে।
+
+Purpose:
+- Faster data retrieval
+- Better read performance
+
+
+QUICK REVISION
+==============
+
+Redundancy
+→ একই data বারবার থাকা।
+
+Inconsistency
+→ একই data, কিন্তু value আলাদা।
+
+Duplication
+→ একই data একাধিক জায়গায় থাকা।
+
+Anomaly
+→ Database operation-এর সময় তৈরি হওয়া সমস্যা।
+
+Insertion Anomaly
+→ Data insert করতে সমস্যা।
+
+Update Anomaly
+→ Data update করতে সমস্যা।
+
+Deletion Anomaly
+→ Data delete করতে গিয়ে প্রয়োজনীয় data হারানো।
+
+Consistency
+→ সব জায়গায় data logically একই ও correct থাকা।
+
+Integrity
+→ Data valid, accurate ও reliable রাখা।
+
+Normalization
+→ Redundancy ও Anomaly কমানোর process।
+
+Denormalization
+→ Performance-এর জন্য কিছু redundancy ইচ্ছাকৃতভাবে রাখা।
