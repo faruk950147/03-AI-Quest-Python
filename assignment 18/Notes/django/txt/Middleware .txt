@@ -1,82 +1,224 @@
-Django-তে Middleware কী?
+# Django Middleware — Complete Beginner to Advanced Notes
 
-Django-তে Middleware হলো এমন কিছু Python class বা function যা request এবং response এর মাঝখানে কাজ করে। অর্থাৎ, যখন user browser থেকে request পাঠায় এবং server response পাঠায়—এই দুইটার মাঝখানে middleware processing করতে পারে।
+---
 
-সহজভাবে বললে:
+# 1. Django Middleware কী?
 
-Browser Request → Middleware → View → Middleware → Response → Browser
+**Middleware** হলো Django-এর request/response processing-এর একটি layer, যা request view-এ পৌঁছানোর আগে এবং response client-এর কাছে যাওয়ার আগে processing করতে পারে।
 
-Middleware দিয়ে আপনি request বা response modify, check বা control করতে পারেন।
+সহজভাবে:
 
-Middleware কোথায় থাকে
+```text
+Browser
+   ↓
+Request
+   ↓
+Middleware
+   ↓
+URL Resolver
+   ↓
+View
+   ↓
+Middleware
+   ↓
+Response
+   ↓
+Browser
+```
 
-Django project-এ middleware গুলো থাকে settings.py ফাইলে।
+Middleware দিয়ে application-wide কাজ করা যায়, যেমন:
 
+```text
+Authentication
+Logging
+Security
+Request tracking
+Rate limiting
+Custom headers
+Maintenance mode
+Multi-tenancy
+```
+
+---
+
+# 2. Middleware কোথায় Configure করা হয়?
+
+Django project-এর:
+
+```text
+settings.py
+```
+
+ফাইলে `MIDDLEWARE` list-এর মধ্যে middleware configure করা হয়।
+
+Example:
+
+```python
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
 ]
+```
 
 এগুলো Django-এর built-in middleware।
 
-কিছু গুরুত্বপূর্ণ Built-in Middleware
-1️⃣ SecurityMiddleware
+---
 
-Security related কাজ করে।
+# 3. Middleware কেন ব্যবহার করা হয়?
 
-উদাহরণ:
+Middleware সাধারণত এমন কাজের জন্য ব্যবহার করা হয় যা **অনেকগুলো বা প্রায় সব request-এর ক্ষেত্রে apply করতে হবে**।
 
-HTTPS redirect
+Common use cases:
 
-Security headers
+```text
+Request Logging
+Authentication
+Security
+CSRF Protection
+Session Handling
+IP Filtering
+Rate Limiting
+Request Timing
+Custom Headers
+Maintenance Mode
+Multi-Tenant Detection
+Request/Response Modification
+```
 
-django.middleware.security.SecurityMiddleware
-2️⃣ SessionMiddleware
+---
 
-User session handle করে।
+# 4. Important Built-in Middleware
 
-django.contrib.sessions.middleware.SessionMiddleware
+## 4.1 SecurityMiddleware
 
-এটা দিয়ে:
+```python
+"django.middleware.security.SecurityMiddleware"
+```
 
-request.session['name'] = 'Faruk'
+Django-এর বিভিন্ন security-related behavior handle করতে সাহায্য করে।
 
-এই ধরনের data রাখা যায়।
+Configuration অনুযায়ী এটি যেমন security-related HTTP behavior এবং HTTPS-related redirects handle করতে পারে।
 
-3️⃣ CsrfViewMiddleware
+---
 
-CSRF attack থেকে protection দেয়।
+# 5. SessionMiddleware
 
-django.middleware.csrf.CsrfViewMiddleware
+```python
+"django.contrib.sessions.middleware.SessionMiddleware"
+```
 
-Form এ ব্যবহার হয়:
+Session support-এর জন্য ব্যবহৃত হয়।
 
-{% csrf_token %}
-4️⃣ AuthenticationMiddleware
+Example:
 
-Logged-in user কে access করার জন্য।
+```python
+request.session["name"] = "Faruk"
+```
 
-django.contrib.auth.middleware.AuthenticationMiddleware
+পরে:
 
-View এ:
+```python
+name = request.session.get("name")
+```
 
+ব্যবহার করা যায়।
+
+---
+
+# 6. CsrfViewMiddleware
+
+```python
+"django.middleware.csrf.CsrfViewMiddleware"
+```
+
+CSRF protection-এর জন্য ব্যবহৃত হয়।
+
+Django form-এ সাধারণত:
+
+```html
+<form method="post">
+    {% csrf_token %}
+
+    ...
+</form>
+```
+
+ব্যবহার করা হয়।
+
+---
+
+# 7. AuthenticationMiddleware
+
+```python
+"django.contrib.auth.middleware.AuthenticationMiddleware"
+```
+
+Request-এর সঙ্গে authenticated user information available করতে সাহায্য করে।
+
+View-এ:
+
+```python
 request.user
-5️⃣ MessageMiddleware
+```
 
-Django messages system handle করে।
+ব্যবহার করা যায়।
 
-django.contrib.messages.middleware.MessageMiddleware
-Custom Middleware কিভাবে তৈরি করবেন
+Example:
 
-ধরুন আপনি সব request print করতে চান।
+```python
+if request.user.is_authenticated:
+    print(request.user)
+```
 
-Step 1: middleware file
-app/
-   middleware.py
+---
+
+# 8. MessageMiddleware
+
+```python
+"django.contrib.messages.middleware.MessageMiddleware"
+```
+
+Django messages framework-এর জন্য ব্যবহৃত হয়।
+
+Example:
+
+```python
+from django.contrib import messages
+
+messages.success(
+    request,
+    "Profile updated successfully."
+)
+```
+
+---
+
+# 9. Custom Middleware তৈরি করা
+
+ধরি, আমরা প্রতিটি request-এর সময় একটি message print করতে চাই।
+
+Project structure:
+
+```text
+project/
+│
+├── manage.py
+│
+├── myproject/
+│   └── settings.py
+│
+└── myapp/
+    ├── middleware.py
+    └── views.py
+```
+
+`middleware.py`:
+
+```python
 class MyMiddleware:
 
     def __init__(self, get_response):
@@ -91,202 +233,459 @@ class MyMiddleware:
         print("Response sent")
 
         return response
-Step 2: settings.py এ add করা
-MIDDLEWARE = [
-    'app.middleware.MyMiddleware',
-]
-Middleware Workflow
-Request → Middleware1 → Middleware2 → View
-View → Middleware2 → Middleware1 → Response
+```
 
-অর্থাৎ:
+---
 
-Request সময় উপর থেকে নিচে
+# 10. Middleware `__init__()`
 
-Response সময় নিচ থেকে উপরে
+```python
+def __init__(self, get_response):
+    self.get_response = get_response
+```
 
-Middleware কোথায় ব্যবহার করা হয়
+`__init__()` middleware instance তৈরি হওয়ার সময় call হয়।
 
-Middleware সাধারণত ব্যবহার হয়:
+এখানে সাধারণত:
 
-✔ Authentication check
-✔ Request logging
-✔ IP blocking
-✔ Rate limiting
-✔ API key verification
-✔ Custom headers add করা
+```text
+Configuration
+Initialization
+Middleware setup
+```
 
-Example: IP Block Middleware
-class BlockIPMiddleware:
+জাতীয় কাজ করা যায়।
 
-    def __init__(self, get_response):
-        self.get_response = get_response
+Important:
 
-    def __call__(self, request):
+> `__init__()` সাধারণত প্রতিটি request-এর জন্য call হয় না। Middleware instance তৈরি হওয়ার সময় initialize করা হয়।
 
-        ip = request.META.get('REMOTE_ADDR')
+---
 
-        if ip == '192.168.1.10':
-            from django.http import HttpResponse
-            return HttpResponse("Access Denied")
+# 11. Middleware `__call__()`
 
-        response = self.get_response(request)
+`__call__()` হলো custom middleware-এর সবচেয়ে গুরুত্বপূর্ণ method।
 
-        return response
-Middleware vs View
-Middleware	View
-Request/Response level	Business logic
-Global	Specific URL
-Before & After processing	Main processing
+```python
+def __call__(self, request):
 
-✅ আপনি চাইলে আমি আরো advanced বিষয় দেখাতে পারি:
+    print("Before view")
 
-process_view middleware
+    response = self.get_response(request)
 
-process_exception
+    print("After view")
 
-process_template_response
+    return response
+```
 
-JWT authentication middleware
+এখানে:
 
-API logging middleware
+```python
+self.get_response(request)
+```
 
-যা professional Django developer দের খুব দরকার হয়।
+পরবর্তী middleware বা শেষ পর্যন্ত view-এর দিকে request পাঠায়।
 
+তারপর response ফিরে আসে।
 
-আপনি Django Middleware সম্পর্কে আরও advanced বিষয় জানতে চেয়েছেন। নিচে গুরুত্বপূর্ণ middleware hooks গুলো সহজভাবে বুঝানো হলো।
+---
 
-Django Middleware Advanced Concepts
-1️⃣ process_view()
+# 12. Middleware Onion Model
 
-এই method view execute হওয়ার আগে run হয়।
+Django middleware-কে **onion-like layer** হিসেবে ভাবা যায়।
 
-এটা দিয়ে আপনি view call হওয়ার আগে কিছু check করতে পারেন।
+ধরি:
 
-Example
-class MyMiddleware:
+```text
+Middleware 1
+Middleware 2
+Middleware 3
+View
+```
 
-    def __init__(self, get_response):
-        self.get_response = get_response
+Request-এর সময়:
 
-    def __call__(self, request):
-        response = self.get_response(request)
-        return response
-
-    def process_view(self, request, view_func, view_args, view_kwargs):
-        print("View will run now:", view_func.__name__)
-Parameters
-Parameter	কাজ
-request	current request
-view_func	কোন view call হবে
-view_args	view arguments
-view_kwargs	view keyword arguments
-2️⃣ process_exception()
-
-যখন view এ error / exception হয় তখন এই middleware run হয়।
-
-Example
-class ExceptionMiddleware:
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-
-        response = self.get_response(request)
-
-        return response
-
-    def process_exception(self, request, exception):
-
-        print("Error happened:", exception)
-
-এটা দিয়ে আপনি:
-
-error logging
-
-custom error page
-
-monitoring
-
-করতে পারবেন।
-
-3️⃣ process_template_response()
-
-যখন view TemplateResponse return করে তখন এই method run হয়।
-
-Example
-class TemplateMiddleware:
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-
-        response = self.get_response(request)
-
-        return response
-
-    def process_template_response(self, request, response):
-
-        response.context_data['site_name'] = "My Website"
-
-        return response
-
-এভাবে সব template এ variable inject করা যায়।
-
-Middleware Execution Flow
-
-Django middleware onion layer এর মতো কাজ করে।
-
+```text
 Request
    ↓
 Middleware 1
    ↓
 Middleware 2
    ↓
+Middleware 3
+   ↓
+View
+```
+
+Response ফেরার সময়:
+
+```text
+View
+   ↓
+Middleware 3
+   ↓
+Middleware 2
+   ↓
+Middleware 1
+   ↓
+Response
+```
+
+অর্থাৎ outer middleware-এর code view-এর আগে এবং পরে দুই phase-এই কাজ করতে পারে।
+
+---
+
+# 13. Middleware Execution Order
+
+`settings.py`-এর:
+
+```python
+MIDDLEWARE = [
+    ...
+]
+```
+
+list-এর order গুরুত্বপূর্ণ।
+
+সাধারণভাবে request phase-এ middleware উপর থেকে নিচের দিকে প্রবেশ করে।
+
+Response phase-এ middleware layer উল্টো দিকে ফিরে আসে।
+
+```text
+Request
+   ↓
+M1
+   ↓
+M2
+   ↓
+M3
+   ↓
 View
    ↑
-Middleware 2
+M3
    ↑
-Middleware 1
+M2
+   ↑
+M1
    ↑
 Response
-Real Life Middleware Examples
-1️⃣ Request Logger Middleware
-class RequestLogMiddleware:
+```
+
+---
+
+# 14. Middleware Short-Circuit
+
+Middleware চাইলে request-কে view পর্যন্ত যেতে না দিয়ে সরাসরি response return করতে পারে।
+
+Example:
+
+```python
+from django.http import HttpResponse
+
+
+class MaintenanceMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
 
-        print("Path:", request.path)
-        print("Method:", request.method)
+        maintenance = True
 
-        response = self.get_response(request)
+        if maintenance:
+            return HttpResponse(
+                "Site under maintenance"
+            )
+
+        return self.get_response(request)
+```
+
+Flow:
+
+```text
+Request
+   ↓
+Middleware
+   ↓
+Maintenance?
+   │
+   ├── Yes → Response
+   │
+   └── No
+        ↓
+      View
+```
+
+এক্ষেত্রে view execute হবে না।
+
+---
+
+# 15. Middleware Hooks
+
+Django middleware-এ প্রধানভাবে দুই ধরনের বিষয় বুঝতে হবে:
+
+### Modern middleware style
+
+```text
+__init__()
+__call__()
+```
+
+### Optional middleware hooks / `MiddlewareMixin`
+
+```text
+process_view()
+process_exception()
+process_template_response()
+```
+
+`process_request()` এবং `process_response()`-এর মতো old-style hook support করতে সাধারণত `MiddlewareMixin` ব্যবহার করা হয়।
+
+---
+
+# 16. `process_view()`
+
+`process_view()` view execute হওয়ার আগে call হয়।
+
+এটি সাধারণত `MiddlewareMixin`-এর মাধ্যমে ব্যবহৃত হয়।
+
+Example:
+
+```python
+from django.utils.deprecation import MiddlewareMixin
+
+
+class ViewMiddleware(MiddlewareMixin):
+
+    def process_view(
+        self,
+        request,
+        view_func,
+        view_args,
+        view_kwargs,
+    ):
+        print(
+            "View:",
+            view_func.__name__,
+        )
+```
+
+Parameters:
+
+| Parameter     | Meaning              |
+| ------------- | -------------------- |
+| `request`     | Current request      |
+| `view_func`   | যে view call হবে     |
+| `view_args`   | Positional arguments |
+| `view_kwargs` | Keyword arguments    |
+
+---
+
+# 17. `process_view()` কখন ব্যবহার করবেন?
+
+Common examples:
+
+```text
+Permission checks
+Request logging
+View-specific checks
+Custom access control
+```
+
+তবে authentication-এর মতো functionality-এর জন্য Django-এর existing authentication system ব্যবহার করা সাধারণত বেশি appropriate।
+
+---
+
+# 18. `process_exception()`
+
+View বা downstream processing-এর সময় exception হলে এই hook ব্যবহার করা যায়।
+
+Example:
+
+```python
+from django.utils.deprecation import MiddlewareMixin
+
+
+class ExceptionMiddleware(MiddlewareMixin):
+
+    def process_exception(
+        self,
+        request,
+        exception,
+    ):
+        print(
+            "Exception:",
+            exception,
+        )
+```
+
+ব্যবহার:
+
+```text
+Error logging
+Monitoring
+Custom exception handling
+```
+
+---
+
+# 19. `process_template_response()`
+
+যখন view একটি `TemplateResponse` return করে, তখন এই hook ব্যবহার করা যায়।
+
+Example:
+
+```python
+from django.utils.deprecation import MiddlewareMixin
+
+
+class TemplateMiddleware(MiddlewareMixin):
+
+    def process_template_response(
+        self,
+        request,
+        response,
+    ):
+        response.context_data["site_name"] = (
+            "My Website"
+        )
 
         return response
-2️⃣ Login Required Middleware
+```
 
-সব page login ছাড়া access করতে পারবে না।
+### Important
 
-from django.shortcuts import redirect
+এটি **সব ধরনের response-এর ক্ষেত্রে run করে না**।
 
-class LoginRequiredMiddleware:
+এটি specifically `TemplateResponse`-এর মতো response-এর ক্ষেত্রে ব্যবহৃত হয়।
+
+---
+
+# 20. `process_request()` এবং `process_response()`
+
+`MiddlewareMixin` ব্যবহার করলে পুরোনো-style hooks ব্যবহার করা যায়।
+
+Example:
+
+```python
+from django.utils.deprecation import MiddlewareMixin
+
+
+class MyMiddleware(MiddlewareMixin):
+
+    def process_request(self, request):
+        print("Before view")
+
+    def process_response(self, request, response):
+        print("After view")
+
+        return response
+```
+
+তবে নতুন custom middleware লেখার ক্ষেত্রে সাধারণত modern `__call__()` style বোঝা এবং ব্যবহার করা বেশি গুরুত্বপূর্ণ।
+
+---
+
+# 21. Middleware Hooks Summary
+
+| Method                        | Purpose                        |
+| ----------------------------- | ------------------------------ |
+| `__init__()`                  | Middleware initialization      |
+| `__call__()`                  | Main request/response wrapper  |
+| `process_request()`           | Request processing before view |
+| `process_view()`              | View execution-এর আগে          |
+| `process_exception()`         | Exception handling             |
+| `process_template_response()` | `TemplateResponse` processing  |
+| `process_response()`          | Response processing            |
+
+> `process_*` methods-এর behavior middleware implementation/order-এর ওপর নির্ভর করে। `__call__()` modern middleware-এর core mechanism।
+
+---
+
+# 22. Request Logging Middleware
+
+একটি simple logging middleware:
+
+```python
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
+class LoggingMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
 
-        if not request.user.is_authenticated and request.path != "/login/":
-            return redirect("login")
+        logger.info(
+            "%s %s",
+            request.method,
+            request.path,
+        )
 
         response = self.get_response(request)
 
+        logger.info(
+            "Status: %s",
+            response.status_code,
+        )
+
         return response
-3️⃣ Custom Header Middleware
+```
+
+`print()`-এর বদলে production application-এ Python `logging` ব্যবহার করা বেশি appropriate।
+
+---
+
+# 23. Request Time Measurement
+
+Request process হতে কত সময় লাগছে তা measure করতে:
+
+```python
+import time
+
+
+class TimerMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        start = time.perf_counter()
+
+        response = self.get_response(request)
+
+        duration = (
+            time.perf_counter() - start
+        )
+
+        print(
+            f"{request.path}: "
+            f"{duration:.4f}s"
+        )
+
+        return response
+```
+
+ব্যবহার:
+
+```text
+Performance monitoring
+Slow endpoint detection
+Debugging
+```
+
+---
+
+# 24. Custom Response Header
+
+Response-এ custom header যোগ করা যায়।
+
+```python
 class CustomHeaderMiddleware:
 
     def __init__(self, get_response):
@@ -296,133 +695,1159 @@ class CustomHeaderMiddleware:
 
         response = self.get_response(request)
 
-        response["X-Site-Name"] = "Faruk Project"
+        response["X-App-Name"] = (
+            "My Django App"
+        )
 
         return response
-Custom Middleware Project Structure
-project/
-    app/
-        middleware.py
-        views.py
-        models.py
-settings.py এ Middleware Add
-MIDDLEWARE = [
-    'app.middleware.RequestLogMiddleware',
-]
-Django Middleware কবে ব্যবহার করা হয়
-Use Case	Example
-Logging	Request log
-Security	IP blocking
-Authentication	Login check
-API	Token verification
-Performance	Cache
+```
 
-================================= hooks ===========================================
-Django Middleware Hooks
+Response:
 
-Middleware Hooks হলো Django middleware-এর special method যেগুলো request-response lifecycle এর বিভিন্ন stage এ run হয়। এগুলোর মাধ্যমে আপনি request, view execution, exception, এবং response control করতে পারেন।
+```text
+X-App-Name: My Django App
+```
 
-1️⃣ __call__() Hook
+---
 
-এটা middleware-এর main hook। সব request এই method দিয়ে যায়।
+# 25. IP Blocking Middleware
 
-Example
-class MyMiddleware:
+Simple example:
+
+```python
+from django.http import HttpResponse
+
+
+class BlockIPMiddleware:
+
+    BLOCKED_IPS = {
+        "192.168.1.10",
+    }
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
 
-        print("Before View")
+        ip = request.META.get(
+            "REMOTE_ADDR"
+        )
 
-        response = self.get_response(request)
+        if ip in self.BLOCKED_IPS:
+            return HttpResponse(
+                "Access Denied",
+                status=403,
+            )
 
-        print("After View")
+        return self.get_response(request)
+```
 
-        return response
-Workflow
-Request → __call__ → View → __call__ → Response
-2️⃣ process_view()
+### Important
 
-এই hook view execute হওয়ার আগে run হয়।
+Production environment-এ proxy/load balancer-এর কারণে `REMOTE_ADDR` সবসময় actual client IP নাও হতে পারে।
 
-Example
-class ViewMiddleware:
+তাই forwarded IP headers blindly trust করা উচিত নয়।
 
-    def __init__(self, get_response):
-        self.get_response = get_response
+---
 
-    def __call__(self, request):
-        response = self.get_response(request)
-        return response
+# 26. Authentication / Login Check Middleware
 
-    def process_view(self, request, view_func, view_args, view_kwargs):
+একটি simple example:
 
-        print("View name:", view_func.__name__)
-Parameters
-Parameter	Description
-request	Current request
-view_func	কোন view run হবে
-view_args	View arguments
-view_kwargs	View keyword arguments
-3️⃣ process_exception()
+```python
+from django.shortcuts import redirect
 
-যখন view এর মধ্যে exception হয়, তখন এই hook run হয়।
 
-Example
-class ExceptionMiddleware:
+class LoginRequiredMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
 
-    def process_exception(self, request, exception):
+        public_paths = {
+            "/login/",
+            "/register/",
+        }
 
-        print("Exception:", exception)
+        if (
+            not request.user.is_authenticated
+            and request.path not in public_paths
+        ):
+            return redirect("login")
 
-এটা দিয়ে আপনি error log বা custom error response দিতে পারেন।
+        return self.get_response(request)
+```
 
-4️⃣ process_template_response()
+### Important
 
-যখন view TemplateResponse return করে, তখন এই hook run হয়।
+Real project-এ Django-এর built-in authentication tools এবং `login_required` / `LoginRequiredMixin` অনেক ক্ষেত্রে বেশি appropriate।
 
-Example
-class TemplateMiddleware:
+Global middleware দিয়ে login protection করলে admin, login, static/media, API এবং public pages-এর মতো exception carefully handle করতে হয়।
+
+---
+
+# 27. API Authentication Middleware
+
+Middleware দিয়ে token/API-key check করা technically সম্ভব।
+
+Example:
+
+```python
+from django.http import JsonResponse
+
+
+class APIKeyMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
 
-    def process_template_response(self, request, response):
+        api_key = request.headers.get(
+            "X-API-Key"
+        )
 
-        response.context_data["site_name"] = "My Website"
+        if request.path.startswith("/api/"):
 
-        return response
+            if api_key != "expected-key":
+                return JsonResponse(
+                    {
+                        "error": "Invalid API key"
+                    },
+                    status=401,
+                )
 
-এটা দিয়ে সব template-এ extra context add করা যায়।
+        return self.get_response(request)
+```
 
-Django Middleware Hooks Flow
+### Important
+
+Real application-এ API key hard-code করা উচিত নয়।
+
+Use:
+
+```text
+Environment variables
+Secret management
+Database-backed credentials
+```
+
+যেখানে appropriate।
+
+---
+
+# 28. JWT Authentication Middleware
+
+JWT authentication middleware manually তৈরি করা সম্ভব।
+
+কিন্তু DRF project-এ JWT authentication-এর জন্য সাধারণত established authentication package ব্যবহার করা বেশি appropriate।
+
+Manual implementation-এর conceptual flow:
+
+```text
 Request
-  ↓
-process_view()
-  ↓
+   ↓
+Authorization Header
+   ↓
+Extract Bearer Token
+   ↓
+Verify Signature
+   ↓
+Decode Claims
+   ↓
+Find User
+   ↓
+Attach Authentication Information
+   ↓
 View
-  ↓
-process_exception() (if error)
-  ↓
-process_template_response()
-  ↓
+```
+
+### Important
+
+শুধু:
+
+```python
+jwt.decode(...)
+```
+
+করলেই complete authentication system তৈরি হয় না।
+
+Consider করতে হয়:
+
+```text
+Signature verification
+Expiration
+Issuer
+Audience
+Token type
+Error handling
+User lookup
+Authorization
+Token revocation strategy
+```
+
+---
+
+# 29. Rate Limiting Middleware
+
+Rate limiting-এর উদ্দেশ্য হলো নির্দিষ্ট client/user/IP-এর request frequency সীমাবদ্ধ করা।
+
+Concept:
+
+```text
+Client
+   ↓
+Request
+   ↓
+Rate Limiter
+   │
+   ├── Within limit → View
+   │
+   └── Exceeded → 429
+```
+
+Example response:
+
+```python
+from django.http import JsonResponse
+
+
+return JsonResponse(
+    {
+        "error": "Too many requests"
+    },
+    status=429,
+)
+```
+
+### Important
+
+এই ধরনের implementation:
+
+```python
+requests = {}
+```
+
+বা:
+
+```python
+last_request = {}
+```
+
+production-ready rate limiter নয়।
+
+কারণ:
+
+```text
+Multiple workers
+Multiple servers
+Process restart
+Memory usage
+Race conditions
+Expiration
+Distributed state
+```
+
+সমস্যা হতে পারে।
+
+Production-এ Redis-based rate limiting বা established framework/library ব্যবহার করা বেশি appropriate।
+
+---
+
+# 30. Maintenance Mode Middleware
+
+Simple example:
+
+```python
+from django.http import HttpResponse
+
+
+class MaintenanceMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        maintenance = True
+
+        if maintenance:
+            return HttpResponse(
+                "Site under maintenance",
+                status=503,
+            )
+
+        return self.get_response(request)
+```
+
+HTTP `503 Service Unavailable` maintenance mode-এর জন্য বেশি appropriate।
+
+---
+
+# 31. Multi-Tenant Middleware
+
+SaaS application-এ subdomain দেখে tenant identify করা যেতে পারে।
+
+Example:
+
+```text
+company1.example.com
+company2.example.com
+```
+
+Middleware:
+
+```python
+class TenantMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        host = request.get_host()
+
+        request.tenant_host = host
+
+        return self.get_response(request)
+```
+
+Real multi-tenant application-এ শুধু string assign করলেই tenant isolation তৈরি হয় না।
+
+Consider করতে হয়:
+
+```text
+Tenant lookup
+Database isolation
+Authorization
+Data filtering
+Caching
+Subdomain validation
+Security
+```
+
+---
+
+# 32. Middleware vs Decorator vs Signals
+
+| Feature    | Middleware                 | Decorator              | Signal                   |
+| ---------- | -------------------------- | ---------------------- | ------------------------ |
+| Scope      | Global/request-level       | Specific view/function | Event-based              |
+| Trigger    | Request/response lifecycle | Function/view call     | Specific event           |
+| Common use | Logging, security          | View-specific behavior | Model/application events |
+| Example    | Request logging            | `login_required`       | `post_save`              |
+
+---
+
+# 33. Middleware Example
+
+সব request-এর জন্য:
+
+```python
+class LogMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print(request.path)
+
+        return self.get_response(request)
+```
+
+---
+
+# 34. Decorator Example
+
+নির্দিষ্ট view-এর জন্য:
+
+```python
+from functools import wraps
+
+
+def my_decorator(view_func):
+
+    @wraps(view_func)
+    def wrapper(
+        request,
+        *args,
+        **kwargs,
+    ):
+        print("Before view")
+
+        return view_func(
+            request,
+            *args,
+            **kwargs,
+        )
+
+    return wrapper
+```
+
+ব্যবহার:
+
+```python
+@my_decorator
+def home(request):
+    ...
+```
+
+---
+
+# 35. Signal Example
+
+Model event-এর সঙ্গে কাজ করার জন্য:
+
+```python
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from .models import Product
+
+
+@receiver(
+    post_save,
+    sender=Product,
+)
+def product_created(
+    sender,
+    instance,
+    created,
+    **kwargs,
+):
+    if created:
+        print(
+            "New product:",
+            instance.name,
+        )
+```
+
+এখানে Product save হলে signal handler execute করতে পারে।
+
+---
+
+# 36. Middleware vs Decorator vs Signal — Easy Rule
+
+মনে রাখুন:
+
+```text
+Middleware
+→ Request/Response level
+
+Decorator
+→ Specific function/view level
+
+Signal
+→ Event level
+```
+
+Example:
+
+```text
+সব request log করতে চাই
+→ Middleware
+
+শুধু checkout view protect করতে চাই
+→ Decorator
+
+Product create হলে কিছু করতে চাই
+→ Signal
+```
+
+---
+
+# 37. Async Middleware
+
+Modern Django asynchronous middleware support করে।
+
+Example:
+
+```python
+class AsyncMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    async def __call__(self, request):
+
+        print("Before view")
+
+        response = await self.get_response(
+            request
+        )
+
+        print("After view")
+
+        return response
+```
+
+এটি async request handling-এর সঙ্গে কাজ করতে পারে।
+
+### Important
+
+Async middleware ব্যবহার করলেই application automatically faster হয়ে যায় না।
+
+Performance benefit নির্ভর করে:
+
+```text
+I/O workload
+Async views
+Database behavior
+External API calls
+Middleware design
+Server configuration
+```
+
+এর ওপর।
+
+---
+
+# 38. Middleware and WebSocket
+
+Django Channels ব্যবহার করলে WebSocket request ASGI/Channels stack-এর মাধ্যমে handle হয়।
+
+Traditional Django middleware এবং Channels-এর WebSocket middleware এক জিনিস নয়।
+
+WebSocket authentication-এর ক্ষেত্রে Channels-এর middleware যেমন:
+
+```python
+AuthMiddlewareStack
+```
+
+ব্যবহার করা যায়।
+
+Architecture:
+
+```text
+Browser
+   ↓
+WebSocket
+   ↓
+ASGI
+   ↓
+Channels Middleware
+   ↓
+Consumer
+```
+
+---
+
+# 39. Production-Level Logging Middleware
+
+Production environment-এ `print()`-এর পরিবর্তে `logging` ব্যবহার করা উচিত।
+
+```python
+import logging
+import time
+
+
+logger = logging.getLogger(__name__)
+
+
+class LoggingMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        start = time.perf_counter()
+
+        response = self.get_response(request)
+
+        duration = (
+            time.perf_counter() - start
+        )
+
+        logger.info(
+            "%s %s %s %.3fs",
+            request.method,
+            request.path,
+            response.status_code,
+            duration,
+        )
+
+        return response
+```
+
+Example log:
+
+```text
+GET /products/ 200 0.320s
+POST /checkout/ 201 0.850s
+```
+
+---
+
+# 40. Middleware দিয়ে Request Tracking
+
+Basic example:
+
+```python
+from django.utils import timezone
+
+
+class RequestTrackingMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print(
+            request.method,
+            request.path,
+            timezone.now(),
+        )
+
+        response = self.get_response(request)
+
+        return response
+```
+
+Production system-এ sensitive information log করার ব্যাপারে সতর্ক থাকতে হবে।
+
+বিশেষ করে:
+
+```text
+Passwords
+Access tokens
+Refresh tokens
+OTP
+Session secrets
+Credit card information
+```
+
+log করা উচিত নয়।
+
+---
+
+# 41. Custom Security Headers
+
+Response-এ security-related headers যোগ করা যায়।
+
+Example:
+
+```python
+class SecurityHeadersMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        response["X-Frame-Options"] = "DENY"
+        response["X-Content-Type-Options"] = "nosniff"
+
+        return response
+```
+
+তবে security headers manually add করার আগে Django-এর built-in security settings এবং existing middleware-এর configuration বোঝা উচিত।
+
+### Important correction
+
+পুরোনো:
+
+```text
+X-XSS-Protection
+```
+
+header-কে modern browser security-এর primary protection হিসেবে ধরা উচিত নয়। Modern applications-এ Content Security Policy (CSP), proper output escaping এবং অন্যান্য security controls বেশি গুরুত্বপূর্ণ।
+
+---
+
+# 42. Complete Middleware Flow
+
+একটি simplified flow:
+
+```text
+Browser
+   │
+   ▼
+Request
+   │
+   ▼
+SecurityMiddleware
+   │
+   ▼
+SessionMiddleware
+   │
+   ▼
+AuthenticationMiddleware
+   │
+   ▼
+Custom Middleware
+   │
+   ▼
+URL Resolution
+   │
+   ▼
+View
+   │
+   ▼
 Response
-Middleware Hooks Summary
-Hook	কখন run হয়
-__call__	Request ও Response সময়
-process_view	View run হওয়ার আগে
-process_exception	View error হলে
-process_template_response	TemplateResponse return হলে
+   │
+   ▼
+Custom Middleware
+   │
+   ▼
+AuthenticationMiddleware
+   │
+   ▼
+SessionMiddleware
+   │
+   ▼
+SecurityMiddleware
+   │
+   ▼
+Browser
+```
+
+Actual execution details can vary depending on middleware, response type, exceptions, and Django configuration.
+
+---
+
+# 43. Middleware Short-Circuit Flow
+
+```text
+Request
+   ↓
+Middleware
+   ↓
+Condition?
+   │
+   ├── Block
+   │    ↓
+   │  Response
+   │
+   └── Allow
+        ↓
+      Next Middleware
+        ↓
+       View
+```
+
+এটি ব্যবহার করা যায়:
+
+```text
+IP blocking
+Maintenance mode
+Authentication checks
+API key checks
+Permission checks
+```
+
+---
+
+# 44. Middleware-এ গুরুত্বপূর্ণ বিষয়
+
+## 1. Order Matters
+
+```python
+MIDDLEWARE = [
+    "middleware_a",
+    "middleware_b",
+]
+```
+
+`middleware_a` outer layer হিসেবে কাজ করে এবং `middleware_b` তার ভিতরের layer হিসেবে কাজ করে।
+
+---
+
+## 2. সব কাজ Middleware-এ করা উচিত নয়
+
+Business logic সাধারণত middleware-এর মধ্যে রাখা উচিত নয়।
+
+Bad example:
+
+```text
+Order calculation
+Payment processing
+Complex business rules
+```
+
+এগুলো সাধারণত service/view/domain layer-এ রাখা ভালো।
+
+Middleware-এর কাজ হওয়া উচিত cross-cutting concerns handle করা।
+
+---
+
+# 45. Middleware-এর ভালো Use Case
+
+```text
+Logging
+Security
+Authentication infrastructure
+Request tracing
+Request timing
+Headers
+Tenant detection
+Rate limiting
+Maintenance mode
+```
+
+---
+
+# 46. Middleware-এর জন্য ভালো Design Principle
+
+Middleware:
+
+```text
+Small
+Focused
+Reusable
+Predictable
+Fast
+```
+
+হওয়া ভালো।
+
+একটি middleware-এর মধ্যে 500 lines business logic রাখা উচিত নয়।
+
+---
+
+# 47. `settings.py` Example
+
+```python
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+
+    "django.contrib.sessions.middleware.SessionMiddleware",
+
+    "django.middleware.common.CommonMiddleware",
+
+    "django.middleware.csrf.CsrfViewMiddleware",
+
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+
+    "django.contrib.messages.middleware.MessageMiddleware",
+
+    "myapp.middleware.LoggingMiddleware",
+
+]
+```
+
+Custom middleware-এর location অনুযায়ী order carefully choose করতে হবে।
+
+---
+
+# 48. Middleware Project Structure
+
+```text
+project/
+│
+├── manage.py
+│
+├── project/
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── myapp/
+    ├── __init__.py
+    ├── middleware.py
+    ├── models.py
+    ├── views.py
+    └── ...
+```
+
+`middleware.py`:
+
+```python
+class LoggingMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        print(request.path)
+
+        return self.get_response(request)
+```
+
+`settings.py`:
+
+```python
+MIDDLEWARE = [
+    # Django middleware...
+
+    "myapp.middleware.LoggingMiddleware",
+]
+```
+
+---
+
+# 49. Interview Questions
+
+## Q1. Django Middleware কী?
+
+**Answer:**
+
+Middleware is a layer in Django's request/response processing system that can process a request before it reaches the view and process the response before it reaches the client.
+
+---
+
+## Q2. Middleware কোথায় configure করা হয়?
+
+```text
+settings.py
+```
+
+এর:
+
+```python
+MIDDLEWARE
+```
+
+list-এ।
+
+---
+
+## Q3. Middleware-এর প্রধান method কী?
+
+Modern middleware-এর core methods:
+
+```python
+__init__()
+__call__()
+```
+
+---
+
+## Q4. `__init__()` কখন execute হয়?
+
+Middleware instance initialize হওয়ার সময়।
+
+---
+
+## Q5. `__call__()` কখন execute হয়?
+
+প্রতিটি request-এর processing-এর সময়।
+
+---
+
+## Q6. `process_view()` কী?
+
+View execute হওয়ার আগে middleware hook হিসেবে কাজ করে।
+
+---
+
+## Q7. `process_exception()` কী?
+
+View/downstream processing-এর সময় exception হলে exception handling hook হিসেবে ব্যবহার করা যায়।
+
+---
+
+## Q8. `process_template_response()` কী?
+
+`TemplateResponse`-এর মতো response return হলে response processing-এর জন্য ব্যবহার করা যায়।
+
+---
+
+## Q9. Middleware কি request block করতে পারে?
+
+হ্যাঁ।
+
+Middleware সরাসরি response return করলে request আর view পর্যন্ত যেতে পারে না।
+
+---
+
+## Q10. Middleware vs Decorator?
+
+```text
+Middleware
+→ Global/request-level
+
+Decorator
+→ Specific view/function
+```
+
+---
+
+## Q11. Middleware vs Signal?
+
+```text
+Middleware
+→ Request/response lifecycle
+
+Signal
+→ Event-driven behavior
+```
+
+---
+
+## Q12. Middleware-এর execution order কেমন?
+
+Request:
+
+```text
+Top → Bottom
+```
+
+Response:
+
+```text
+Bottom → Top
+```
+
+---
+
+# 50. Quick Revision
+
+### Middleware
+
+```text
+Request
+   ↓
+Middleware
+   ↓
+View
+   ↓
+Middleware
+   ↓
+Response
+```
+
+### Main Methods
+
+```text
+__init__()
+__call__()
+```
+
+### Additional/Optional Hooks
+
+```text
+process_request()
+process_view()
+process_exception()
+process_template_response()
+process_response()
+```
+
+`process_*` hooks-এর অনেকগুলো legacy-style middleware support-এর সঙ্গে সম্পর্কিত এবং `MiddlewareMixin`-এর মাধ্যমে ব্যবহার করা হয়।
+
+---
+
+# 51. Real-World Use Cases
+
+| Use Case         | Middleware-এর কাজ                     |
+| ---------------- | ------------------------------------- |
+| Logging          | Request/response log                  |
+| Security         | Security checks/headers               |
+| Authentication   | Request authentication infrastructure |
+| Rate Limiting    | Request frequency control             |
+| Monitoring       | Request timing/tracing                |
+| Maintenance      | Temporarily block requests            |
+| Multi-tenancy    | Tenant identification                 |
+| API Protection   | API key/token checks                  |
+| Custom Headers   | Response headers                      |
+| Request Tracking | Request metadata tracking             |
+
+---
+
+# 52. Final Mental Model
+
+```text
+                    BROWSER
+                       │
+                       ▼
+                    REQUEST
+                       │
+                       ▼
+              ┌─────────────────┐
+              │   Middleware 1  │
+              └─────────────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │   Middleware 2  │
+              └─────────────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │   Middleware 3  │
+              └─────────────────┘
+                       │
+                       ▼
+                     VIEW
+                       │
+                       ▼
+                   RESPONSE
+                       │
+                       ▼
+              Middleware 3
+                       │
+                       ▼
+              Middleware 2
+                       │
+                       ▼
+              Middleware 1
+                       │
+                       ▼
+                    BROWSER
+```
+
+---
+
+# One-Line Definitions
+
+```text
+Middleware
+→ Django request/response lifecycle-এর একটি processing layer।
+
+__init__()
+→ Middleware initialize করে।
+
+__call__()
+→ Request এবং response-এর মূল processing wrapper।
+
+process_view()
+→ View execute হওয়ার আগে hook হিসেবে কাজ করে।
+
+process_exception()
+→ Exception হলে handling/logging-এর জন্য ব্যবহৃত হয়।
+
+process_template_response()
+→ TemplateResponse processing-এর জন্য ব্যবহৃত হয়।
+
+MiddlewareMixin
+→ Legacy-style process_* middleware hooks ব্যবহারের সুবিধা দেয়।
+
+Decorator
+→ নির্দিষ্ট view/function-এর behavior পরিবর্তন করে।
+
+Signal
+→ নির্দিষ্ট event ঘটলে handler execute করে।
+
+ASGI
+→ Async-capable Python web applications ও protocols-এর interface।
+
+Channels
+→ Django-তে WebSocket এবং অন্যান্য asynchronous communication use case handle করার framework।
+
+Redis
+→ Channels-এর জন্য common shared channel-layer backend।
+```
+
+# Final Rule to Remember
+
+```text
+Global Request/Response Concern
+        ↓
+    Middleware
+
+Specific View Concern
+        ↓
+     Decorator
+
+Specific Application Event
+        ↓
+      Signal
+```
