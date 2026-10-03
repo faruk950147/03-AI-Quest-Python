@@ -1,3 +1,4 @@
+
 1️⃣ Django Model Managers & Nodes
 Model Manager কী?
 
@@ -203,7 +204,6 @@ expensive = Product.expensive_items()
 # Product.objects.filter(price__gt=500)
 
 Flow diagram অনুযায়ী: cls → objects → QuerySet → Database → Result
-
 
 
 
