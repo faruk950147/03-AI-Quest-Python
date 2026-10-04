@@ -1,5 +1,3 @@
-এবার একদম পরিষ্কারভাবে, কোনো ইমোজি ছাড়া computer ON থেকে পুরো working flow দেওয়া হলো।
-
 Computer ON থেকে Working Flow
 1. Power ON
 

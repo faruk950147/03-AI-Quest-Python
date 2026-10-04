@@ -1,4 +1,4 @@
-# Django Security — গুরুত্বপূর্ণ বিষয়সমূহ 🔐
+# Django Security — গুরুত্বপূর্ণ বিষয়সমূহ 
 
 Django একটি security-focused web framework। এটি অনেক common web security problem থেকে application-কে রক্ষা করার জন্য built-in security features এবং recommended settings প্রদান করে।
 
