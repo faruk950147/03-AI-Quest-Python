@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+    <div class="container-fluid py-3">
+        {% if questions %}
+         <ul>
+             {% for question in questions %}
+                 <li>
+                     <a href="{% url 'polls:detail' question.id %}">
+                        {{ question.question_text }}
+                     </a>
+                 </li>
+             {% endfor %}
+         </ul>
+        {% else %}
+            <p>No polls are available.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
