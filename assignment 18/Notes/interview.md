@@ -1,1383 +1,619 @@
-# Python & Django Backend Developer Interview Preparation
+# Part 1: Introduction, CV & Projects (1–20)
 
-## Questions 1–100: CV, Introduction & Python Basics
+### 1. Tell me about yourself.
+I am Md. Omar Faruk, a Python Django Backend Developer. I work with Python, Django, Django REST Framework, PostgreSQL, REST APIs, JWT authentication, and Django ORM. I enjoy building secure and efficient backend applications.
 
-# Part 1: CV and Introduction (Questions 1–50)
+### 2. What are your technical skills?
+My technical skills include Python, Django, Django REST Framework, PostgreSQL, SQL, REST APIs, JWT authentication, Git, and database management.
 
-## Q1. Tell me about yourself.
+### 3. Why did you choose Python?
+I chose Python because it has simple syntax, a large ecosystem, and powerful frameworks for web development and automation.
 
-**Answer:**
+### 4. Why do you want to become a backend developer?
+I enjoy working with business logic, databases, APIs, authentication, and server-side application architecture.
 
-I am Md. Omar Faruk, a Python Django Backend Developer. I work with Python, Django, Django REST Framework, PostgreSQL, REST APIs, JWT authentication, and Django ORM.
+### 5. What is your main responsibility as a backend developer?
+My main responsibilities include implementing business logic, designing APIs, managing databases, handling authentication, and ensuring application security and performance.
 
-I have built e-commerce applications, an API-based e-commerce application, and a portfolio website. I enjoy developing secure and maintainable backend systems, designing database models, and solving technical problems.
+### 6. Describe your Django project.
+I have worked on Django-based applications involving backend logic, database models, REST APIs, authentication, and CRUD operations.
 
-My goal is to grow as a backend engineer and contribute to building reliable, scalable web applications.
+### 7. What is a CRUD operation?
+CRUD stands for Create, Read, Update, and Delete. These are the four basic operations for managing data.
 
-## Q2. Tell me about your educational background.
+### 8. What is your role in a project?
+My role is to develop backend features, design database models, build REST APIs, implement authentication, and test application functionality.
 
-**Answer:**
+### 9. What challenges have you faced in a project?
+Common challenges include debugging errors, optimizing database queries, validating user input, and handling authentication securely.
 
-I studied Computer Technology, where I learned programming, databases, web technologies, and computer fundamentals. I later completed practical training in Python and Django backend development, which helped me apply my knowledge to real-world projects.
+### 10. How do you solve technical problems?
+I reproduce the issue, inspect logs and error messages, identify the root cause, implement a solution, and test the result.
 
-## Q3. Why did you choose Computer Technology?
+### 11. What is clean code?
+Clean code is readable, maintainable, well-organized code that is easy to understand and modify.
 
-**Answer:**
+### 12. What is debugging?
+Debugging is the process of identifying, analyzing, and fixing errors in a program.
 
-I chose Computer Technology because I was interested in computers, programming, and solving real-world problems through technology. It provided me with a foundation in programming, databases, and software development.
+### 13. What is version control?
+Version control tracks changes to source code and helps developers collaborate safely.
 
-## Q4. Why did you choose software development?
+### 14. What is Git?
+Git is a distributed version control system used to track code changes and manage development history.
 
-**Answer:**
+### 15. What is GitHub?
+GitHub is a platform for hosting Git repositories and collaborating on software projects.
 
-Software development combines logical thinking, creativity, and problem-solving. I enjoy converting requirements into useful and reliable applications. It also gives me opportunities to learn new technologies and continuously improve my skills.
+### 16. What is teamwork?
+Teamwork means collaborating with others, communicating clearly, sharing responsibilities, and working toward a common goal.
 
-## Q5. Why did you choose Python?
+### 17. How do you learn new technologies?
+I read official documentation, build small projects, practice coding, and apply what I learn to practical problems.
 
-**Answer:**
+### 18. What are your strengths?
+My strengths include problem-solving, willingness to learn, attention to detail, and commitment to writing maintainable code.
 
-I chose Python because it has simple and readable syntax, a large ecosystem, and powerful frameworks such as Django and Django REST Framework. It allows me to develop backend applications efficiently while maintaining clean and understandable code.
+### 19. What is your weakness?
+I sometimes spend extra time exploring different solutions, so I am improving my ability to prioritize tasks and manage time effectively.
 
-## Q6. Why did you choose Django?
+### 20. Why should we hire you?
+I have a solid foundation in Python and Django backend development, and I am eager to contribute, solve problems, and grow with the team.
 
-**Answer:**
+# Part 2: Python Fundamentals (21–50)
 
-I chose Django because it provides built-in features such as authentication, ORM, URL routing, migrations, middleware, an admin panel, and security mechanisms. These features help developers build secure, maintainable web applications efficiently.
+### 21. What is Python?
+Python is a high-level, general-purpose programming language known for its readable syntax and extensive ecosystem.
 
-## Q7. Why do you want to become a Backend Developer?
+### 22. What are the main features of Python?
+Python is dynamically typed, cross-platform, object-oriented, and supports multiple programming paradigms.
 
-**Answer:**
+### 23. Is Python interpreted or compiled?
+Python source code is typically compiled into bytecode and executed by the Python runtime. The exact implementation depends on the Python implementation.
 
-I enjoy working with business logic, databases, APIs, authentication, and server-side processing. Backend development allows me to build the core systems that support applications and ensure that data is processed securely and reliably.
+### 24. What is a variable?
+A variable is a name that refers to an object in Python.
 
-## Q8. Why are you interested in Django Backend Development?
+### 25. What is dynamic typing?
+Dynamic typing means variable names do not require explicit type declarations, and the types of objects are determined at runtime.
 
-**Answer:**
+### 26. What are Python's built-in data types?
+Common built-in types include int, float, complex, bool, str, list, tuple, range, set, frozenset, dict, and NoneType.
 
-Django allows me to use Python to build secure and scalable web applications. Its built-in tools, ORM, authentication system, and clear project structure make backend development productive and maintainable.
+### 27. What is the difference between a list and a tuple?
+A list is mutable, while a tuple is immutable.
 
-## Q9. What are your strongest technical skills?
+### 28. What is the difference between a list and a set?
+A list maintains sequence order and allows duplicates. A set stores unique elements and does not guarantee positional order.
 
-**Answer:**
+### 29. What is a dictionary?
+A dictionary stores data as key-value pairs.
 
-My strongest technical skills are Python, Django, Django REST Framework, REST API development, Django ORM, PostgreSQL, JWT authentication, Git, and backend debugging. I also have experience with database design, API testing, and application deployment.
+### 30. What is mutability?
+Mutability is the ability of an object to change after it has been created.
 
-## Q10. What backend technologies do you know?
+### 31. What are mutable objects?
+Lists, dictionaries, and sets are common mutable objects.
 
-**Answer:**
+### 32. What are immutable objects?
+Integers, floats, strings, and tuples are common immutable types. A tuple may still contain references to mutable objects.
 
-I have knowledge of Python, Django, Django REST Framework, PostgreSQL, MySQL, SQLite, Redis, Celery, Django Channels, ASGI, Docker, Git, and REST API development. My primary focus is Python and Django backend development.
+### 33. What is the difference between == and is?
+The == operator compares values, while is checks object identity.
 
-## Q11. What programming languages do you know?
+### 34. What is type casting?
+Type casting converts a value from one data type to another, such as int("10").
 
-**Answer:**
+### 35. What is None in Python?
+None represents the absence of a value.
 
-I know Python, C, and PHP. I am most comfortable with Python because I primarily use it for backend development, API creation, database operations, and application logic.
+### 36. What is indentation in Python?
+Indentation defines code blocks and is required for statements such as functions, loops, and conditional blocks.
 
-## Q12. Which programming language are you most comfortable with?
+### 37. What is PEP 8?
+PEP 8 is Python's style guide for writing readable and consistent code.
 
-**Answer:**
+### 38. What are comments?
+Comments explain code and are ignored during normal Python execution.
 
-I am most comfortable with Python because I use it regularly with Django and Django REST Framework. I am familiar with Python's functions, OOP, exception handling, ORM integration, and API development.
+### 39. What is slicing?
+Slicing extracts part of a sequence using syntax such as sequence[start:stop:step].
 
-## Q13. Why is Python your preferred language?
+### 40. What is negative indexing?
+Negative indexing accesses sequence elements from the end, such as items[-1].
 
-**Answer:**
+### 41. What is a truthy value?
+A truthy value evaluates to True in a Boolean context.
 
-Python is my preferred language because it is readable, productive, and supported by many libraries and frameworks. It allows me to focus on application logic and problem-solving instead of dealing with unnecessarily complex syntax.
+### 42. What is a falsy value?
+Falsy values include False, None, numeric zero, and empty collections or strings.
 
-## Q14. What is your experience with Django?
+### 43. What is the difference between break and continue?
+break exits a loop, while continue skips the current iteration and proceeds to the next one.
 
-**Answer:**
+### 44. What is pass?
+pass is a placeholder statement that performs no operation.
 
-I have used Django to build e-commerce and portfolio applications. I have worked with models, views, templates, authentication, the admin panel, ORM, migrations, forms, and deployment-related configuration.
+### 45. What is the range() function?
+range() produces an immutable sequence of integers commonly used in loops.
 
-## Q15. What is your experience with Django REST Framework?
+### 46. What is enumerate()?
+enumerate() returns an iterator of index-value pairs from an iterable.
 
-**Answer:**
+### 47. What is zip()?
+zip() combines elements from multiple iterables into tuples, stopping when the shortest iterable is exhausted by default.
 
-I have used Django REST Framework to build API-based applications. I have worked with serializers, API views, generic views, viewsets, routers, permissions, pagination, filtering, and authentication.
+### 48. What is a module?
+A module is a Python file containing code such as functions, classes, and variables.
 
-## Q16. What types of applications have you developed?
+### 49. What is a package?
+A package organizes related Python modules under a common namespace.
 
-**Answer:**
+### 50. What is __name__ == "__main__"?
+It checks whether a Python file is being run as the main program rather than imported as a module.
 
-I have developed Django e-commerce web applications, an API-based e-commerce application, and a portfolio website. These projects helped me practice database design, authentication, application logic, API development, and deployment.
+# Part 3: Functions and Scope (51–75)
 
-## Q17. Explain your most important project.
+### 51. What is a function?
+A function is a reusable block of code that performs a particular task.
 
-**Answer:**
+### 52. What is a parameter?
+A parameter is a variable defined in a function's signature.
 
-My most important project is a Django e-commerce application. It includes product management, categories, search, cart functionality, checkout, authentication, order creation, and order history.
+### 53. What is an argument?
+An argument is a value passed to a function when it is called.
 
-While developing this project, I focused on organizing the application, managing database relationships, validating user input, and implementing reliable business logic.
+### 54. What is the difference between return and print?
+return sends a value back to the caller, while print() displays output.
 
-## Q18. Which project are you most familiar with?
+### 55. What are positional arguments?
+Positional arguments are matched to parameters based on their position.
 
-**Answer:**
+### 56. What are keyword arguments?
+Keyword arguments pass values by explicitly naming the parameters.
 
-I am most familiar with my e-commerce application because it involved several important backend concepts, including database relationships, authentication, product management, cart logic, order processing, and validation.
+### 57. What is *args?
+*args allows a function to receive additional positional arguments as a tuple.
 
-It helped me understand how different backend components work together in a real-world application.
+### 58. What is **kwargs?
+**kwargs allows a function to receive additional keyword arguments as a dictionary.
 
-## Q19. What was your role in your projects?
+### 59. What is a default parameter?
+A default parameter has a predefined value used when the caller omits that argument.
 
-**Answer:**
+### 60. Why should mutable default arguments be avoided?
+Mutable defaults are shared between calls. Use None and create a new mutable object inside the function when needed.
 
-I worked on application structure, models, views, APIs, authentication, business logic, database operations, validation, testing, and deployment-related configuration. I also focused on debugging problems and improving code maintainability.
+### 61. What is a lambda function?
+A lambda function is a small anonymous function consisting of a single expression.
 
-## Q20. What was the most difficult part of your project?
+### 62. What is recursion?
+Recursion occurs when a function calls itself to solve a problem.
 
-**Answer:**
+### 63. What is a base case?
+A base case is the condition that stops recursive calls.
 
-The checkout and order process was one of the most challenging parts because it required correct price calculations, quantity validation, stock handling, and reliable database operations.
+### 64. What is variable scope?
+Variable scope determines where a name can be accessed in a program.
 
-I addressed these concerns by validating input, organizing the business logic, and using database transactions where appropriate.
+### 65. What is a local variable?
+A local variable is defined inside a function and is generally accessible within that function's scope.
 
-## Q21. What technical problems did you face?
+### 66. What is a global variable?
+A global variable is defined at module level.
 
-**Answer:**
+### 67. What is the global keyword?
+The global keyword allows a function to reassign a module-level variable.
 
-I faced issues related to database relationships, validation, authentication, and query efficiency. These problems helped me improve my debugging skills and understand the importance of proper application design and testing.
+### 68. What is the nonlocal keyword?
+The nonlocal keyword allows a nested function to reassign a variable in an enclosing function scope.
 
-## Q22. How did you solve those problems?
+### 69. What is a closure?
+A closure is a function that retains access to variables from its enclosing scope.
 
-**Answer:**
+### 70. What is a decorator?
+A decorator wraps a function or class to add or modify behavior without directly changing the original implementation.
 
-I reproduced each issue, checked error messages and logs, inspected the relevant code, and tested smaller parts of the application. After identifying the root cause, I applied a fix and verified it through testing.
+### 71. What is a higher-order function?
+A higher-order function accepts functions as arguments, returns a function, or both.
 
-## Q23. How do you debug a backend application?
+### 72. What is map()?
+map() applies a function to each item of an iterable and returns an iterator.
 
-**Answer:**
+### 73. What is filter()?
+filter() returns an iterator containing items that satisfy a specified condition.
 
-I start by checking the traceback, application logs, request data, database queries, authentication, environment variables, and server configuration. Then I reproduce the problem, identify its root cause, implement a fix, and test the affected functionality.
+### 74. What is a docstring?
+A docstring is a string used to document a module, class, or function.
 
-## Q24. How do you test your APIs?
+### 75. What is function annotation?
+Function annotations provide metadata about parameters and return values; Python does not automatically enforce them.
 
-**Answer:**
+# Part 4: Object-Oriented Programming (76–100)
 
-I test successful requests, invalid input, authentication, permissions, HTTP status codes, filtering, pagination, and edge cases. I use Postman for manual testing and automated testing tools provided by Django and Django REST Framework.
+### 76. What is OOP?
+Object-Oriented Programming organizes software around objects that combine data and behavior.
 
-## Q25. Which API testing tools have you used?
+### 77. What is a class?
+A class is a blueprint for creating objects.
 
-**Answer:**
+### 78. What is an object?
+An object is an instance of a class.
 
-I have used Postman to test API endpoints manually. I also use Django REST Framework testing tools to write automated tests for API responses, validation, authentication, and permissions.
+### 79. What is __init__()?
+__init__() initializes an object's state after it has been created.
 
-## Q26. Why do you use Postman?
+### 80. What is self?
+self refers to the current instance inside an instance method.
 
-**Answer:**
+### 81. What are the four pillars of OOP?
+The four pillars are encapsulation, inheritance, polymorphism, and abstraction.
 
-Postman makes it easy to send HTTP requests, configure headers and authentication tokens, inspect responses, test different scenarios, and organize API requests into collections.
+### 82. What is encapsulation?
+Encapsulation combines data and methods and helps control access to an object's internal state.
 
-## Q27. What is clean architecture?
+### 83. What is inheritance?
+Inheritance allows a class to reuse or extend behavior from another class.
 
-**Answer:**
+### 84. What is polymorphism?
+Polymorphism allows different objects to respond to the same interface in different ways.
 
-Clean architecture is a software design approach that separates business logic from external concerns such as frameworks, databases, and user interfaces. It helps make applications easier to test, maintain, and modify.
+### 85. What is abstraction?
+Abstraction exposes essential functionality while hiding implementation details.
 
-## Q28. Why is clean architecture important?
+### 86. What is method overriding?
+Method overriding occurs when a subclass provides its own implementation of an inherited method.
 
-**Answer:**
+### 87. What is method overloading?
+Method overloading means using the same method name with different parameter signatures. Python does not support traditional signature-based overloading directly, but alternatives exist.
 
-Clean architecture reduces tight coupling between application components. It makes business logic easier to test and allows developers to modify infrastructure or implementation details without unnecessarily affecting the entire application.
+### 88. What is multiple inheritance?
+Multiple inheritance allows a class to inherit from more than one parent class.
 
-## Q29. What is a database migration?
+### 89. What is super()?
+super() provides access to methods from a parent class according to Python's method resolution order.
 
-**Answer:**
+### 90. What is a class variable?
+A class variable is defined on a class and is shared through the class unless shadowed by an instance attribute.
 
-A database migration is a version-controlled change to a database schema. Django uses migration files to synchronize model changes with the database structure.
+### 91. What is an instance variable?
+An instance variable stores data associated with a particular object.
 
-The `makemigrations` command creates migration files, while the `migrate` command applies migrations to the database.
+### 92. What is a class method?
+A class method receives the class as its first argument and is declared using @classmethod.
 
-## Q30. Why did you use Django ORM?
+### 93. What is a static method?
+A static method belongs to a class namespace but receives neither self nor cls automatically.
 
-**Answer:**
+### 94. What is an abstract class?
+An abstract class defines an interface or shared behavior that subclasses are expected to implement.
 
-Django ORM allows me to work with database records using Python objects instead of writing SQL for every operation. It supports filtering, relationships, aggregation, migrations, and transactions, improving development productivity and code maintainability.
+### 95. What is an interface?
+An interface describes expected behavior that different implementations can provide. Python commonly uses abstract base classes and protocols for this purpose.
 
-## Q31. What is authentication?
+### 96. What is composition?
+Composition builds a class by combining objects of other classes.
 
-**Answer:**
+### 97. What is aggregation?
+Aggregation is a relationship where one object references another object that can exist independently.
 
-Authentication is the process of verifying the identity of a user. It commonly involves credentials such as a username and password or a valid authentication token.
+### 98. What is MRO?
+Method Resolution Order defines the order Python follows when searching for methods in an inheritance hierarchy.
 
-## Q32. What is authorization?
+### 99. What is a magic method?
+A magic method, such as __str__() or __len__(), enables an object to work with Python's built-in operations and protocols.
 
-**Answer:**
+### 100. What is the difference between __str__() and __repr__()?
+__str__() provides a user-friendly representation, while __repr__() aims to provide a useful developer-oriented representation.
 
-Authorization determines what an authenticated user is allowed to access or perform. For example, an administrator may have permission to manage all products, while a regular user may only manage their own orders.
+# Part 5: Exceptions, Iterators and Memory (101–120)
 
-## Q33. What is JWT?
+### 101. What is an exception?
+An exception is an event that interrupts normal program execution when an error or exceptional condition occurs.
 
-**Answer:**
+### 102. What is exception handling?
+Exception handling manages errors using try, except, else, and finally.
 
-JSON Web Token (JWT) is a compact token format used to securely transmit claims between parties. It commonly consists of three parts: a header, a payload, and a signature.
+### 103. What is finally?
+The finally block runs during normal completion and exception propagation, making it useful for cleanup.
 
-JWTs are often used for API authentication. A signed JWT is not necessarily encrypted, so sensitive information should not be placed in its payload.
+### 104. What is raise?
+raise explicitly raises an exception.
 
-## Q34. What is OAuth 2.0?
+### 105. What is a custom exception?
+A custom exception is a user-defined exception class, usually derived from Exception.
 
-**Answer:**
+### 106. What is an iterator?
+An iterator is an object that returns items one at a time using __next__() and supports the iterator protocol.
 
-OAuth 2.0 is an authorization framework that allows applications to obtain limited access to protected resources without directly sharing the user's password with the client application.
+### 107. What is an iterable?
+An iterable is an object that can provide an iterator, usually through iter().
 
-It is commonly used for delegated authorization and can be used alongside different access-token formats.
+### 108. What is a generator?
+A generator produces values lazily, commonly using yield.
 
-## Q35. What is the difference between JWT and OAuth 2.0?
+### 109. What is yield?
+yield produces a value from a generator and suspends its execution until it resumes.
 
-**Answer:**
+### 110. What is the difference between return and yield?
+return ends a function call, while yield produces a value and suspends a generator's execution.
 
-JWT is a token format, whereas OAuth 2.0 is an authorization framework. OAuth 2.0 can use JWT-formatted access tokens, but it does not require all access tokens to be JWTs.
+### 111. What is a generator expression?
+A generator expression creates a generator using syntax similar to a comprehension, such as (x*x for x in numbers).
 
-Therefore, JWT and OAuth 2.0 are related but serve different purposes.
+### 112. What is list comprehension?
+List comprehension creates a list using a concise expression, such as [x*x for x in numbers].
 
-## Q36. What is a REST API?
+### 113. What is shallow copy?
+A shallow copy creates a new outer object but retains references to nested objects.
 
-**Answer:**
+### 114. What is deep copy?
+A deep copy recursively copies nested objects where supported, using copy.deepcopy().
 
-A REST API exposes resources through HTTP endpoints and follows REST architectural principles. It commonly uses HTTP methods such as GET, POST, PUT, PATCH, and DELETE to retrieve, create, update, and delete resources.
+### 115. What is garbage collection?
+Garbage collection reclaims memory occupied by objects that are no longer needed; CPython primarily uses reference counting plus cyclic garbage collection.
 
-## Q37. What makes an API secure?
+### 116. What is reference counting?
+Reference counting tracks how many references point to an object and can reclaim objects when the count reaches zero.
 
-**Answer:**
+### 117. What is memory management in Python?
+Python manages object memory automatically through its memory management system and garbage collection mechanisms.
 
-An API can be made more secure through HTTPS, proper authentication, authorization, input validation, rate limiting, secure secret management, safe error messages, and protection against common security vulnerabilities.
+### 118. What is the difference between del and None?
+del removes a reference or binding, while assigning None replaces a variable's current reference with None.
 
-Sensitive operations should also enforce appropriate permissions and database integrity constraints.
+### 119. What is a context manager?
+A context manager manages setup and cleanup around a block of code, commonly using the with statement.
 
-## Q38. How do you validate API input?
+### 120. What is the with statement?
+The with statement uses a context manager to ensure resources are managed appropriately, including cleanup when exceptions occur.
 
-**Answer:**
+# Part 6: Concurrency and Advanced Python (121–140)
 
-I use Django REST Framework serializers for field-level and object-level validation. I also use database constraints where appropriate to enforce data integrity and prevent invalid records from being stored.
+### 121. What is a process?
+A process is an executing program with its own process-level resources and memory space.
 
-## Q39. What is server-side validation?
+### 122. What is a thread?
+A thread is an execution path within a process that shares the process's memory.
 
-**Answer:**
+### 123. What is multithreading?
+Multithreading runs multiple threads within one process and is often useful for I/O-bound workloads.
 
-Server-side validation checks incoming data on the backend before processing or saving it. It ensures that data meets the application's requirements, even if a client bypasses frontend validation.
+### 124. What is multiprocessing?
+Multiprocessing runs multiple processes and can provide CPU parallelism.
 
-## Q40. Why is server-side validation important?
+### 125. What is the GIL?
+In standard CPython builds with the GIL enabled, only one thread at a time executes Python bytecode within a process.
 
-**Answer:**
+### 126. What is a daemon thread?
+A daemon thread does not keep the Python process alive when no non-daemon threads remain.
 
-Server-side validation protects data integrity, prevents invalid data from entering the database, and reduces the risk of malicious or unexpected input causing application problems.
+### 127. What is a race condition?
+A race condition occurs when the result depends on the timing or order of concurrent operations.
 
-## Q41. What is unit testing?
+### 128. What is a lock?
+A lock coordinates access to shared resources to prevent conflicting concurrent operations.
 
-**Answer:**
+### 129. What is deadlock?
+Deadlock occurs when tasks wait indefinitely for resources held by each other.
 
-Unit testing checks a small, isolated part of an application, such as a function, model method, or utility method. It helps verify that individual components behave as expected.
+### 130. What is asynchronous programming?
+Asynchronous programming allows tasks to yield control while waiting for operations, enabling other tasks to make progress.
 
-## Q42. Why should backend code be tested?
+### 131. What is async?
+async defines a coroutine function when used with def.
 
-**Answer:**
+### 132. What is await?
+await suspends a coroutine until an awaitable operation produces a result.
 
-Testing detects errors early, protects existing behavior, supports safe refactoring, and increases confidence in application changes and deployments.
+### 133. What is asyncio?
+asyncio is Python's library for concurrent programming using async and await, especially for I/O-bound tasks.
 
-## Q43. What did you learn during your Django training?
+### 134. What is a coroutine?
+A coroutine is an asynchronous computation that can suspend and resume execution.
 
-**Answer:**
+### 135. What is synchronous programming?
+Synchronous programming executes operations in sequence, where each operation may block further execution until it completes.
 
-I learned Python and Django backend development, Django REST Framework, ORM, database migrations, authentication concepts, JWT, OAuth 2.0 fundamentals, clean code practices, PEP 8, Postman, and unit testing.
+### 136. What is the difference between concurrency and parallelism?
+Concurrency manages multiple tasks in overlapping periods, while parallelism executes multiple tasks simultaneously.
 
-The training also helped me apply these concepts through practical projects.
+### 137. What is a thread-safe operation?
+A thread-safe operation behaves correctly when accessed concurrently by multiple threads.
 
-## Q44. Which concepts were difficult for you initially?
+### 138. What is a queue?
+A queue is a data structure that commonly follows FIFO order.
 
-**Answer:**
+### 139. What is a stack?
+A stack is a data structure that follows LIFO order.
 
-Database relationships and authentication flows were initially challenging for me. I improved by studying the fundamentals, building small examples, reading documentation, and applying those concepts in my projects.
+### 140. What is a hash function?
+A hash function maps an input to a hash value used by structures such as dictionaries and sets.
 
-## Q45. How do you learn a new technology?
+# Part 7: Django Fundamentals (141–160)
 
-**Answer:**
+### 141. What is Django?
+Django is a high-level Python web framework for building secure and maintainable web applications.
 
-I begin with the fundamentals and official documentation. Then I build a small project, experiment with practical examples, test my implementation, and apply the technology to a real-world problem.
+### 142. What is MVT architecture?
+MVT stands for Model, View, and Template. Models manage data, views handle request logic, and templates manage presentation.
 
-## Q46. What kind of developer do you want to become?
+### 143. What is a Django project?
+A Django project contains the settings and configuration for a complete Django application.
 
-**Answer:**
+### 144. What is a Django app?
+A Django app is a modular component that implements a specific feature or group of related features.
 
-I want to become a strong backend engineer who can design secure, scalable, and maintainable APIs and database-driven systems. I also want to improve my system-design, testing, and deployment skills.
+### 145. What is settings.py?
+settings.py contains project configuration such as installed apps, middleware, database settings, and security options.
 
-## Q47. Why should we hire you?
+### 146. What is urls.py?
+urls.py defines URL patterns that route incoming requests to views.
 
-**Answer:**
+### 147. What is a Django model?
+A Django model is a Python class that defines data structure and database behavior.
 
-I have a practical foundation in Python and Django, experience building backend projects, and a strong willingness to learn. I value clean code, testing, security, and problem-solving, and I am ready to contribute to a development team while continuing to improve my skills.
+### 148. What is a Django view?
+A Django view processes an HTTP request and returns an HTTP response.
 
-## Q48. What are your career goals?
+### 149. What is a Django template?
+A Django template generates presentation output, commonly HTML, using template syntax.
 
-**Answer:**
+### 150. What is Django middleware?
+Middleware processes requests and responses globally as they pass through Django's request-response cycle.
 
-My goal is to grow as a backend developer, contribute to production systems, improve my system-design skills, and eventually take responsibility for designing and maintaining larger backend architectures.
+### 151. What is Django ORM?
+Django ORM provides a Python API for querying and modifying database data.
 
-## Q49. What is your biggest strength?
+### 152. What is a migration?
+A migration records schema changes and applies them to the database.
 
-**Answer:**
+### 153. What is makemigrations?
+makemigrations creates migration files based on model changes.
 
-My biggest strength is my willingness to learn and my ability to break technical problems into smaller, manageable parts. I approach problems systematically and focus on finding practical, maintainable solutions.
+### 154. What is migrate?
+migrate applies unapplied migrations to the database.
 
-## Q50. What is your weakness?
+### 155. What is Django admin?
+Django admin is a built-in interface for managing registered models and their data.
 
-**Answer:**
+### 156. What is a QuerySet?
+A QuerySet represents a collection of database queries and results; it is generally evaluated lazily.
 
-Sometimes I spend extra time trying to make an implementation cleaner than necessary. I am improving by prioritizing requirements, deadlines, and practical delivery while maintaining appropriate code quality.
+### 157. What is lazy evaluation in Django ORM?
+A QuerySet usually does not execute its database query until its results are needed.
 
----
+### 158. What is a Django signal?
+A signal allows a receiver to respond when a particular event occurs in Django.
 
-# Part 2: Python Basics (Questions 51–100)
+### 159. What is a Django manager?
+A manager provides the interface used to perform database queries for a model.
 
-## Q51. What is Python?
+### 160. What is Django authentication?
+Django authentication provides functionality for user identification, password management, and permission integration.
 
-**Answer:**
+# Part 8: Django REST Framework (161–180)
 
-Python is a high-level, general-purpose programming language known for its readable syntax and extensive ecosystem. It supports procedural, object-oriented, and functional programming.
+### 161. What is DRF?
+Django REST Framework is a toolkit for building REST APIs with Django.
 
-## Q52. Why is Python popular?
+### 162. What is serialization?
+Serialization converts complex objects into representations such as JSON-compatible data.
 
-**Answer:**
+### 163. What is deserialization?
+Deserialization converts incoming data into Python-native or validated data suitable for application processing.
 
-Python is popular because it is easy to read, productive, cross-platform, and supported by many libraries and frameworks. It is widely used in web development, automation, data science, and artificial intelligence.
+### 164. What is a serializer?
+A serializer converts data representations and validates incoming data.
 
-## Q53. What are Python's main features?
+### 165. What is ModelSerializer?
+ModelSerializer automatically generates serializer fields and common behavior from a Django model.
 
-**Answer:**
+### 166. What is APIView?
+APIView is a DRF class-based view that provides request parsing, authentication, permissions, and HTTP method handlers.
 
-Python's main features include readable syntax, dynamic typing, automatic memory management, object-oriented programming support, extensive libraries, and cross-platform compatibility.
+### 167. What is GenericAPIView?
+GenericAPIView extends APIView with common functionality such as queryset and serializer handling.
 
-## Q54. Is Python interpreted or compiled?
+### 168. What is a ViewSet?
+A ViewSet groups related API actions into a single class.
 
-**Answer:**
+### 169. What is a ModelViewSet?
+ModelViewSet provides common CRUD actions for a model-backed API, subject to configuration and permissions.
 
-Python is commonly described as an interpreted language. In CPython, source code is typically compiled into bytecode, which is then executed by the Python virtual machine.
+### 170. What is a router in DRF?
+A router automatically generates URL patterns for registered ViewSets.
 
-## Q55. What is dynamic typing?
+### 171. What is authentication in DRF?
+Authentication identifies the credentials associated with a request.
 
-**Answer:**
+### 172. What are permissions in DRF?
+Permissions determine whether an authenticated or anonymous request is allowed to perform an action.
 
-Dynamic typing means that a variable's type does not need to be declared explicitly. The type belongs to the object referenced by the variable and is determined at runtime.
+### 173. What is JWT authentication?
+JWT authentication uses JSON Web Tokens as credentials for API requests.
 
-**Example:**
+### 174. What is pagination in DRF?
+Pagination splits API results into smaller pages or chunks.
 
-```python
-value = 10
-value = "Python"
+### 175. What is filtering in DRF?
+Filtering restricts API results according to specified query parameters or filter rules.
 
-print(value)
-print(type(value))
-```
+### 176. What is throttling in DRF?
+Throttling limits request rates according to configured policies.
 
-**Output:**
+### 177. What is API versioning?
+API versioning allows an API to evolve while supporting clients using different versions.
 
-```text
-Python
-<class 'str'>
-```
+### 178. What is a custom permission?
+A custom permission implements application-specific access rules, often by overriding permission methods.
 
-## Q56. What is strong typing?
+### 179. What is a validation error?
+A validation error indicates that incoming data does not satisfy the required rules.
 
-**Answer:**
+### 180. How do you secure a DRF API?
+I use proper authentication, permissions, serializer validation, HTTPS, rate limiting where appropriate, and secure handling of secrets.
 
-Strong typing means that Python generally does not silently perform arbitrary operations between incompatible types. It raises an error when an operation is not supported by the involved types.
+# Part 9: Database and SQL (181–190)
 
-**Example:**
+### 181. What is PostgreSQL?
+PostgreSQL is an open-source relational database management system.
 
-```python
-result = "10" + 5
-```
+### 182. What is a primary key?
+A primary key uniquely identifies a row in a table.
 
-**Output:**
+### 183. What is a foreign key?
+A foreign key establishes a relationship between tables and helps enforce referential integrity.
 
-```text
-TypeError
-```
+### 184. What is normalization?
+Normalization organizes database tables to reduce unnecessary duplication and improve data integrity.
 
-To perform numeric addition, convert the string explicitly:
+### 185. What is an SQL JOIN?
+A JOIN combines rows from related tables using a matching condition.
 
-```python
-result = int("10") + 5
-print(result)
-```
+### 186. What is a database index?
+An index improves the speed of certain queries at the cost of additional storage and write overhead.
 
-**Output:**
+### 187. What is a database transaction?
+A transaction groups database operations into a logical unit that can be committed or rolled back.
 
-```text
-15
-```
+### 188. What are ACID properties?
+ACID stands for Atomicity, Consistency, Isolation, and Durability.
 
-## Q57. What is a variable?
+### 189. What is the N+1 query problem?
+The N+1 query problem occurs when fetching related data causes an additional query for many individual records.
 
-**Answer:**
+### 190. How do you optimize database performance?
+I inspect query plans and logs, add appropriate indexes, reduce unnecessary queries, use select_related() and prefetch_related(), and measure performance.
 
-A variable is a name that refers to an object in memory. Variables allow us to access and work with data during program execution.
+# Part 10: APIs, Security, Testing and Deployment (191–200)
 
-**Example:**
+### 191. What is REST?
+REST is an architectural style for designing networked applications around resources and a uniform interface.
 
-```python
-name = "Omar"
-age = 25
+### 192. What is HTTP?
+HTTP is an application-layer protocol used for communication between clients and servers.
 
-print(name)
-print(age)
-```
+### 193. What is the difference between PUT and PATCH?
+PUT generally replaces a resource, while PATCH updates selected fields.
 
-**Output:**
+### 194. What is HTTP status code 200?
+200 OK indicates that the request succeeded.
 
-```text
-Omar
-25
-```
+### 195. What is HTTP status code 201?
+201 Created indicates that the request successfully created a resource.
 
-## Q58. What are Python data types?
+### 196. What is HTTP status code 400?
+400 Bad Request indicates that the server cannot process the request because of a client-side request problem.
 
-**Answer:**
+### 197. What is HTTP status code 401?
+401 Unauthorized indicates that valid authentication credentials are missing or invalid.
 
-Python provides several built-in data types:
+### 198. What is HTTP status code 403?
+403 Forbidden indicates that the server refuses to authorize the request.
 
-- `int`: Integer numbers.
-- `float`: Floating-point numbers.
-- `complex`: Complex numbers.
-- `str`: Strings.
-- `bool`: Boolean values.
-- `NoneType`: Represents `None`.
-- `list`: Mutable sequence.
-- `tuple`: Immutable sequence.
-- `set`: Collection of unique elements.
-- `dict`: Key-value mapping.
-- `range`: Sequence of integers.
-- `bytes` and `bytearray`: Binary data.
+### 199. What is unit testing?
+Unit testing checks individual functions or components to verify that they behave as expected.
 
-## Q59. What is an integer?
-
-**Answer:**
-
-An integer is a whole number without a fractional component. Python integers can represent arbitrarily large values, subject to available memory.
-
-**Example:**
-
-```python
-age = 25
-temperature = -5
-
-print(age)
-print(temperature)
-```
-
-## Q60. What is a float?
-
-**Answer:**
-
-A float represents a floating-point number, such as `3.14` or `10.5`. Floating-point arithmetic may introduce small precision differences, so `Decimal` is often useful when exact decimal arithmetic is required, such as in financial calculations.
-
-**Example:**
-
-```python
-price = 99.99
-discount = 10.0
-
-print(price - discount)
-```
-
-## Q61. What is a string?
-
-**Answer:**
-
-A string is an immutable sequence of Unicode characters. Strings are commonly used to represent text in Python.
-
-**Example:**
-
-```python
-message = "Hello Python"
-
-print(message)
-print(message[0])
-print(message.upper())
-```
-
-**Output:**
-
-```text
-Hello Python
-H
-HELLO PYTHON
-```
-
-## Q62. What is a Boolean?
-
-**Answer:**
-
-A Boolean is a data type with two values: `True` and `False`. Booleans are commonly used in conditions and logical expressions.
-
-**Example:**
-
-```python
-is_active = True
-
-if is_active:
-    print("User is active")
-```
-
-## Q63. What is None?
-
-**Answer:**
-
-`None` is a singleton object that represents the absence of a value. It is commonly used when a function has no meaningful result or when a value is not available.
-
-**Example:**
-
-```python
-result = None
-
-if result is None:
-    print("No result available")
-```
-
-## Q64. What is type casting?
-
-**Answer:**
-
-Type casting converts a value from one data type to another using functions such as `int()`, `float()`, `str()`, and `list()`.
-
-**Example:**
-
-```python
-number = int("10")
-price = float("99.5")
-
-print(number)
-print(price)
-```
-
-**Output:**
-
-```text
-10
-99.5
-```
-
-## Q65. What is implicit type conversion?
-
-**Answer:**
-
-Implicit type conversion occurs when Python automatically uses a compatible type during an operation.
-
-**Example:**
-
-```python
-result = 5 + 2.0
-
-print(result)
-print(type(result))
-```
-
-**Output:**
-
-```text
-7.0
-<class 'float'>
-```
-
-Python converts the integer operand to a floating-point value for this operation.
-
-## Q66. What is explicit type conversion?
-
-**Answer:**
-
-Explicit type conversion occurs when a programmer manually converts a value using functions such as `int()`, `float()`, or `str()`.
-
-**Example:**
-
-```python
-number = "25"
-age = int(number)
-
-print(age + 5)
-```
-
-**Output:**
-
-```text
-30
-```
-
-## Q67. What is the `type()` function?
-
-**Answer:**
-
-The `type()` function returns the type of an object. It is useful for inspecting values and debugging programs.
-
-**Example:**
-
-```python
-print(type(10))
-print(type(3.14))
-print(type("Python"))
-print(type(True))
-```
-
-**Output:**
-
-```text
-<class 'int'>
-<class 'float'>
-<class 'str'>
-<class 'bool'>
-```
-
-## Q68. What is the `id()` function?
-
-**Answer:**
-
-The `id()` function returns an object's identity, which remains constant during that object's lifetime. In CPython, the identity is commonly associated with the object's memory address, but Python does not guarantee that interpretation across all implementations.
-
-**Example:**
-
-```python
-numbers = [1, 2, 3]
-
-print(id(numbers))
-```
-
-The numeric output may differ between program executions.
-
-## Q69. What is `isinstance()`?
-
-**Answer:**
-
-The `isinstance()` function checks whether an object is an instance of a particular class or one of its subclasses.
-
-**Example:**
-
-```python
-number = 10
-
-print(isinstance(number, int))
-print(isinstance(number, str))
-```
-
-**Output:**
-
-```text
-True
-False
-```
-
-## Q70. What is the `==` operator?
-
-**Answer:**
-
-The `==` operator compares two objects for value equality.
-
-**Example:**
-
-```python
-a = [1, 2, 3]
-b = [1, 2, 3]
-
-print(a == b)
-```
-
-**Output:**
-
-```text
-True
-```
-
-## Q71. What is the `is` operator?
-
-**Answer:**
-
-The `is` operator checks whether two references point to the same object.
-
-**Example:**
-
-```python
-a = [1, 2, 3]
-b = a
-c = [1, 2, 3]
-
-print(a is b)
-print(a is c)
-```
-
-**Output:**
-
-```text
-True
-False
-```
-
-## Q72. What is the difference between `==` and `is`?
-
-**Answer:**
-
-The `==` operator compares values, while `is` compares object identity. Use `==` for ordinary value comparisons and `is None` to check whether a value is `None`.
-
-**Example:**
-
-```python
-a = [1, 2]
-b = [1, 2]
-
-print(a == b)  # True
-print(a is b)  # False
-```
-
-## Q73. What is a list?
-
-**Answer:**
-
-A list is an ordered, indexed, mutable collection that can contain duplicate values and elements of different types.
-
-**Example:**
-
-```python
-items = [1, 2, 3, 2]
-
-items.append(4)
-items[0] = 10
-
-print(items)
-```
-
-**Output:**
-
-```text
-[10, 2, 3, 2, 4]
-```
-
-## Q74. What is a tuple?
-
-**Answer:**
-
-A tuple is an ordered, indexed, immutable sequence. It is useful for representing collections whose structure should not change.
-
-**Example:**
-
-```python
-point = (10, 20)
-
-print(point[0])
-print(point[1])
-```
-
-**Output:**
-
-```text
-10
-20
-```
-
-## Q75. What is a set?
-
-**Answer:**
-
-A set is a mutable collection of unique, hashable elements. It is useful for removing duplicates and performing set operations such as union and intersection.
-
-**Example:**
-
-```python
-numbers = {1, 2, 2, 3}
-
-print(numbers)
-print(2 in numbers)
-```
-
-**Output:**
-
-```text
-{1, 2, 3}
-True
-```
-
-The order of displayed set elements is not guaranteed.
-
-## Q76. What is a dictionary?
-
-**Answer:**
-
-A dictionary is a mapping that stores key-value pairs. Keys must be hashable, and each key can map to a value.
-
-**Example:**
-
-```python
-user = {
-    "name": "Omar",
-    "age": 25,
-}
-
-print(user["name"])
-print(user["age"])
-```
-
-**Output:**
-
-```text
-Omar
-25
-```
-
-## Q77. What is the difference between a list and a tuple?
-
-**Answer:**
-
-A list is mutable, while a tuple is immutable. Lists are useful when elements need to be added, removed, or updated. Tuples are useful for fixed collections of values.
-
-**Example:**
-
-```python
-numbers = [1, 2, 3]
-numbers.append(4)
-
-point = (10, 20)
-
-print(numbers)
-print(point)
-```
-
-## Q78. What is the difference between a list and a set?
-
-**Answer:**
-
-A list preserves element order and allows duplicates. A set stores unique elements and supports efficient average-case membership checks.
-
-**Example:**
-
-```python
-numbers_list = [1, 2, 2, 3]
-numbers_set = {1, 2, 2, 3}
-
-print(numbers_list)
-print(numbers_set)
-```
-
-## Q79. What is the difference between a tuple and a set?
-
-**Answer:**
-
-A tuple is an ordered and immutable sequence that allows duplicates. A set is a mutable collection of unique, hashable elements and does not guarantee a particular iteration order.
-
-**Example:**
-
-```python
-point = (10, 10, 20)
-unique_values = {10, 10, 20}
-
-print(point)
-print(unique_values)
-```
-
-## Q80. What is the difference between a dictionary and a list?
-
-**Answer:**
-
-A list accesses elements using numeric indices, while a dictionary accesses values using keys. Lists are suitable for ordered sequences, whereas dictionaries are suitable for key-value data.
-
-**Example:**
-
-```python
-users = ["Omar", "Rahim"]
-user = {"name": "Omar", "age": 25}
-
-print(users[0])
-print(user["name"])
-```
-
-## Q81. What is mutable data?
-
-**Answer:**
-
-Mutable data refers to objects that can be modified after creation. Common examples include lists, dictionaries, and sets.
-
-**Example:**
-
-```python
-numbers = [1, 2, 3]
-numbers.append(4)
-
-print(numbers)
-```
-
-## Q82. What is immutable data?
-
-**Answer:**
-
-Immutable data refers to objects that cannot be modified after creation. Common examples include integers, floats, strings, and tuples.
-
-**Example:**
-
-```python
-name = "Python"
-new_name = name + " Django"
-
-print(name)
-print(new_name)
-```
-
-**Output:**
-
-```text
-Python
-Python Django
-```
-
-## Q83. Which Python objects are mutable?
-
-**Answer:**
-
-Common mutable objects include:
-
-- Lists.
-- Dictionaries.
-- Sets.
-- Bytearrays.
-- Most user-defined class instances.
-
-These objects can generally have their contents or attributes changed after creation.
-
-## Q84. Which Python objects are immutable?
-
-**Answer:**
-
-Common immutable objects include:
-
-- Integers.
-- Floats.
-- Booleans.
-- Strings.
-- Tuples.
-- Frozensets.
-- Bytes.
-
-A tuple may contain a mutable object, but the tuple itself cannot have its element references replaced.
-
-## Q85. What is indexing?
-
-**Answer:**
-
-Indexing accesses an individual element of a sequence using its position. Python sequences use zero-based indexing.
-
-**Example:**
-
-```python
-name = "Python"
-
-print(name[0])
-print(name[1])
-```
-
-**Output:**
-
-```text
-P
-y
-```
-
-## Q86. What is slicing?
-
-**Answer:**
-
-Slicing extracts part of a sequence using the syntax `sequence[start:stop:step]`. The start index is included, while the stop index is excluded.
-
-**Example:**
-
-```python
-numbers = [10, 20, 30, 40, 50]
-
-print(numbers[1:4])
-print(numbers[:3])
-print(numbers[::2])
-```
-
-**Output:**
-
-```text
-[20, 30, 40]
-[10, 20, 30]
-[10, 30, 50]
-```
-
-## Q87. What is negative indexing?
-
-**Answer:**
-
-Negative indexing accesses elements relative to the end of a sequence. The index `-1` refers to the last element, and `-2` refers to the second-last element.
-
-**Example:**
-
-```python
-numbers = [10, 20, 30, 40]
-
-print(numbers[-1])
-print(numbers[-2])
-```
-
-**Output:**
-
-```text
-40
-30
-```
-
-## Q88. What is list comprehension?
-
-**Answer:**
-
-List comprehension is a concise way to create a list from an iterable, optionally applying an expression and a condition.
-
-**Example:**
-
-```python
-evens = [
-    number
-    for number in range(10)
-    if number % 2 == 0
-]
-
-print(evens)
-```
-
-**Output:**
-
-```text
-[0, 2, 4, 6, 8]
-```
-
-## Q89. What is dictionary comprehension?
-
-**Answer:**
-
-Dictionary comprehension creates a dictionary using an expression and an iterable.
-
-**Example:**
-
-```python
-squares = {
-    number: number * number
-    for number in range(5)
-}
-
-print(squares)
-```
-
-**Output:**
-
-```text
-{0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
-```
-
-## Q90. What is set comprehension?
-
-**Answer:**
-
-Set comprehension creates a set by applying an expression to items from an iterable. Duplicate results are automatically removed.
-
-**Example:**
-
-```python
-unique = {
-    number % 3
-    for number in range(10)
-}
-
-print(unique)
-```
-
-**Output:**
-
-```text
-{0, 1, 2}
-```
-
-## Q91. What is a function in Python?
-
-**Answer:**
-
-A function is a reusable block of code designed to perform a specific task. Functions help organize programs, reduce code duplication, and improve maintainability.
-
-**Example:**
-
-```python
-def add(a, b):
-    return a + b
-
-print(add(10, 20))
-```
-
-**Output:**
-
-```text
-30
-```
-
-## Q92. How do you define a function in Python?
-
-**Answer:**
-
-We define a function using the `def` keyword, followed by the function name, parameters, and an indented function body. The `return` statement sends a result back to the caller.
-
-**Example:**
-
-```python
-def greet(name):
-    return f"Hello, {name}!"
-
-message = greet("Omar")
-print(message)
-```
-
-**Output:**
-
-```text
-Hello, Omar!
-```
-
-## Q93. What is a parameter?
-
-**Answer:**
-
-A parameter is a name defined in a function's signature. It receives a value when the function is called.
-
-**Example:**
-
-```python
-def greet(name):
-    print(f"Hello, {name}")
-```
-
-Here, `name` is a parameter.
-
-## Q94. What is an argument?
-
-**Answer:**
-
-An argument is a value or object supplied to a function when it is called.
-
-**Example:**
-
-```python
-def greet(name):
-    print(f"Hello, {name}")
-
-greet("Omar")
-```
-
-Here, `"Omar"` is the argument.
-
-## Q95. What is the difference between a parameter and an argument?
-
-**Answer:**
-
-A parameter is defined in the function declaration, while an argument is supplied during the function call.
-
-**Example:**
-
-```python
-def add(a, b):
-    return a + b
-
-add(10, 20)
-```
-
-Here, `a` and `b` are parameters, while `10` and `20` are arguments.
-
-## Q96. What is a default argument?
-
-**Answer:**
-
-A default argument is a parameter with a default value. Python uses that value when the caller does not provide an argument for the parameter.
-
-**Example:**
-
-```python
-def greet(name="Guest"):
-    return f"Hello, {name}"
-
-print(greet())
-print(greet("Omar"))
-```
-
-**Output:**
-
-```text
-Hello, Guest
-Hello, Omar
-```
-
-**Important:** Avoid mutable default arguments such as `items=[]` when the intention is to create a new list for each call. Use `None` and initialize the list inside the function instead.
-
-## Q97. What is a keyword argument?
-
-**Answer:**
-
-A keyword argument is an argument passed to a function using the parameter's name. Keyword arguments improve readability and allow arguments to be specified by name.
-
-**Example:**
-
-```python
-def greet(name, age):
-    print(name, age)
-
-greet(name="Omar", age=25)
-```
-
-**Output:**
-
-```text
-Omar 25
-```
-
-## Q98. What is a positional argument?
-
-**Answer:**
-
-A positional argument is matched to a function parameter according to its position in the function call.
-
-**Example:**
-
-```python
-def add(a, b):
-    return a + b
-
-print(add(10, 20))
-```
-
-**Output:**
-
-```text
-30
-```
-
-Here, `10` is assigned to `a`, and `20` is assigned to `b`.
-
-## Q99. What is `*args` in Python?
-
-**Answer:**
-
-`*args` allows a function to accept an arbitrary number of additional positional arguments. Inside the function, those arguments are available as a tuple.
-
-**Example:**
-
-```python
-def add_all(*args):
-    return sum(args)
-
-print(add_all(10, 20))
-print(add_all(10, 20, 30, 40))
-```
-
-**Output:**
-
-```text
-30
-100
-```
-
-**Important:** The name `args` is conventional; the `*` syntax is what collects the positional arguments.
-
-## Q100. What is `**kwargs` in Python?
-
-**Answer:**
-
-`**kwargs` allows a function to accept an arbitrary number of additional keyword arguments. Inside the function, those arguments are available as a dictionary.
-
-**Example:**
-
-```python
-def show_user(**kwargs):
-    for key, value in kwargs.items():
-        print(f"{key}: {value}")
-
-show_user(
-    name="Omar",
-    age=25,
-    role="Backend Developer"
-)
-```
-
-**Output:**
-
-```text
-name: Omar
-age: 25
-role: Backend Developer
-```
-
-**Important Interview Point:**
-
-- `*args` collects extra positional arguments into a tuple.
-- `**kwargs` collects extra keyword arguments into a dictionary.
-
----
-
-# Next Topics
-
-## Questions 101–150: Intermediate Python
-
-- `break`, `continue`, and `pass`.
-- Local, global, and nonlocal variables.
-- Scope rules and namespaces.
-- Lambda functions.
-- Map, filter, and reduce.
-- Object-oriented programming.
-- Classes, objects, inheritance, and polymorphism.
-- Encapsulation and abstraction.
-- Instance, class, and static methods.
-- Exception handling.
-- Decorators and generators.
-- Iterators and context managers.
-
-## Questions 151–200: Advanced Python
-
-- Shallow copy vs deep copy.
-- Closures and higher-order functions.
-- The Global Interpreter Lock (GIL).
-- Multithreading vs multiprocessing.
-- Asyncio, `async`, and `await`.
-- Memory management and garbage collection.
-- Metaclasses and method resolution order.
-- Type hints and abstract base classes.
-- Performance profiling and optimization.
-- Concurrency, race conditions, locks, and deadlocks.
-
-## Questions 201–250: Django Fundamentals
-
-- Django architecture and request-response lifecycle.
-- Project vs app.
-- Models, views, templates, and URL routing.
-- Middleware and signals.
-- ORM, QuerySets, and model managers.
-- Migrations and database relationships.
-- Forms and ModelForms.
-- Authentication and authorization.
-- Sessions, cookies, and CSRF.
-- Django security and deployment.
-
-## Questions 251–300: Django REST Framework
-
-- Serializers and ModelSerializers.
-- APIView, generic views, mixins, and ViewSets.
-- Routers and URL configuration.
-- JWT authentication and permissions.
-- Custom validation and exception handling.
-- Pagination, filtering, and throttling.
-- API versioning and documentation.
-- API testing and security.
-- Performance optimization.
-- Production-ready REST API design.
-
-## Questions 301–350: SQL, DSA, and Backend System Design
-
-- SQL queries, joins, indexes, and normalization.
-- Transactions, ACID, and isolation levels.
-- Arrays, strings, stacks, queues, and hash maps.
-- Searching, sorting, recursion, and dynamic programming.
-- Database optimization and concurrency.
-- Caching with Redis.
-- Background processing with Celery.
-- Docker and deployment.
-- Logging, monitoring, and error handling.
-- E-commerce backend system design.
+### 200. How do you deploy a Django application?
+I configure environment variables, set DEBUG=False, configure allowed hosts and HTTPS, use a production-ready WSGI or ASGI server, configure the database and static files, and set up logging and monitoring.
