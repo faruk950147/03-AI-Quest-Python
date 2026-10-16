@@ -9,7 +9,7 @@ class HomeView(View):
 
     def get(self, request):
         questions = Question.objects.order_by("-pub_date")
-        return render(request, "polls/index.html", {"questions": questions})
+        return render(request, "polls/home.html", {"questions": questions})
 
 
 class QuestionDetailView(View):
