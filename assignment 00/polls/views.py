@@ -56,7 +56,7 @@ class DetailPage(View):
         )
 
 
-class VoteView(View):
+class VotingView(View):
 
     def post(self, request, pk):
         question = get_object_or_404(

@@ -3,7 +3,7 @@ from django.urls import path
 from polls.views import (
     HomePage,
     DetailPage,
-    VoteView,
+    VotingView,
     ResultsPage,
 )
 
@@ -20,7 +20,7 @@ urlpatterns = [
 
     path(
         "<int:pk>/vote/",
-        VoteView.as_view(),
+        VotingView.as_view(),
         name="vote"
     ),
 
