@@ -19,7 +19,7 @@ class QuestionDetailView(View):
         return render(request, "polls/detail.html", {"question": question})
 
 
-class VotingView(View):
+class VoteView(View):
 
     def post(self, request, question_id):
         question = get_object_or_404(Question, pk=question_id)
