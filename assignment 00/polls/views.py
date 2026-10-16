@@ -21,8 +21,8 @@ class QuestionDetailView(View):
 
 class VoteView(View):
 
-    def post(self, request, question_id):
-        question = get_object_or_404(Question, pk=question_id)
+    def post(self, request, pk):
+        question = get_object_or_404(Question, pk=pk)
 
         choice_id = request.POST.get("choice")
 

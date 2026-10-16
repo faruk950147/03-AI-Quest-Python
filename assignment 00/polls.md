@@ -548,10 +548,10 @@ class QuestionDetailView(View):
 
 
 class VoteView(View):
-    def post(self, request, question_id):
+    def post(self, request, pk):
         question = get_object_or_404(
             Question,
-            pk=question_id,
+            pk=pk,
         )
 
         choice_id = request.POST.get("choice")
