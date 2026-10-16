@@ -1,124 +1,44 @@
-
-from django.views import View
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.db.models import F
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views import View
 
-from polls.models import Question, Choice
+from polls.models import Choice, Question
 
 
-class HomePage(View):
+class HomeView(View):
 
     def get(self, request):
-        questions = Question.objects.raw(
-            """
-            SELECT * FROM polls_question;
-            """
-        )
-
-        context = {
-            "questions": questions
-        }
-
-        return render(
-            request,
-            "polls/home.html",
-            context
-        )
+        questions = Question.objects.order_by("-pub_date")
+        return render(request, "polls/index.html", {"questions": questions})
 
 
-class DetailPage(View):
+class QuestionDetailView(View):
 
     def get(self, request, pk):
-        question = Question.objects.raw(
-            """
-            SELECT * FROM polls_question
-            WHERE id = %s;
-            """,
-            [pk]
-        )
-
-        question = next(iter(question), None)
-
-        if question is None:
-            from django.http import Http404
-            raise Http404("Question does not exist")
-
-        context = {
-            "question": question
-        }
-
-        return render(
-            request,
-            "polls/detail.html",
-            context
-        )
+        question = get_object_or_404(Question, pk=pk)
+        return render(request, "polls/detail.html", {"question": question})
 
 
 class VotingView(View):
 
-    def post(self, request, pk):
-        question = get_object_or_404(
-            Question,
-            pk=pk
-        )
+    def post(self, request, question_id):
+        question = get_object_or_404(Question, pk=question_id)
 
-        try:
-            selected_choice = question.choice_set.get(
-                pk=request.POST["choice"]
-            )
+        choice_id = request.POST.get("choice")
 
-        except (KeyError, Choice.DoesNotExist):
-            return render(
-                request,
-                "polls/detail.html",
-                {
-                    "question": question,
-                    "error_message": (
-                        "You didn't select a valid choice."
-                    ),
-                },
-                status=400
-            )
+        if not choice_id:
+            return redirect("polls:detail", pk=question.id)
 
-        selected_choice.votes = F("votes") + 1
+        choice = get_object_or_404(Choice, pk=choice_id, question=question)
 
-        selected_choice.save(
-            update_fields=["votes"]
-        )
+        # Race-condition safe vote increment using F() expressions
+        Choice.objects.filter(pk=choice.pk).update(votes=F("votes") + 1)
 
-        return HttpResponseRedirect(
-            reverse(
-                "polls:results",
-                args=[question.id]
-            )
-        )
+        return redirect("polls:results", pk=question.pk)
 
 
-class ResultsPage(View):
+class ResultsView(View):
 
     def get(self, request, pk):
-        question = Question.objects.raw(
-            """
-            SELECT * FROM polls_question
-            WHERE id = %s;
-            """,
-            [pk]
-        )
-
-        question = next(iter(question), None)
-
-        if question is None:
-            from django.http import Http404
-            raise Http404("Question does not exist")
-
-        context = {
-            "question": question
-        }
-
-        return render(
-            request,
-            "polls/results.html",
-            context
-        )
+        question = get_object_or_404(Question, pk=pk)
+        return render(request, "polls/results.html", {"question": question})

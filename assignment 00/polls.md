@@ -1,10 +1,11 @@
-# Django Class-Based Views (CBV)
+
+# Django Class-Based Views (CBV) — Complete Notes
 
 ## 1. What Are Class-Based Views?
 
-**Class-Based Views (CBV)** are a way to handle HTTP requests in Django using Python classes instead of functions.
+Class-Based Views (CBV) are a way to handle HTTP requests in Django using Python classes instead of functions.
 
-CBVs allow us to organize request-handling logic into methods such as `get()` and `post()`.
+CBVs organize request-handling logic into methods such as `get()` and `post()`.
 
 ### Example
 
@@ -18,16 +19,16 @@ class HomeView(View):
         return HttpResponse("Hello, Django CBV!")
 ```
 
-**Explanation:**
+### Explanation
 
 - `View` is Django's built-in base class.
-- `HomeView` is our custom view class.
+- `HomeView` is a custom view class.
 - `get()` handles GET requests.
 - `post()` handles POST requests.
-- `request` contains information about the incoming HTTP request.
+- `request` contains incoming HTTP request information.
 - `HttpResponse()` sends a response to the client.
 
-## 2. Function-Based Views (FBV) vs Class-Based Views (CBV)
+## 2. FBV vs CBV
 
 ### Function-Based View (FBV)
 
@@ -36,7 +37,7 @@ from django.http import HttpResponse
 
 
 def home(request):
-    return HttpResponse("Hello, Django!")
+    return HttpResponse("Hello from FBV!")
 ```
 
 ### Class-Based View (CBV)
@@ -48,7 +49,7 @@ from django.views import View
 
 class HomeView(View):
     def get(self, request):
-        return HttpResponse("Hello, Django!")
+        return HttpResponse("Hello from CBV!")
 ```
 
 ### Differences
@@ -56,13 +57,14 @@ class HomeView(View):
 | FBV | CBV |
 |---|---|
 | Uses functions | Uses classes |
-| Defined using `def` | Defined using `class` |
-| Often checks `request.method` | Uses separate methods such as `get()` and `post()` |
-| Suitable for simple logic | Useful for reusable and complex logic |
-| Supports function decorators | Supports method decorators and inheritance |
-| Custom logic is written in functions | Custom logic is written in class methods |
+| Defined with `def` | Defined with `class` |
+| Often checks `request.method` | Uses methods such as `get()` and `post()` |
+| Simple logic can be concise | Supports inheritance and reusable logic |
+| Uses function decorators | Supports method decorators and mixins |
 
-## 3. Common HTTP Methods in CBV
+Neither approach is always better. Choose according to the task.
+
+## 3. Common HTTP Methods
 
 ```python
 from django.http import HttpResponse
@@ -70,7 +72,6 @@ from django.views import View
 
 
 class ExampleView(View):
-
     def get(self, request):
         return HttpResponse("GET request")
 
@@ -87,17 +88,15 @@ class ExampleView(View):
         return HttpResponse("DELETE request")
 ```
 
-- `get()` — Retrieves or displays information.
+- `get()` — Retrieves information.
 - `post()` — Submits data or creates a resource.
-- `put()` — Typically replaces an existing resource.
-- `patch()` — Updates part of an existing resource.
+- `put()` — Typically replaces a resource.
+- `patch()` — Updates part of a resource.
 - `delete()` — Deletes a resource.
 
-**Note:** Standard HTML forms primarily support GET and POST. Other HTTP methods generally require additional handling.
+Unsupported methods generally return HTTP 405.
 
-## 4. URL Configuration in CBV
-
-The `as_view()` method converts a class-based view into a callable view that Django can use in URL configuration.
+## 4. URL Configuration and as_view()
 
 ### views.py
 
@@ -117,40 +116,34 @@ class HomeView(View):
 from django.urls import path
 from .views import HomeView
 
-
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
 ]
 ```
 
+`as_view()` converts the class into a callable that Django can use in URL configuration.
+
 ### Request Flow
 
-```text
-Browser
-   |
-   v
-URL Configuration
-   |
-   v
-HomeView.as_view()
-   |
-   v
-HomeView.get()
-   |
-   v
-HttpResponse
-   |
-   v
-Browser
-```
+Browser → URL Configuration → `as_view()` → `dispatch()` → `get()` or `post()` → Response
 
-## 5. Important Built-in Generic CBVs
+## 5. dispatch()
 
-Django provides generic class-based views to simplify common application tasks.
+The `dispatch()` method routes requests to the appropriate handler.
 
-### 5.1 ListView
+- GET → `get()`
+- POST → `post()`
+- PUT → `put()`
+- PATCH → `patch()`
+- DELETE → `delete()`
 
-`ListView` displays a list of database objects.
+Unsupported methods generally return HTTP 405 Method Not Allowed.
+
+## 6. Important Generic CBVs
+
+### 6.1 ListView
+
+Displays multiple database objects.
 
 ```python
 from django.views.generic import ListView
@@ -162,18 +155,20 @@ class QuestionListView(ListView):
     template_name = "polls/index.html"
     context_object_name = "questions"
     ordering = ["-pub_date"]
+    paginate_by = 10
 ```
 
-**Important attributes:**
+Important attributes:
 
-- `model` — Specifies the model used to retrieve objects.
-- `template_name` — Specifies the template to render.
-- `context_object_name` — Specifies the variable name used in the template.
-- `ordering` — Specifies the default ordering of objects.
+- `model` — Specifies the model.
+- `template_name` — Specifies the template.
+- `context_object_name` — Specifies the template variable.
+- `ordering` — Defines the ordering.
+- `paginate_by` — Sets the number of objects per page.
 
-### 5.2 DetailView
+### 6.2 DetailView
 
-`DetailView` displays the details of a single object.
+Displays one object's details.
 
 ```python
 from django.views.generic import DetailView
@@ -186,11 +181,11 @@ class QuestionDetailView(DetailView):
     context_object_name = "question"
 ```
 
-By default, `DetailView` uses the `pk` URL parameter to identify an object.
+By default, `DetailView` uses a `pk` URL parameter to retrieve an object.
 
-### 5.3 CreateView
+### 6.3 CreateView
 
-`CreateView` provides functionality for creating new database objects.
+Creates a new object using a form.
 
 ```python
 from django.urls import reverse_lazy
@@ -205,13 +200,13 @@ class QuestionCreateView(CreateView):
     success_url = reverse_lazy("polls:index")
 ```
 
-- `fields` specifies which model fields appear in the form.
-- `success_url` specifies where the user is redirected after successful creation.
-- Django handles form validation and object creation.
+- `fields` defines the form fields.
+- Django handles standard form validation and saving.
+- `success_url` specifies the redirect destination.
 
-### 5.4 UpdateView
+### 6.4 UpdateView
 
-`UpdateView` provides functionality for updating existing objects.
+Updates an existing object.
 
 ```python
 from django.urls import reverse_lazy
@@ -226,9 +221,9 @@ class QuestionUpdateView(UpdateView):
     success_url = reverse_lazy("polls:index")
 ```
 
-### 5.5 DeleteView
+### 6.5 DeleteView
 
-`DeleteView` provides functionality for deleting existing objects.
+Deletes an existing object.
 
 ```python
 from django.urls import reverse_lazy
@@ -242,11 +237,11 @@ class QuestionDeleteView(DeleteView):
     success_url = reverse_lazy("polls:index")
 ```
 
-Deletion is normally confirmed through a POST form.
+Deletion normally requires a POST request after displaying a confirmation page.
 
-### 5.6 TemplateView
+### 6.6 TemplateView
 
-`TemplateView` renders a specified template.
+Renders a specified template.
 
 ```python
 from django.views.generic import TemplateView
@@ -256,9 +251,9 @@ class AboutView(TemplateView):
     template_name = "about.html"
 ```
 
-### 5.7 RedirectView
+### 6.7 RedirectView
 
-`RedirectView` redirects users to another URL.
+Redirects users to another URL.
 
 ```python
 from django.views.generic import RedirectView
@@ -266,31 +261,116 @@ from django.views.generic import RedirectView
 
 class GoogleRedirectView(RedirectView):
     url = "https://www.google.com/"
+    permanent = False
 ```
 
-## 6. Django Polls Application Using CBV
+## 7. Important CBV Attributes and Methods
 
-This project includes:
+### model
 
-- Questions and multiple choices
-- Voting functionality
-- Database storage
-- Vote results
-- Django Admin management
+```python
+model = Question
+```
 
-### Step 1: Create the Project
+Specifies the model used by a generic view.
+
+### queryset
+
+```python
+queryset = Question.objects.order_by("-pub_date")
+```
+
+Specifies the queryset used by the view.
+
+### get_queryset()
+
+Customizes which objects are retrieved.
+
+```python
+class QuestionListView(ListView):
+    model = Question
+
+    def get_queryset(self):
+        return Question.objects.order_by("-pub_date")
+```
+
+### get_context_data()
+
+Adds extra data to the template context.
+
+```python
+class QuestionListView(ListView):
+    model = Question
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total_questions"] = Question.objects.count()
+        return context
+```
+
+### get_object()
+
+Customizes object retrieval in generic detail and editing views.
+
+### get_template_names()
+
+Customizes which template is rendered.
+
+### form_valid()
+
+Customizes behavior after successful form validation.
+
+```python
+def form_valid(self, form):
+    return super().form_valid(form)
+```
+
+### form_invalid()
+
+Customizes behavior when form validation fails.
+
+### get_form_kwargs()
+
+Passes additional arguments to a form.
+
+### reverse_lazy()
+
+Resolves a named URL lazily.
+
+```python
+from django.urls import reverse_lazy
+
+success_url = reverse_lazy("polls:index")
+```
+
+## 8. Create a Django Polls Project
+
+### Step 1: Install Django
 
 ```bash
 pip install django
-
 django-admin startproject mysite
-
 cd mysite
-
 python manage.py startapp polls
 ```
 
-### Step 2: Create Models
+### Step 2: Register the app
+
+In `mysite/settings.py`, add `"polls"` to `INSTALLED_APPS`.
+
+```python
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "polls",
+]
+```
+
+### Step 3: Create Models
 
 File: `polls/models.py`
 
@@ -319,51 +399,35 @@ class Choice(models.Model):
         return self.choice_text
 ```
 
-**Model explanation:**
+### Model Explanation
 
 - `Question` stores poll questions.
-- `Choice` stores the available options for each question.
-- `ForeignKey` establishes a relationship between `Choice` and `Question`.
-- `on_delete=models.CASCADE` deletes associated choices when a question is deleted.
-- `related_name="choices"` allows access through `question.choices.all()`.
-- `votes` stores the number of votes received by each choice.
+- `Choice` stores available choices.
+- `ForeignKey` connects choices to questions.
+- `on_delete=models.CASCADE` deletes related choices when a question is deleted.
+- `related_name="choices"` allows `question.choices.all()`.
+- `votes` stores the vote count.
 
-### Step 3: Register the Application
+### Step 4: Create Migrations
 
-File: `mysite/settings.py`
-
-Add `"polls"` to `INSTALLED_APPS`.
-
-```python
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "polls",
-]
+```bash
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-### Step 4: Create Class-Based Views
+### Step 5: Create Views
 
 File: `polls/views.py`
-
-This implementation uses the base `View` class for `IndexView`, `QuestionDetailView`, and `VoteView`. `ResultsView` uses `DetailView`.
 
 ```python
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView
 
-from .models import Question, Choice
+from .models import Choice, Question
 
 
 class IndexView(View):
-
     def get(self, request):
         questions = Question.objects.order_by("-pub_date")
 
@@ -375,12 +439,8 @@ class IndexView(View):
 
 
 class QuestionDetailView(View):
-
     def get(self, request, pk):
-        question = get_object_or_404(
-            Question,
-            pk=pk,
-        )
+        question = get_object_or_404(Question, pk=pk)
 
         return render(
             request,
@@ -390,7 +450,6 @@ class QuestionDetailView(View):
 
 
 class VoteView(View):
-
     def post(self, request, question_id):
         question = get_object_or_404(
             Question,
@@ -405,9 +464,7 @@ class VoteView(View):
                 "polls/detail.html",
                 {
                     "question": question,
-                    "error_message": (
-                        "You did not select a choice."
-                    ),
+                    "error_message": "Please select a choice.",
                 },
                 status=400,
             )
@@ -423,82 +480,33 @@ class VoteView(View):
         )
 
         return redirect(
-            reverse(
-                "polls:results",
-                args=[question.pk],
-            )
+            "polls:results",
+            pk=question.pk,
         )
 
 
-class ResultsView(DetailView):
-    model = Question
-    template_name = "polls/results.html"
-    context_object_name = "question"
-```
-
-### Explanation of IndexView
-
-```python
-class IndexView(View):
-
-    def get(self, request):
-        questions = Question.objects.order_by("-pub_date")
-
-        return render(
-            request,
-            "polls/index.html",
-            {"questions": questions},
-        )
-```
-
-- `IndexView(View)` creates a custom class-based view.
-- `get()` handles GET requests.
-- `Question.objects.order_by("-pub_date")` retrieves questions with the newest first.
-- `render()` sends the questions to the index template.
-
-### Explanation of QuestionDetailView
-
-```python
-class QuestionDetailView(View):
-
+class ResultsView(View):
     def get(self, request, pk):
-        question = get_object_or_404(
-            Question,
-            pk=pk,
-        )
+        question = get_object_or_404(Question, pk=pk)
 
         return render(
             request,
-            "polls/detail.html",
+            "polls/results.html",
             {"question": question},
         )
 ```
 
-- `pk` receives the question's primary key from the URL.
-- `get_object_or_404()` retrieves the question or returns HTTP 404.
-- `render()` passes the question to the detail template.
+### Explanation
 
-### Explanation of VoteView
-
-- `post()` handles the submitted vote.
-- `request.POST.get("choice")` retrieves the selected choice ID.
-- `get_object_or_404()` validates the question and selected choice.
-- Filtering the choice by its question prevents selecting a choice belonging to a different question.
+- `IndexView` displays questions.
+- `QuestionDetailView` displays one question.
+- `VoteView` handles submitted votes.
+- `ResultsView` displays voting results.
+- `get_object_or_404()` returns a 404 response if the object does not exist.
 - `F("votes") + 1` increments the vote count in the database.
-- `redirect()` sends the user to the results page.
+- Filtering by `question=question` ensures that the selected choice belongs to the requested question.
 
-### Explanation of ResultsView
-
-```python
-class ResultsView(DetailView):
-    model = Question
-    template_name = "polls/results.html"
-    context_object_name = "question"
-```
-
-`DetailView` automatically retrieves the question using its primary key and passes it to the results template.
-
-### Step 5: Configure Application URLs
+### Step 6: Configure URLs
 
 File: `polls/urls.py`
 
@@ -512,34 +520,17 @@ from .views import (
     ResultsView,
 )
 
-
 app_name = "polls"
 
-
 urlpatterns = [
-    path(
-        "",
-        IndexView.as_view(),
-        name="index",
-    ),
-
-    path(
-        "<int:pk>/",
-        QuestionDetailView.as_view(),
-        name="detail",
-    ),
-
+    path("", IndexView.as_view(), name="index"),
+    path("<int:pk>/", QuestionDetailView.as_view(), name="detail"),
     path(
         "<int:question_id>/vote/",
         VoteView.as_view(),
         name="vote",
     ),
-
-    path(
-        "<int:pk>/results/",
-        ResultsView.as_view(),
-        name="results",
-    ),
+    path("<int:pk>/results/", ResultsView.as_view(), name="results"),
 ]
 ```
 
@@ -549,16 +540,13 @@ File: `mysite/urls.py`
 from django.contrib import admin
 from django.urls import include, path
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("polls/", include("polls.urls")),
 ]
 ```
 
-**Important:** `QuestionDetailView` receives `pk`, while `VoteView` receives `question_id`. These parameter names must match their corresponding URL patterns.
-
-### Step 6: Create the Index Template
+### Step 7: Create Index Template
 
 File: `polls/templates/polls/index.html`
 
@@ -570,7 +558,6 @@ File: `polls/templates/polls/index.html`
     <title>Polls Application</title>
 </head>
 <body>
-
     <h1>Recent Questions</h1>
 
     {% for question in questions %}
@@ -582,12 +569,11 @@ File: `polls/templates/polls/index.html`
     {% empty %}
         <p>No questions are available.</p>
     {% endfor %}
-
 </body>
 </html>
 ```
 
-### Step 7: Create the Detail Template
+### Step 8: Create Detail Template
 
 File: `polls/templates/polls/detail.html`
 
@@ -599,7 +585,6 @@ File: `polls/templates/polls/detail.html`
     <title>{{ question.question_text }}</title>
 </head>
 <body>
-
     <h1>{{ question.question_text }}</h1>
 
     {% if error_message %}
@@ -618,6 +603,7 @@ File: `polls/templates/polls/detail.html`
                     type="radio"
                     name="choice"
                     value="{{ choice.pk }}"
+                    required
                 >
                 {{ choice.choice_text }}
             </label>
@@ -626,20 +612,19 @@ File: `polls/templates/polls/detail.html`
             <p>No choices are available.</p>
         {% endfor %}
 
-        <button type="submit">Vote</button>
+        {% if question.choices.exists %}
+            <button type="submit">Vote</button>
+        {% endif %}
     </form>
 
     <p>
-        <a href="{% url 'polls:index' %}">
-            View all questions
-        </a>
+        <a href="{% url 'polls:index' %}">View all questions</a>
     </p>
-
 </body>
 </html>
 ```
 
-### Step 8: Create the Results Template
+### Step 9: Create Results Template
 
 File: `polls/templates/polls/results.html`
 
@@ -651,15 +636,13 @@ File: `polls/templates/polls/results.html`
     <title>Poll Results</title>
 </head>
 <body>
-
     <h1>{{ question.question_text }}</h1>
     <h2>Voting Results</h2>
 
     <ul>
         {% for choice in question.choices.all %}
             <li>
-                {{ choice.choice_text }} —
-                {{ choice.votes }} votes
+                {{ choice.choice_text }} — {{ choice.votes }} votes
             </li>
         {% empty %}
             <li>No choices are available.</li>
@@ -667,28 +650,24 @@ File: `polls/templates/polls/results.html`
     </ul>
 
     <p>
-        <a href="{% url 'polls:detail' question.pk %}">
-            Vote again
-        </a>
+        <a href="{% url 'polls:detail' question.pk %}">Vote again</a>
     </p>
 
     <p>
-        <a href="{% url 'polls:index' %}">
-            View all questions
-        </a>
+        <a href="{% url 'polls:index' %}">View all questions</a>
     </p>
-
 </body>
 </html>
 ```
 
-### Step 9: Configure Django Admin
+### Step 10: Configure Django Admin
 
 File: `polls/admin.py`
 
 ```python
 from django.contrib import admin
-from .models import Question, Choice
+
+from .models import Choice, Question
 
 
 class ChoiceInline(admin.TabularInline):
@@ -701,223 +680,204 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ("question_text", "pub_date")
     search_fields = ("question_text",)
     inlines = [ChoiceInline]
+
+
+@admin.register(Choice)
+class ChoiceAdmin(admin.ModelAdmin):
+    list_display = ("choice_text", "question", "votes")
+    list_filter = ("question",)
+    search_fields = ("choice_text",)
 ```
 
-### Step 10: Run the Project
-
-Create database tables:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-Create an administrator account:
+### Step 11: Create Admin User
 
 ```bash
 python manage.py createsuperuser
 ```
 
-Start the development server:
+### Step 12: Run the Project
 
 ```bash
 python manage.py runserver
 ```
 
-**Application URLs:**
+URLs:
 
-- Polls application: `http://127.0.0.1:8000/polls/`
-- Django Admin: `http://127.0.0.1:8000/admin/`
+- Polls: `http://127.0.0.1:8000/polls/`
+- Admin: `http://127.0.0.1:8000/admin/`
 
-Log in to Django Admin, create a question with at least two choices, and then open the Polls application to vote.
+Create a question and choices in Django Admin before testing the voting application.
 
-## 7. Important CBV Concepts
+## 9. Authentication and Permissions
 
-### 7.1 `as_view()`
-
-Converts a class-based view into a callable that Django can use in URL configuration.
+### LoginRequiredMixin
 
 ```python
-path("", IndexView.as_view(), name="index")
-```
-
-### 7.2 `model`
-
-Specifies the model used by a generic view.
-
-```python
-model = Question
-```
-
-### 7.3 `template_name`
-
-Specifies which template should be rendered.
-
-```python
-template_name = "polls/index.html"
-```
-
-### 7.4 `context_object_name`
-
-Specifies the variable name used to access objects in the template.
-
-```python
-context_object_name = "questions"
-```
-
-### 7.5 `get_queryset()`
-
-Customizes which objects are retrieved from the database.
-
-```python
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
+
 from .models import Question
 
 
-class QuestionListView(ListView):
+class QuestionListView(LoginRequiredMixin, ListView):
     model = Question
-
-    def get_queryset(self):
-        return Question.objects.order_by("-pub_date")
 ```
 
-### 7.6 `get_context_data()`
+Requires the user to be logged in.
 
-Adds extra data to the template context.
+### PermissionRequiredMixin
 
 ```python
-class QuestionListView(ListView):
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import ListView
+
+from .models import Question
+
+
+class QuestionListView(PermissionRequiredMixin, ListView):
     model = Question
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["total_questions"] = (
-            Question.objects.count()
-        )
-
-        return context
+    permission_required = "polls.view_question"
 ```
 
-### 7.7 `get_object()`
+Requires the specified permission.
 
-Generic detail views use this method to retrieve the object being displayed. It can be overridden to customize object retrieval.
+Important security practices:
 
-### 7.8 `dispatch()`
+- Validate submitted data on the server.
+- Use CSRF tokens in POST forms.
+- Apply authentication where needed.
+- Check object-level permissions.
+- Prevent unauthorized edits and deletions.
+- Implement duplicate-vote prevention if the application requires it.
 
-Routes a request to the appropriate method according to the HTTP method.
+## 10. Common Errors
 
-Examples:
+| Error | Possible cause |
+|---|---|
+| `TemplateDoesNotExist` | Incorrect template path |
+| `NoReverseMatch` | Incorrect URL name or arguments |
+| `TypeError` | Mismatched method parameters |
+| `Http404` | Object not found |
+| `405 Method Not Allowed` | Unsupported HTTP method |
+| `ImproperlyConfigured` | Missing generic view configuration |
+| CSRF verification failed | Missing or invalid CSRF token |
 
-- GET → `get()`
-- POST → `post()`
-- PUT → `put()`
-- DELETE → `delete()`
+## 11. Interview Questions and Answers
 
-Unsupported methods generally return HTTP 405 Method Not Allowed.
+**Q1. What is a CBV?**
 
-### 7.9 `reverse_lazy()`
+A Django view implemented using a Python class and its methods.
 
-Resolves a named URL lazily, making it useful for class attributes such as `success_url`.
+**Q2. What does `as_view()` do?**
 
-```python
-from django.urls import reverse_lazy
+Converts a CBV into a callable for URL configuration.
 
-success_url = reverse_lazy("polls:index")
-```
+**Q3. What is the difference between FBV and CBV?**
 
-## 8. Advantages of CBV
+FBV uses a function; CBV uses a class and methods.
 
-1. Supports code reuse through inheritance.
-2. Separates request handling into methods.
-3. Provides built-in generic views for common operations.
-4. Reduces boilerplate code for CRUD operations.
-5. Supports customization through `get_queryset()` and `get_context_data()`.
-6. Helps organize larger applications.
+**Q4. What is `dispatch()`?**
 
-## 9. Important Limitations and Security Notes
+Routes a request to the appropriate HTTP handler.
 
-- CBVs are not automatically better than FBVs for every task.
-- The example application allows the same user to vote multiple times.
-- `F()` expressions help prevent lost updates to vote counts, but they do not prevent duplicate voting.
-- Production applications should implement authentication, authorization, validation, and duplicate-vote prevention where appropriate.
-- Server-side validation is necessary because frontend restrictions can be bypassed.
-- The voting form uses Django's CSRF token.
-- Filtering the selected choice by its question prevents voting for a choice belonging to another question.
+**Q5. What is `ListView`?**
 
-## 10. Interview Questions and Answers
+A generic view for displaying multiple objects.
 
-**Q1. What is a Class-Based View?**
+**Q6. What is `DetailView`?**
 
-A CBV is a Django view implemented as a Python class that handles HTTP requests through methods.
+A generic view for displaying a single object.
 
-**Q2. What is the purpose of `as_view()`?**
+**Q7. What is `CreateView`?**
 
-It converts a class-based view into a callable view that Django can use in URL configuration.
+A generic view for creating objects through forms.
 
-**Q3. What is the difference between `ListView` and `DetailView`?**
+**Q8. What is `UpdateView`?**
 
-`ListView` displays multiple objects, while `DetailView` displays one object's details.
+A generic view for updating existing objects.
 
-**Q4. What is `context_object_name`?**
+**Q9. What is `DeleteView`?**
 
-It defines the variable name used to access the view's object or queryset in a template.
+A generic view for deleting existing objects.
 
-**Q5. What is `get_queryset()`?**
+**Q10. What is `TemplateView`?**
 
-It customizes the queryset retrieved by a generic view.
+A generic view for rendering a template.
 
-**Q6. What is `get_context_data()`?**
+**Q11. What is `context_object_name`?**
 
-It adds additional data to a template's context.
+The variable name used to access the object or queryset in a template.
 
-**Q7. Why do we use `reverse_lazy()`?**
+**Q12. What is `get_queryset()`?**
 
-It resolves a named URL lazily and is useful for URL-dependent class attributes.
+A method for customizing the objects retrieved by a generic view.
 
-**Q8. Can a CBV handle GET and POST requests?**
+**Q13. What is `get_context_data()`?**
 
-Yes. A class derived from `View` can define `get()` and `post()` methods.
+A method for adding extra template context.
 
-**Q9. What are generic CBVs?**
+**Q14. What is `reverse_lazy()`?**
 
-They are Django's built-in class-based views that simplify common tasks such as listing, displaying, creating, updating, and deleting objects.
+A function that resolves a named URL lazily.
 
-**Q10. What is the difference between FBV and CBV?**
+**Q15. What is `form_valid()`?**
 
-An FBV uses a function to handle requests, whereas a CBV uses a class and its methods.
+A method for customizing successful form submission.
 
-**Q11. What is `dispatch()`?**
+**Q16. What is `LoginRequiredMixin`?**
 
-It routes a request to the appropriate handler method according to the HTTP method.
+A mixin that restricts access to authenticated users.
 
-**Q12. What is the purpose of `F()` expressions?**
+**Q17. What is `get_object_or_404()`?**
 
-They allow database operations to reference existing field values directly, which is useful for atomic increments and updates.
+Retrieves an object or returns an HTTP 404 response.
 
-**Q13. What is the difference between `View` and `ListView`?**
+**Q18. What is an `F()` expression?**
 
-`View` is a base class for custom request handling. `ListView` is a generic view that retrieves and displays a list of objects.
+It allows database operations to reference existing field values directly.
 
-**Q14. What is the difference between `CreateView` and `UpdateView`?**
+**Q19. Does `F()` prevent duplicate voting?**
 
-`CreateView` creates a new object, while `UpdateView` updates an existing object.
+No. It helps with atomic database updates but does not prevent repeated votes.
 
-**Q15. What is the purpose of `get_object_or_404()`?**
+**Q20. When should FBV be used?**
 
-It retrieves an object if it exists; otherwise, it raises an HTTP 404 response.
+FBV is often suitable for simple, straightforward request-handling logic.
 
-## 11. Quick Revision
+## 12. Quick Revision
 
-| CBV | Main Purpose |
+| CBV | Purpose |
 |---|---|
 | `View` | Custom request handling |
-| `ListView` | Display multiple objects |
+| `ListView` | List objects |
 | `DetailView` | Display one object |
-| `CreateView` | Create an object |
-| `UpdateView` | Update an object |
-| `DeleteView` | Delete an object |
-| `TemplateView` | Render a template |
-| `RedirectView` | Redirect to another URL |
+| `CreateView` | Create objects |
+| `UpdateView` | Update objects |
+| `DeleteView` | Delete objects |
+| `TemplateView` | Render templates |
+| `RedirectView` | Redirect |
+| `get_queryset()` | Customize queries |
+| `get_context_data()` | Add context |
+| `get_object()` | Customize object retrieval |
+| `form_valid()` | Handle valid forms |
+| `reverse_lazy()` | Lazy URL resolution |
+| `LoginRequiredMixin` | Require login |
+| `PermissionRequiredMixin` | Require permissions |
+| `F()` | Database field operations |
 
-**Final Note:** First learn `View`, `as_view()`, `get()`, and `post()`. Then practice `ListView`, `DetailView`, `CreateView`, `UpdateView`, and `DeleteView`. These concepts will help you build Django CRUD applications more efficiently.
+## 13. Practice Roadmap
+
+1. Build a Home page using `View`.
+2. Practice `get()` and `post()`.
+3. Create a Blog using `ListView` and `DetailView`.
+4. Add `CreateView`, `UpdateView`, and `DeleteView`.
+5. Add authentication and permissions.
+6. Implement search and pagination.
+7. Build a complete Blog CRUD application.
+8. Practice explaining each concept in an interview.
+
+## Final Note
+
+First master `View`, `as_view()`, `dispatch()`, `get()`, and `post()`. Then learn `ListView`, `DetailView`, `CreateView`, `UpdateView`, and `DeleteView`.
+
+These concepts are useful for building maintainable Django applications and preparing for backend developer interviews.
