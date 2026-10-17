@@ -1,17 +1,117 @@
-# Django + Docker + PostgreSQL + Redis + Celery
+# Django + Docker + PostgreSQL + Redis + Celery — Complete Notes
 
-## Complete Docker Notes
+## Table of Contents
+
+1. Beginner Level
+2. Intermediate Level
+3. Advanced Level
+4. Project Structure
+5. Dockerfile
+6. Docker Compose
+7. Environment Variables
+8. Django Settings
+9. PostgreSQL
+10. Redis
+11. Celery
+12. Database Migration
+13. Docker Commands
+14. Production Deployment
+15. Security Best Practices
+16. Troubleshooting
+17. Quick Reference
 
 ---
 
-# 1. Project Structure
+# 1. Beginner Level
 
-একটি সাধারণ Django + Docker project structure:
+## 1.1 What is Django?
+
+Django is a Python web framework used to build web applications, backend systems, and REST APIs.
+
+Common use cases:
+
+- Blog applications
+- E-commerce websites
+- Authentication systems
+- REST APIs
+- SaaS applications
+- Admin dashboards
+
+## 1.2 What is Docker?
+
+Docker packages an application and its dependencies into containers.
+
+Benefits:
+
+- Consistent development environment
+- Easy deployment
+- Isolated services
+- Reproducible builds
+- Easier scaling
+
+## 1.3 What is PostgreSQL?
+
+PostgreSQL is a relational database management system.
+
+Django uses it to store:
+
+- Users
+- Products
+- Orders
+- Payments
+- Application data
+
+## 1.4 What is Redis?
+
+Redis is an in-memory data store.
+
+Common uses:
+
+- Caching
+- Celery message broker
+- Temporary data storage
+- Rate limiting
+
+## 1.5 What is Celery?
+
+Celery executes background tasks outside the normal HTTP request-response cycle.
+
+Examples:
+
+- Sending emails
+- Generating reports
+- Processing uploaded files
+- Scheduled jobs
+- Notifications
+
+## 1.6 How the Services Work Together
 
 ```text
-myproject/
+Client
+  |
+  v
+Django Application
+  |
+  +------ PostgreSQL
+  |
+  +------ Redis
+             |
+             v
+          Celery Worker
+```
+
+Django handles HTTP requests. PostgreSQL stores persistent data. Redis can queue background tasks. Celery workers execute those tasks.
+
+---
+
+# 2. Intermediate Level
+
+## 2.1 Recommended Project Structure
+
+```text
+django-docker-project/
 │
-├── myproject/
+├── config/
 │   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
@@ -19,168 +119,317 @@ myproject/
 │   └── wsgi.py
 │
 ├── core/
-│   ├── migrations/
+│   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
 │   ├── models.py
 │   ├── views.py
-│   └── ...
+│   └── migrations/
 │
-├── manage.py
 ├── requirements.txt
 ├── Dockerfile
 ├── compose.yaml
-└── .env
+├── .dockerignore
+├── .env
+└── manage.py
 ```
 
-> `docker-compose.yml` এখনো কাজ করে, তবে modern Docker Compose-এ `compose.yaml` বা `compose.yml` ব্যবহার করা recommended।
+Create the project:
+
+```bash
+mkdir django-docker-project
+cd django-docker-project
+
+python -m venv venv
+```
+
+Activate the virtual environment on Windows:
+
+```powershell
+venv\Scripts\activate
+```
+
+Activate on Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install django djangorestframework psycopg[binary] redis celery
+```
+
+Create the Django project:
+
+```bash
+django-admin startproject config .
+python manage.py startapp core
+```
+
+Save dependencies:
+
+```bash
+pip freeze > requirements.txt
+```
+
+For production, use a reviewed and pinned dependency list rather than blindly relying on an uncontrolled environment.
 
 ---
 
-# 2. requirements.txt
+# 3. Requirements File
 
-উদাহরণ:
+Example `requirements.txt`:
 
 ```text
 Django
+djangorestframework
 psycopg[binary]
 redis
 celery
-django-redis
+gunicorn
 ```
 
-যদি Django REST Framework ব্যবহার করো:
-
-```text
-djangorestframework
-```
-
-Production project-এ সাধারণত package version pin করা ভালো:
-
-```text
-Django==5.2.7
-psycopg[binary]==3.2.10
-redis==6.4.0
-celery==5.5.3
-django-redis==6.0.0
-```
-
-> Version example হিসেবে দেওয়া হয়েছে। নিজের project অনুযায়ী compatible version ব্যবহার করবে।
+For a real deployment, pin tested package versions and update them deliberately.
 
 ---
 
-# 3. Dockerfile
+# 4. Dockerfile
+
+Create a file named `Dockerfile`:
 
 ```dockerfile
 FROM python:3.12-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
 ```
 
-## Explanation
+### Explanation
 
-### `FROM`
+- `FROM`: Selects the base image.
+- `WORKDIR`: Sets the working directory.
+- `ENV`: Configures Python behavior.
+- `COPY`: Copies files into the image.
+- `RUN`: Executes build-time commands.
+- `EXPOSE`: Documents the intended application port.
+- `CMD`: Starts the Django application using Gunicorn.
 
-```dockerfile
-FROM python:3.12-slim
-```
-
-Python-এর lightweight image ব্যবহার করছে।
+The build tools are included here for packages that may require compilation. Remove unnecessary packages when your dependencies do not need them.
 
 ---
 
-### `ENV`
+# 5. Docker Ignore File
 
-```dockerfile
-ENV PYTHONUNBUFFERED=1
+Create `.dockerignore`:
+
+```text
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.git/
+.env
+.pytest_cache/
+.coverage
+staticfiles/
+media/
 ```
 
-Python output buffer না করে সরাসরি logs-এ দেখাতে সাহায্য করে।
-
-Docker environment-এ logging-এর জন্য এটি useful।
+This prevents unnecessary files and secrets from entering the Docker build context.
 
 ---
 
-### `WORKDIR`
+# 6. Environment Variables
 
-```dockerfile
-WORKDIR /app
+Create `.env`:
+
+```dotenv
+DEBUG=True
+SECRET_KEY=replace-this-with-a-long-random-secret
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+POSTGRES_DB=django_db
+POSTGRES_USER=django_user
+POSTGRES_PASSWORD=replace-with-a-local-development-password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+REDIS_URL=redis://redis:6379/0
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
 ```
 
-Container-এর ভিতরে working directory `/app`।
+Important:
+
+- Do not commit `.env` to Git.
+- Use a unique, randomly generated secret key.
+- Never reuse the example passwords in production.
+- Production secrets should be injected through your deployment platform or a secret manager.
 
 ---
 
-### `COPY`
+# 7. Django Settings
 
-```dockerfile
-COPY requirements.txt .
+Update `config/settings.py`.
+
+```python
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "unsafe-development-key-change-me",
+)
+
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "localhost",
+    ).split(",")
+    if host.strip()
+]
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "core",
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "config.urls"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = "config.wsgi.application"
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB", "django_db"),
+        "USER": os.environ.get("POSTGRES_USER", "django_user"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "CONN_MAX_AGE": 60,
+    }
+}
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
+    },
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "MinimumLengthValidator"
+        ),
+    },
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
+        ),
+    },
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "NumericPasswordValidator"
+        ),
+    },
+]
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REDIS_URL = os.environ.get(
+    "REDIS_URL",
+    "redis://localhost:6379/0",
+)
+
+CELERY_BROKER_URL = os.environ.get(
+    "CELERY_BROKER_URL",
+    "redis://localhost:6379/1",
+)
+
+CELERY_RESULT_BACKEND = os.environ.get(
+    "CELERY_RESULT_BACKEND",
+    "redis://localhost:6379/2",
+)
 ```
 
-প্রথমে শুধু `requirements.txt` copy করা হচ্ছে।
-
-এরপর:
-
-```dockerfile
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
-```
-
-Dependencies install করা হচ্ছে।
-
-শেষে:
-
-```dockerfile
-COPY . .
-```
-
-Project-এর বাকি files container-এ copy করা হচ্ছে।
+The fallback secret key is for local development only. Production startup should fail if a real secret key is missing.
 
 ---
 
-### `EXPOSE`
+# 8. Docker Compose
 
-```dockerfile
-EXPOSE 8000
-```
-
-Container-এর application port হিসেবে 8000 document করে।
-
----
-
-### `CMD`
-
-```dockerfile
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-```
-
-Django development server চালায়।
-
----
-
-# 4. Docker Compose
-
-Django + PostgreSQL + Redis + Celery:
+Create `compose.yaml`:
 
 ```yaml
 services:
-
   web:
     build: .
-    container_name: django-app
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -189,659 +438,542 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
-      - redis
-    restart: unless-stopped
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     image: postgres:16
-    container_name: postgres-db
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   celery:
     build: .
-    container_name: celery-worker
-    command: celery -A myproject worker -l info
+    command: celery -A config worker --loglevel=info
     volumes:
       - .:/app
     env_file:
       - .env
     depends_on:
-      - redis
-      - db
-    restart: unless-stopped
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  redis_data:
 ```
 
-## Important
+This Compose configuration is intended for local development. The Django development server and bind-mounted source code should be replaced with a production-ready setup for deployment.
 
-তোমার original command ছিল:
-
-```yaml
-command: celery -A config worker -l info
-```
-
-এখানে `config` যদি তোমার Django project package-এর নাম না হয়, তাহলে এটি কাজ করবে না।
-
-যদি structure হয়:
-
-```text
-myproject/
-    settings.py
-    urls.py
-```
-
-তাহলে সাধারণত:
-
-```bash
-celery -A myproject worker -l info
-```
-
-ব্যবহার করবে।
-
----
-
-# 5. `.env`
-
-Database configuration:
-
-```env
-# Django
-DJANGO_SECRET_KEY=your-secret-key
-DJANGO_DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# PostgreSQL
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=portfolio
-DB_USER=postgres
-DB_PASSWORD=admin
-DB_HOST=db
-DB_PORT=5432
-
-# Redis
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# Celery
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
-```
-
-### Important
-
-`.env` সাধারণত Git-এ commit করা উচিত নয়।
-
-`.gitignore`:
-
-```text
-.env
-.venv/
-__pycache__/
-*.pyc
-```
-
----
-
-# 6. Django Settings
-
-`settings.py`:
-
-```python
-import os
-
-
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-
-DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
-
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "ALLOWED_HOSTS",
-        "localhost"
-    ).split(",")
-]
-```
-
----
-
-# 7. PostgreSQL Configuration
-
-```python
-DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get(
-            "DB_ENGINE",
-            "django.db.backends.postgresql",
-        ),
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST", "db"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
-    }
-}
-```
-
-## Important Concept
-
-Docker Compose-এর ভিতরে:
-
-```text
-DB_HOST=db
-```
-
-এখানে `db` হলো PostgreSQL service-এর নাম।
-
-এজন্য Django container থেকে PostgreSQL-এ connect করতে:
-
-```text
-db:5432
-```
-
-ব্যবহার করবে।
-
-`localhost:5432` ব্যবহার করবে না।
-
-কারণ Django application container-এর ভিতরে `localhost` মানে Django container নিজেই।
-
----
-
-# 8. Docker Network Concept
-
-Compose automatically একটি network তৈরি করে।
-
-```text
-                  Docker Network
-                       │
-       ┌───────────────┼───────────────┐
-       │               │               │
-       ▼               ▼               ▼
-     web              db             redis
-   Django          PostgreSQL        Redis
-```
-
-Django:
-
-```text
-db:5432
-```
-
-Redis:
-
-```text
-redis:6379
-```
-
-Celery:
-
-```text
-redis:6379
-```
-
-ব্যবহার করতে পারে।
-
----
-
-# 9. Django + PostgreSQL Flow
-
-```text
-Browser
-   │
-   ▼
-Django Container
-   │
-   │ PostgreSQL connection
-   ▼
-PostgreSQL Container
-```
-
----
-
-# 10. Django + Redis + Celery Architecture
-
-```text
-                    Browser
-                       │
-                       ▼
-                ┌─────────────┐
-                │    Django   │
-                │     Web     │
-                └──────┬──────┘
-                       │
-                       │ Task
-                       ▼
-                ┌─────────────┐
-                │    Redis    │
-                │   Broker    │
-                └──────┬──────┘
-                       │
-                       │ Task
-                       ▼
-                ┌─────────────┐
-                │    Celery   │
-                │   Worker    │
-                └──────┬──────┘
-                       │
-                       ▼
-                Background Task
-```
-
-উদাহরণ:
-
-```text
-Django
-   ↓
-send_email.delay()
-   ↓
-Redis
-   ↓
-Celery Worker
-   ↓
-Email sent
-```
-
----
-
-# 11. Run Project — Step by Step
-
-## Step 1 — Build
-
-Modern Compose syntax:
-
-```bash
-docker compose build
-```
-
----
-
-## Step 2 — Start
-
-```bash
-docker compose up
-```
-
-Background-এ:
-
-```bash
-docker compose up -d
-```
-
----
-
-## Step 3 — Run Migration
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
-এটি running `web` container-এর ভিতরে migration চালায়।
-
-One-time container দিয়েও করা যায়:
-
-```bash
-docker compose run --rm web python manage.py migrate
-```
-
-### Difference
-
-```bash
-docker compose exec web ...
-```
-
-চলে running container-এর ভিতরে।
-
-```bash
-docker compose run --rm web ...
-```
-
-নতুন temporary container তৈরি করে command চালায়।
-
----
-
-# 12. Create Superuser
-
-```bash
-docker compose exec web python manage.py createsuperuser
-```
-
-তারপর:
-
-```text
-http://localhost:8000/admin/
-```
-
-এ গিয়ে Django admin access করা যাবে।
-
----
-
-# 13. Stop Project
-
-```bash
-docker compose down
-```
-
-এতে containers এবং Compose-created network remove হবে।
-
-PostgreSQL data থাকবে কারণ:
-
-```yaml
-volumes:
-  postgres_data:
-```
-
-ব্যবহার করা হয়েছে।
-
----
-
-# 14. Stop + Remove Volumes
-
-```bash
-docker compose down -v
-```
-
-⚠️ এটি PostgreSQL-এর persistent volume-ও remove করতে পারে।
-
-অর্থাৎ database data হারাতে পারো।
-
-Development environment-এও এই command ব্যবহার করার আগে সতর্ক থাকতে হবে।
-
----
-
-# 15. Docker Image Commands
-
-## Download Image
-
-```bash
-docker pull python
-```
-
-Specific version:
-
-```bash
-docker pull python:3.12
-```
-
----
-
-## List Images
-
-```bash
-docker images
-```
-
-অথবা:
-
-```bash
-docker image ls
-```
-
----
-
-## Delete Image
-
-```bash
-docker rmi image_id
-```
-
-অথবা:
-
-```bash
-docker rmi image_name
-```
-
----
-
-## Remove Unused Images
-
-```bash
-docker image prune
-```
-
----
-
-# 16. Container Commands
-
-## Run Container
-
-```bash
-docker run python
-```
-
----
-
-## Interactive Container
-
-```bash
-docker run -it python
-```
-
----
-
-## Run with Port Mapping
-
-```bash
-docker run -p 8000:8000 django-app
-```
-
-Meaning:
-
-```text
-Host Port : Container Port
-8000      : 8000
-```
-
----
-
-## Give Container a Name
-
-```bash
-docker run \
-  -p 8000:8000 \
-  --name django-container \
-  django-app
-```
-
----
-
-# 17. List Containers
-
-Running containers:
-
-```bash
-docker ps
-```
-
-All containers:
-
-```bash
-docker ps -a
-```
-
----
-
-# 18. Stop Container
-
-By ID:
-
-```bash
-docker stop container_id
-```
-
-By name:
-
-```bash
-docker stop container_name
-```
-
----
-
-# 19. Restart Container
-
-```bash
-docker restart container_id
-```
-
----
-
-# 20. Remove Container
-
-```bash
-docker rm container_id
-```
-
-Running container remove করতে সাধারণত আগে stop করবে।
-
----
-
-# 21. Remove Stopped Containers
-
-```bash
-docker container prune
-```
-
----
-
-# 22. Build Docker Image
-
-```bash
-docker build -t django-app .
-```
-
-এখানে:
-
-```text
-docker build     → image build command
--t django-app    → image name
-.                → current directory as build context
-```
-
----
-
-## Version Tag
-
-```bash
-docker build -t django-app:v1 .
-```
-
-Image:
-
-```text
-django-app:v1
-```
-
----
-
-# 23. Docker Logs
-
-```bash
-docker logs container_id
-```
-
-Real-time logs:
-
-```bash
-docker logs -f container_id
-```
-
----
-
-# 24. Enter Container Shell
-
-```bash
-docker exec -it container_id bash
-```
-
-যদি `bash` না থাকে:
-
-```bash
-docker exec -it container_id sh
-```
-
----
-
-# 25. Docker Compose Commands
-
-## Check Compose Version
-
-```bash
-docker compose version
-```
-
----
-
-## Start Services
-
-```bash
-docker compose up
-```
-
----
-
-## Detached Mode
-
-```bash
-docker compose up -d
-```
-
----
-
-## Build + Start
+## Start the Services
 
 ```bash
 docker compose up --build
 ```
 
----
-
-## Stop and Remove
+Run in the background:
 
 ```bash
-docker compose down
+docker compose up --build -d
 ```
 
----
-
-## Restart
-
-```bash
-docker compose restart
-```
-
----
-
-## Check Status
+Check service status:
 
 ```bash
 docker compose ps
 ```
 
----
-
-# 26. Docker Compose Logs
-
-All services:
+View logs:
 
 ```bash
-docker compose logs
+docker compose logs -f web
+docker compose logs -f db
+docker compose logs -f redis
+docker compose logs -f celery
+```
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+Stop services and delete database/cache volumes:
+
+```bash
+docker compose down -v
+```
+
+Warning: `docker compose down -v` deletes the named volumes and their stored data. Do not use it when you need to preserve your database.
+
+---
+
+# 9. PostgreSQL
+
+## 9.1 Database Connection
+
+Inside Docker Compose, Django connects to:
+
+```text
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+```
+
+The hostname `db` is the Compose service name.
+
+From a program running directly on your computer, the hostname is typically `localhost` if PostgreSQL has been published to a host port. The example Compose file does not publish the database port.
+
+## 9.2 Run Migrations
+
+```bash
+docker compose exec web python manage.py makemigrations
+docker compose exec web python manage.py migrate
+```
+
+## 9.3 Create Superuser
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+Open the admin panel:
+
+```text
+http://localhost:8000/admin/
+```
+
+## 9.4 Open PostgreSQL Shell
+
+```bash
+docker compose exec db psql \
+  -U django_user \
+  -d django_db
+```
+
+Useful SQL:
+
+```sql
+\l
+\dt
+SELECT * FROM django_migrations;
+\q
+```
+
+Use the actual username and database configured in `.env`.
+
+---
+
+# 10. Redis
+
+Redis is commonly used as a cache and Celery broker.
+
+## 10.1 Redis CLI
+
+```bash
+docker compose exec redis redis-cli
+```
+
+Test Redis:
+
+```text
+PING
+```
+
+Expected result:
+
+```text
+PONG
+```
+
+Check server information:
+
+```text
+INFO
+```
+
+Exit:
+
+```text
+EXIT
+```
+
+## 10.2 Django Cache Example
+
+Add to `config/settings.py`:
+
+```python
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+        "TIMEOUT": 300,
+    }
+}
+```
+
+Example usage:
+
+```python
+from django.core.cache import cache
+
+cache.set("welcome_message", "Hello Django", timeout=300)
+
+message = cache.get("welcome_message")
+print(message)
+```
+
+Redis cache data is temporary. Do not use it as the only storage for critical business records.
+
+---
+
+# 11. Celery Setup
+
+## 11.1 Create `config/celery.py`
+
+```python
+import os
+
+from celery import Celery
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+
+app = Celery("config")
+app.config_from_object("django.conf:settings", namespace="CELERY")
+app.autodiscover_tasks()
+```
+
+## 11.2 Update `config/__init__.py`
+
+```python
+from .celery import app as celery_app
+
+__all__ = ("celery_app",)
+```
+
+## 11.3 Create a Task
+
+Create `core/tasks.py`:
+
+```python
+from celery import shared_task
+
+
+@shared_task
+def add_numbers(a, b):
+    return a + b
+```
+
+## 11.4 Run a Task
+
+Open a Django shell:
+
+```bash
+docker compose exec web python manage.py shell
+```
+
+Run:
+
+```python
+from core.tasks import add_numbers
+
+result = add_numbers.delay(10, 20)
+print(result.id)
+```
+
+The worker should process the task.
+
+If you need to inspect the returned value, configure result storage and check the task state after completion:
+
+```python
+print(result.get(timeout=10))
+```
+
+Do not call `.get()` inside a web request if doing so would block the request unnecessarily.
+
+## 11.5 Run Celery Worker Manually
+
+```bash
+docker compose exec web celery -A config worker --loglevel=info
+```
+
+Normally, the dedicated `celery` service in Compose runs this worker for you.
+
+---
+
+# 12. Intermediate Django API Example
+
+Create a simple model in `core/models.py`:
+
+```python
+from django.db import models
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+```
+
+Create and apply migrations:
+
+```bash
+docker compose exec web python manage.py makemigrations
+docker compose exec web python manage.py migrate
+```
+
+Create `core/serializers.py`:
+
+```python
+from rest_framework import serializers
+
+from .models import Product
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "price", "created_at"]
+```
+
+Create `core/views.py`:
+
+```python
+from rest_framework import viewsets
+
+from .models import Product
+from .serializers import ProductSerializer
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+```
+
+Create `core/urls.py`:
+
+```python
+from rest_framework.routers import DefaultRouter
+
+from .views import ProductViewSet
+
+router = DefaultRouter()
+router.register("products", ProductViewSet, basename="product")
+
+urlpatterns = router.urls
+```
+
+Update `config/urls.py`:
+
+```python
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/", include("core.urls")),
+]
+```
+
+Test the API:
+
+```text
+http://localhost:8000/api/products/
+```
+
+Important: Before using this API in production, configure authentication, permissions, validation, pagination, and appropriate access controls.
+
+---
+
+# 13. Advanced Level
+
+## 13.1 Production Architecture
+
+```text
+Internet
+   |
+   v
+Reverse Proxy / Load Balancer
+   |
+   v
+Django + Gunicorn
+   |
+   +------ PostgreSQL
+   |
+   +------ Redis
+              |
+              v
+          Celery Workers
+```
+
+A production deployment may also need:
+
+- HTTPS/TLS
+- Static and media file storage
+- Database backups
+- Monitoring and centralized logging
+- Error tracking
+- Health checks
+- Resource limits
+- Automated deployment
+- Database connection management
+- Separate worker scaling
+
+## 13.2 Production Checklist
+
+- Set `DEBUG=False`.
+- Set `ALLOWED_HOSTS` correctly.
+- Use a strong, private `SECRET_KEY`.
+- Configure HTTPS and secure cookies.
+- Configure trusted origins for CSRF where needed.
+- Do not expose PostgreSQL or Redis publicly.
+- Use non-root containers where practical.
+- Keep images and Python packages updated.
+- Back up PostgreSQL and test restoration.
+- Use persistent storage where required.
+- Configure logging and monitoring.
+- Run `python manage.py check --deploy`.
+- Run migrations as a controlled deployment step.
+- Serve static files using a suitable production strategy.
+- Use proper authentication and authorization.
+- Add request timeouts, rate limits, and resource limits.
+
+## 13.3 Example Production Environment
+
+```dotenv
+DEBUG=False
+SECRET_KEY=inject-a-real-secret-through-your-secret-manager
+ALLOWED_HOSTS=api.example.com
+
+POSTGRES_DB=production_db
+POSTGRES_USER=production_user
+POSTGRES_PASSWORD=inject-a-strong-password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+REDIS_URL=redis://redis:6379/0
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
+```
+
+This is an example of variable names and configuration, not a complete production deployment. Use secret management, network restrictions, TLS where appropriate, and secure Redis/PostgreSQL configuration.
+
+## 13.4 Gunicorn
+
+A common Django production command is:
+
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
+```
+
+Worker counts and timeouts should be tuned to the application's workload and available resources.
+
+## 13.5 Celery Reliability
+
+For reliable background processing:
+
+- Make tasks idempotent when possible.
+- Configure retries for transient failures.
+- Set sensible task time limits.
+- Monitor failed and stuck tasks.
+- Keep tasks small and focused.
+- Avoid passing large objects as task arguments.
+- Pass database identifiers instead of full model objects.
+- Consider broker persistence and result expiration.
+- Plan how duplicate task execution will be handled.
+
+Example:
+
+```python
+from celery import shared_task
+
+
+@shared_task(
+    bind=True,
+    autoretry_for=(ConnectionError,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def send_notification(self, user_id):
+    # Load the user from the database.
+    # Send the notification through your chosen provider.
+    return {"user_id": user_id, "status": "processed"}
+```
+
+The task needs real application logic before it can send notifications. Retrying is suitable only when the operation and failure mode make retries safe.
+
+## 13.6 Database Performance
+
+Useful practices:
+
+- Add indexes for frequently filtered columns.
+- Use `select_related()` for foreign-key relationships.
+- Use `prefetch_related()` for many-to-many and reverse relationships.
+- Avoid N+1 query patterns.
+- Paginate large querysets.
+- Profile queries before optimizing.
+- Use transactions for related writes.
+- Monitor database connections and query latency.
+
+Example:
+
+```python
+products = Product.objects.all().order_by("-created_at")
+```
+
+For larger datasets, add pagination at the API layer rather than returning every row at once.
+
+---
+
+# 14. Useful Docker Commands
+
+Build images:
+
+```bash
+docker compose build
+```
+
+Start services:
+
+```bash
+docker compose up -d
+```
+
+Rebuild and start:
+
+```bash
+docker compose up --build -d
+```
+
+View running containers:
+
+```bash
+docker compose ps
 ```
 
 Follow logs:
@@ -850,757 +982,218 @@ Follow logs:
 docker compose logs -f
 ```
 
-Specific service:
+Execute a command in Django:
 
 ```bash
-docker compose logs web
+docker compose exec web python manage.py check
 ```
 
-Specific service + follow:
-
-```bash
-docker compose logs -f web
-```
-
-উদাহরণ:
-
-```bash
-docker compose logs -f celery
-```
-
----
-
-# 27. Execute Command Inside Compose Container
+Open a shell:
 
 ```bash
 docker compose exec web bash
 ```
 
-যদি bash না থাকে:
+If Bash is not installed:
 
 ```bash
 docker compose exec web sh
 ```
 
-Django shell:
+Stop services:
 
 ```bash
-docker compose exec web python manage.py shell
+docker compose stop
 ```
 
-Database migration:
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
----
-
-# 28. Run One-Time Command
-
-```bash
-docker compose run --rm web python manage.py migrate
-```
-
-আরেকটি example:
-
-```bash
-docker compose run --rm web python manage.py createsuperuser
-```
-
----
-
-# 29. Build Images Only
-
-```bash
-docker compose build
-```
-
----
-
-# 30. Pull Images
-
-```bash
-docker compose pull
-```
-
----
-
-# 31. Start / Stop Specific Service
-
-Start:
-
-```bash
-docker compose start web
-```
-
-Stop:
-
-```bash
-docker compose stop web
-```
-
-উদাহরণ:
-
-```bash
-docker compose stop celery
-```
-
----
-
-# 32. Remove Stopped Compose Containers
-
-```bash
-docker compose rm
-```
-
----
-
-# 33. Scale Service
-
-```bash
-docker compose up --scale web=3
-```
-
-এর মাধ্যমে একাধিক `web` container চালানো যায়।
-
-তবে একই host port `8000:8000` সরাসরি multiple replicas-এর ক্ষেত্রে সমস্যা তৈরি করতে পারে।
-
-Production scaling-এর জন্য সাধারণত reverse proxy/load balancer ব্যবহার করা হয়।
-
----
-
-# 34. Validate Compose Configuration
-
-```bash
-docker compose config
-```
-
-এটি Compose configuration parse/resolve করতে সাহায্য করে।
-
----
-
-# 35. View Processes
-
-```bash
-docker compose top
-```
-
-Running services-এর processes দেখতে ব্যবহার করা যায়।
-
----
-
-# 36. Docker Network
-
-List:
-
-```bash
-docker network ls
-```
-
-Create:
-
-```bash
-docker network create mynetwork
-```
-
-Inspect:
-
-```bash
-docker network inspect mynetwork
-```
-
----
-
-# 37. Docker Volume
-
-List:
-
-```bash
-docker volume ls
-```
-
-Create:
-
-```bash
-docker volume create myvolume
-```
-
-Inspect:
-
-```bash
-docker volume inspect myvolume
-```
-
----
-
-# 38. Save Docker Image
-
-```bash
-docker save -o django-app.tar django-app
-```
-
-এতে image একটি `.tar` file হিসেবে save হবে।
-
----
-
-# 39. Load Docker Image
-
-```bash
-docker load -i django-app.tar
-```
-
-অন্য machine-এ image import করার জন্য useful।
-
----
-
-# 40. Docker Image Tag
-
-ধরো:
-
-```text
-IMAGE ID = ac6ff836d5ff
-```
-
-তাহলে:
-
-```bash
-docker tag ac6ff836d5ff faruk950147/docker-test:latest
-```
-
-এখানে:
-
-```text
-ac6ff836d5ff
-        ↓
-IMAGE ID
-
-faruk950147/docker-test
-        ↓
-Repository / image name
-
-latest
-        ↓
-Tag
-```
-
----
-
-# 41. Docker Hub Push
-
-প্রথমে Docker Hub-এ login:
-
-```bash
-docker login
-```
-
-তারপর:
-
-```bash
-docker push faruk950147/docker-test:latest
-```
-
-### Simple Reminder
-
-```text
-docker-test:latest
-        │       │
-        │       └── Tag
-        │
-        └────────── Image / Repository name
-```
-
----
-
-# 42. Docker System Cleanup
-
-Basic cleanup:
-
-```bash
-docker system prune
-```
-
-More aggressive cleanup:
-
-```bash
-docker system prune -a
-```
-
-⚠️ `-a` ব্যবহার করলে unused images-সহ আরও resources remove হতে পারে। তাই command দেওয়ার আগে কী remove হবে বুঝে নেওয়া ভালো।
-
----
-
-# 43. Django Docker Basic Flow
-
-Simple Django application:
-
-```bash
-docker build -t django-app .
-```
-
-তারপর:
-
-```bash
-docker run -p 8000:8000 django-app
-```
-
-Flow:
-
-```text
-Dockerfile
-    ↓
-docker build
-    ↓
-Docker Image
-    ↓
-docker run
-    ↓
-Container
-    ↓
-Django
-    ↓
-localhost:8000
-```
-
----
-
-# 44. Complete Docker Compose Workflow
-
-Development-এ একটি common workflow:
-
-### Start
-
-```bash
-docker compose up -d --build
-```
-
-### Check status
-
-```bash
-docker compose ps
-```
-
-### Watch logs
-
-```bash
-docker compose logs -f
-```
-
-### Enter Django container
-
-```bash
-docker compose exec web bash
-```
-
-### Migration
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
-### Create superuser
-
-```bash
-docker compose exec web python manage.py createsuperuser
-```
-
-### Stop
+Stop and remove containers and network:
 
 ```bash
 docker compose down
 ```
 
----
+Rebuild a service:
 
-# 45. Important Docker Commands — Quick Table
-
-| Command               | কাজ                          |
-| --------------------- | ---------------------------- |
-| `docker --version`    | Docker version               |
-| `docker info`         | Docker system information    |
-| `docker pull`         | Image download               |
-| `docker images`       | Images list                  |
-| `docker build`        | Image build                  |
-| `docker run`          | Container create/run         |
-| `docker ps`           | Running containers           |
-| `docker ps -a`        | All containers               |
-| `docker stop`         | Stop container               |
-| `docker start`        | Start stopped container      |
-| `docker restart`      | Restart container            |
-| `docker rm`           | Remove container             |
-| `docker rmi`          | Remove image                 |
-| `docker logs`         | Container logs               |
-| `docker exec`         | Run command inside container |
-| `docker volume ls`    | Volumes list                 |
-| `docker network ls`   | Networks list                |
-| `docker system prune` | Cleanup unused resources     |
-
----
-
-# 46. Docker Compose — Quick Table
-
-| Command                     | কাজ                         |
-| --------------------------- | --------------------------- |
-| `docker compose up`         | Services start              |
-| `docker compose up -d`      | Background-এ start          |
-| `docker compose up --build` | Build + start               |
-| `docker compose down`       | Stop + remove services      |
-| `docker compose down -v`    | Services + volumes remove   |
-| `docker compose ps`         | Service status              |
-| `docker compose logs`       | Logs                        |
-| `docker compose logs -f`    | Real-time logs              |
-| `docker compose exec`       | Running container-এ command |
-| `docker compose run`        | One-time container command  |
-| `docker compose build`      | Images build                |
-| `docker compose pull`       | Images pull                 |
-| `docker compose restart`    | Services restart            |
-| `docker compose start`      | Stopped services start      |
-| `docker compose stop`       | Services stop               |
-| `docker compose config`     | Compose config inspect      |
-| `docker compose top`        | Processes দেখায়             |
-
----
-
-# 47. Important Docker Concepts
-
-## Image
-
-Image হলো application-এর packaged template।
-
-```text
-Image
-  ↓
-Container
+```bash
+docker compose build web
 ```
 
-একটি image থেকে multiple containers তৈরি করা যায়।
+Restart a service:
 
----
-
-## Container
-
-Container হলো image-এর running instance।
-
-```text
-Image
-   ↓
-Container
-   ↓
-Application Running
+```bash
+docker compose restart web
 ```
 
 ---
 
-## Volume
+# 15. Troubleshooting
 
-Container delete হলেও data persist করার জন্য volume ব্যবহার করা হয়।
+## Problem 1: Database Connection Refused
 
-PostgreSQL:
+Possible causes:
+
+- PostgreSQL is not ready.
+- The hostname is incorrect.
+- Credentials do not match.
+- The database container failed.
+
+Check:
+
+```bash
+docker compose ps
+docker compose logs db
+```
+
+Inside Compose, use `db` as the hostname rather than `localhost`.
+
+## Problem 2: Module Not Found
+
+Check dependencies:
+
+```bash
+docker compose exec web pip list
+```
+
+Rebuild the image:
+
+```bash
+docker compose up --build -d
+```
+
+Verify the package exists in `requirements.txt`.
+
+## Problem 3: Migration Required
+
+Run:
+
+```bash
+docker compose exec web python manage.py makemigrations
+docker compose exec web python manage.py migrate
+```
+
+## Problem 4: Port Already in Use
+
+Change the host-side port in Compose:
+
+```yaml
+ports:
+  - "8001:8000"
+```
+
+Then open:
+
+```text
+http://localhost:8001/
+```
+
+The container still listens on port `8000`.
+
+## Problem 5: Celery Tasks Are Not Running
+
+Check worker logs:
+
+```bash
+docker compose logs -f celery
+```
+
+Check Redis:
+
+```bash
+docker compose exec redis redis-cli ping
+```
+
+Verify that the worker and Django use the same broker URL.
+
+## Problem 6: Data Disappears
+
+Verify that PostgreSQL uses a named volume:
 
 ```yaml
 volumes:
   - postgres_data:/var/lib/postgresql/data
 ```
 
-এখানে database data container-এর lifecycle-এর বাইরে persist করতে পারে।
+Do not remove the volume unless you intentionally want to delete its data. A volume is not a substitute for a backup.
 
 ---
 
-## Network
+# 16. Git Ignore
 
-একাধিক container-কে একে অপরের সাথে communicate করতে network ব্যবহৃত হয়।
-
-Compose automatically service discovery দেয়।
-
-যেমন:
+Create `.gitignore`:
 
 ```text
-Django → db:5432
-Django → redis:6379
-Celery → redis:6379
-```
-
----
-
-# 48. Port Mapping
-
-```yaml
-ports:
-  - "8000:8000"
-```
-
-মানে:
-
-```text
-Host                 Container
-localhost:8000  →    8000
-```
-
-Browser:
-
-```text
-http://localhost:8000
-```
-
-Container-এর Django server:
-
-```text
-0.0.0.0:8000
-```
-
----
-
-# 49. `localhost` vs Service Name
-
-Docker Compose-এ এটি খুব important।
-
-ভুল ধারণা:
-
-```text
-Django → localhost:5432 → PostgreSQL
-```
-
-সাধারণত এটি কাজ করবে না।
-
-সঠিক:
-
-```text
-Django → db:5432 → PostgreSQL
-```
-
-Redis-এর ক্ষেত্রে:
-
-```text
-Django → redis:6379
-```
-
-কারণ:
-
-```text
-db
-redis
-```
-
-হলো Compose service names।
-
----
-
-# 50. `depends_on` সম্পর্কে Important Note
-
-```yaml
-depends_on:
-  - db
-  - redis
-```
-
-এর অর্থ হলো Compose dependency অনুযায়ী service start করার order পরিচালনা করবে।
-
-কিন্তু শুধু `depends_on` দিয়ে নিশ্চিত হওয়া যায় না যে PostgreSQL/Redis application-এর জন্য fully ready হয়ে গেছে।
-
-Production বা robust setup-এ healthcheck এবং retry logic ব্যবহার করা ভালো।
-
----
-
-# 51. Development vs Production
-
-উপরের Dockerfile-এ:
-
-```dockerfile
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-```
-
-এটি **development server**।
-
-Production-এ সাধারণত Django `runserver` ব্যবহার করা হয় না।
-
-সেখানে সাধারণত:
-
-```text
-Reverse Proxy
-      ↓
-Gunicorn / Uvicorn
-      ↓
-Django
-```
-
-ব্যবহার করা হয়।
-
-যদি ASGI/async application হয়:
-
-```text
-Nginx / Reverse Proxy
-        ↓
-Uvicorn
-        ↓
-Django ASGI
-```
-
-এরকম architecture ব্যবহার করা যেতে পারে।
-
----
-
-# 52. Production Architecture
-
-একটি typical production architecture:
-
-```text
-                  Internet
-                     │
-                     ▼
-              Reverse Proxy
-                     │
-          ┌──────────┴──────────┐
-          │                     │
-          ▼                     ▼
-      Django Web            Static/Media
-          │
-    ┌─────┼─────────┐
-    │     │         │
-    ▼     ▼         ▼
- PostgreSQL Redis   Celery
-                    Worker
-```
-
----
-
-# 53. Security Checklist
-
-Production-এ:
-
-```env
-DJANGO_DEBUG=False
-```
-
-ব্যবহার করা উচিত।
-
-Secret key hard-code না করে environment variable ব্যবহার করা ভালো:
-
-```env
-DJANGO_SECRET_KEY=...
-```
-
-Database credentials-ও secret হিসেবে রাখা উচিত।
-
-আর:
-
-```text
+venv/
+.venv/
+__pycache__/
+*.py[cod]
 .env
+.git/
+.pytest_cache/
+.coverage
+staticfiles/
+media/
 ```
 
-Git repository-তে commit করা উচিত নয়।
+Never commit passwords, private keys, or production secrets.
 
 ---
 
-# 54. Most Important Mental Model
+# 17. Quick Reference
 
-Docker-এর পুরো concept এভাবে মনে রাখো:
-
-```text
-Dockerfile
-    ↓
-docker build
-    ↓
-Image
-    ↓
-docker run / docker compose up
-    ↓
-Container
-    ↓
-Application
-```
-
-আর Docker Compose:
-
-```text
-compose.yaml
-      │
-      ├── web
-      │
-      ├── db
-      │
-      ├── redis
-      │
-      └── celery
-```
-
-একটি command:
-
-```bash
-docker compose up
-```
-
-দিয়ে পুরো multi-container application চালানো যায়।
+| Task | Command |
+|---|---|
+| Start services | `docker compose up -d` |
+| Build and start | `docker compose up --build -d` |
+| View status | `docker compose ps` |
+| View logs | `docker compose logs -f` |
+| Django migrations | `docker compose exec web python manage.py migrate` |
+| Create migrations | `docker compose exec web python manage.py makemigrations` |
+| Create admin user | `docker compose exec web python manage.py createsuperuser` |
+| Django checks | `docker compose exec web python manage.py check` |
+| Django shell | `docker compose exec web python manage.py shell` |
+| PostgreSQL shell | `docker compose exec db psql -U django_user -d django_db` |
+| Redis CLI | `docker compose exec redis redis-cli` |
+| Celery logs | `docker compose logs -f celery` |
+| Stop services | `docker compose down` |
 
 ---
 
-# 55. Final Quick Revision
+# 18. Learning Roadmap
 
-### Docker
+## Beginner
 
-```text
-Dockerfile → Image → Container
-```
+- Learn Python fundamentals.
+- Learn Django models, views, URLs, and templates.
+- Learn basic SQL.
+- Understand Docker images and containers.
+- Run Django with PostgreSQL.
 
-### Compose
+## Intermediate
 
-```text
-compose.yaml → Multiple Services
-```
+- Build REST APIs with Django REST Framework.
+- Learn authentication and permissions.
+- Use Docker Compose.
+- Add Redis caching.
+- Add Celery background tasks.
+- Learn migrations, indexes, and query optimization.
+- Write tests.
 
-### Django
+## Advanced
 
-```text
-web container
-```
+- Build production Docker images.
+- Use Gunicorn and a reverse proxy.
+- Secure environment variables and services.
+- Add CI/CD.
+- Monitor logs and errors.
+- Configure backups and recovery.
+- Optimize database performance.
+- Scale web and worker services independently.
+- Learn deployment, observability, and reliability engineering.
 
-### Database
+---
 
-```text
-PostgreSQL → db:5432
-```
+# Final Notes
 
-### Cache / Broker
+This guide provides a practical starting point for a Django backend stack using Docker, PostgreSQL, Redis, and Celery.
 
-```text
-Redis → redis:6379
-```
-
-### Background Task
-
-```text
-Django → Redis → Celery Worker
-```
-
-### Persistent Database
-
-```text
-PostgreSQL Container
-        ↓
-postgres_data Volume
-```
-
-### Most Used Commands
-
-```bash
-docker compose up -d
-docker compose up -d --build
-docker compose ps
-docker compose logs -f
-docker compose exec web bash
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py createsuperuser
-docker compose down
-```
-
-### One-line Memory Trick
-
-```text
-Build → Image
-Run   → Container
-Compose → Multiple Containers
-Volume → Persistent Data
-Network → Container Communication
-Redis → Cache/Broker
-Celery → Background Tasks
-PostgreSQL → Database
-```
+Before production deployment, review the exact configuration, pin dependency versions, configure secrets securely, test backups, and apply the security settings required by your hosting environment.
