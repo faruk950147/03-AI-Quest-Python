@@ -1,3 +1,128 @@
+# Django CRUD Application
+
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.db import connection
+from .models import Student
+
+
+# CREATE
+def student_create(request):
+
+    if request.method == 'POST':
+
+        firstname = request.POST.get('firstname')
+        surname = request.POST.get('surname')
+        age = request.POST.get('age')
+        classroom = request.POST.get('classroom')
+
+        sql = """
+            INSERT INTO student_student
+            (firstname, surname, age, classroom)
+            VALUES (%s, %s, %s, %s)
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                sql,
+                [firstname, surname, age, classroom]
+            )
+
+        return redirect('student_list')
+
+    return render(request, 'create.html')
+
+
+# READ ALL
+def student_list(request):
+
+    sql = "SELECT * FROM student_student"
+
+    posts = Student.objects.raw(sql)
+
+    print(posts)
+    print(connection.queries)
+
+    return render(request, 'output.html', {'data': posts})
+
+
+# READ SINGLE
+def detail(request, id):
+
+    sql = "SELECT * FROM student_student WHERE id = %s"
+
+    student = list(Student.objects.raw(sql, [id]))
+
+    if not student:
+        return HttpResponse("Student not found", status=404)
+
+    return render(
+        request,
+        'detail.html',
+        {'student': student[0]}
+    )
+
+
+# UPDATE
+def student_update(request, id):
+
+    sql = "SELECT * FROM student_student WHERE id = %s"
+
+    student = list(Student.objects.raw(sql, [id]))
+
+    if not student:
+        return HttpResponse("Student not found", status=404)
+
+    student = student[0]
+
+    if request.method == 'POST':
+
+        firstname = request.POST.get('firstname')
+        surname = request.POST.get('surname')
+        age = request.POST.get('age')
+        classroom = request.POST.get('classroom')
+
+        sql = """
+            UPDATE student_student
+            SET firstname = %s,
+                surname = %s,
+                age = %s,
+                classroom = %s
+            WHERE id = %s
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                sql,
+                [firstname, surname, age, classroom, id]
+            )
+
+        return redirect('student_list')
+
+    return render(
+        request,
+        'update.html',
+        {'student': student}
+    )
+
+
+# DELETE
+def student_delete(request, id):
+
+    if request.method == 'POST':
+
+        sql = "DELETE FROM student_student WHERE id = %s"
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [id])
+
+        return redirect('student_list')
+
+    return HttpResponse(
+        "Use POST request to delete a student.",
+        status=405
+    )
+
 
 # Django Class-Based Views (CBV) — Complete Notes
 from django.db.models import F
