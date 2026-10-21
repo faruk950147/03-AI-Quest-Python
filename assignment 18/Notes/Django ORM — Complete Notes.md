@@ -85,6 +85,14 @@ Uses:
 - Perform arithmetic inside the database.
 - Reduce race conditions during database updates.
 
+Example 3: without F().
+```python
+product = Product.objects.get(id=1)
+
+product.stock = product.stock + 1
+product.save()
+```
+
 ## 4. Conditional Expressions
 
 Definition: Conditional expressions generate results based on conditions, similar to if/else.
