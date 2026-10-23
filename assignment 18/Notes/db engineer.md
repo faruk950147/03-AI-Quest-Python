@@ -1,860 +1,263 @@
-# Database Engineer Roadmap with Complete Notes
-## Beginner to Advanced — Bangla + English
+# Database Engineer Roadmap — Beginner to Advanced
 
-# PART 1: DATABASE FUNDAMENTALS
-
-## 1. What is Data?
-
-**Definition:** Data হলো raw facts and figures যা processing-এর আগে অর্থপূর্ণ তথ্য নাও হতে পারে।
-
-Example:
-- Name: Faruk
-- Age: 25
-- Department: CSE
-
-## 2. What is a Database?
-
-**Definition:** A database is an organized collection of related data that can be stored, accessed, managed, and updated efficiently.
-
-Example:
-A university database stores students, teachers, courses, and results.
-
-## 3. What is DBMS?
-
-**Definition:** DBMS (Database Management System) হলো এমন software যার মাধ্যমে database তৈরি, সংরক্ষণ, query, update এবং manage করা যায়।
-
-Examples:
-- PostgreSQL
-- MySQL
-- SQLite
-- Oracle Database
-- Microsoft SQL Server
-
-## 4. What is RDBMS?
-
-**Definition:** RDBMS (Relational Database Management System) হলো এমন DBMS যেখানে data relational tables-এর মাধ্যমে সংরক্ষণ করা হয়।
-
-Example:
-
-Students Table:
-
-| student_id | name | department |
-|---|---|---|
-| 1 | Faruk | CSE |
-| 2 | Rahim | EEE |
-
-## 5. DBMS vs RDBMS
-
-| DBMS | RDBMS |
-|---|---|
-| General database management system | Relational database management system |
-| Data model বিভিন্ন রকম হতে পারে | Relational tables ব্যবহার করে |
-| সব DBMS relational নয় | RDBMS হলো relational DBMS |
-| Example: document database software-ও DBMS হতে পারে | PostgreSQL, MySQL |
-
-## 6. Database Components
-
-- Table: Rows and columns-এর মাধ্যমে data রাখে।
-- Row: একটি record।
-- Column: একটি attribute বা field।
-- Schema: Database objects-এর structure।
-- Query: Database-কে দেওয়া operation বা request।
-- Constraint: Data validity বজায় রাখার rule।
-- Index: নির্দিষ্ট data দ্রুত খুঁজতে সাহায্য করে এমন structure।
-
-## 7. Keys in Database
-
-### Primary Key
-
-একটি table-এর প্রতিটি row-কে uniquely identify করে।
-
-Properties:
-- Unique হতে হবে।
-- NULL হতে পারবে না।
-- একটি table-এ একটি primary-key constraint থাকতে পারে; সেটি এক বা একাধিক column নিয়ে তৈরি হতে পারে।
-
-```sql
-CREATE TABLE students (
-    student_id INTEGER PRIMARY KEY,
-    name VARCHAR(100)
-);
-```
-
-### Foreign Key
-
-একটি table-এর data-কে অন্য table-এর referenced key-এর সঙ্গে সম্পর্কিত করে।
-
-```sql
-CREATE TABLE enrollments (
-    enrollment_id INTEGER PRIMARY KEY,
-    student_id INTEGER REFERENCES students(student_id)
-);
-```
-
-### Other Keys
-
-- Candidate Key: সম্ভাব্য minimal unique key।
-- Super Key: যে column set একটি row uniquely identify করে।
-- Composite Key: একাধিক column নিয়ে তৈরি key।
-- Alternate Key: Candidate key-গুলোর মধ্যে নির্বাচিত primary key ছাড়া অন্য key।
-- Unique Constraint: Duplicate value প্রতিরোধ করে; NULL handling database অনুযায়ী ভিন্ন হতে পারে।
-
-## 8. Database Relationships
-
-### One-to-One
-একটি record-এর সঙ্গে অন্য table-এর সর্বোচ্চ একটি record সম্পর্কিত।
-
-Example: Person → Passport
-
-### One-to-Many
-একটি record-এর সঙ্গে অন্য table-এর একাধিক record সম্পর্কিত।
-
-Example: Department → Students
-
-### Many-to-Many
-দুই table-এর একাধিক record পরস্পরের সঙ্গে সম্পর্কিত।
-
-Example: Students ↔ Courses
-
-এক্ষেত্রে সাধারণত একটি junction table ব্যবহার করা হয়।
-
-## 9. Normalization
-
-**Definition:** Normalization হলো relational database এমনভাবে design করা, যাতে unnecessary duplication এবং insertion, update, deletion anomalies কমে।
-
-### 1NF
-- প্রতিটি cell-এ atomic value থাকবে।
-- Repeating groups থাকবে না।
-
-### 2NF
-- Table 1NF-এ থাকবে।
-- কোনো non-key attribute composite candidate key-এর proper subset-এর ওপর নির্ভর করবে না।
-
-### 3NF
-- Table 2NF-এ থাকবে।
-- Non-key attributes-এর মধ্যে অনুপযুক্ত transitive dependency থাকবে না।
-
-### BCNF
-প্রতিটি non-trivial functional dependency-তে determinant একটি superkey হতে হবে।
-
-## 10. ER Diagram
-
-ER Diagram হলো database-এর entities, attributes এবং relationships-এর visual representation।
-
-Example:
-- Student
-- Course
-- Teacher
-- Enrollment
-
-Practice:
-University database-এর ER diagram তৈরি করো।
+**Duration:** 32 Weeks  
+**Language:** Bangla + English  
+**Goal:** Database Engineering, PostgreSQL, Performance Optimization, Cloud, and Interview Preparation
 
 ---
 
-# PART 2: SQL COMPLETE NOTES
+## Phase 1: Database Fundamentals — Weeks 1–2
 
-## 11. What is SQL?
+### Week 1: Database Basics
+- Data, Database, DBMS, RDBMS
+- SQL vs NoSQL
+- Tables, Rows, Columns, Schemas
+- Database Components
 
-**Definition:** SQL (Structured Query Language) হলো relational database-এ data query ও manipulate এবং database objects define করার standard language।
+### Week 2: Database Design
+- Primary Key and Foreign Key
+- Candidate, Super, Composite, and Alternate Keys
+- One-to-One, One-to-Many, Many-to-Many Relationships
+- ER Diagrams
+- Normalization: 1NF, 2NF, 3NF, BCNF
+- Functional Dependencies
 
-## 12. Categories of SQL
+---
 
-### DQL — Data Query Language
-- SELECT
+## Phase 2: SQL Mastery — Weeks 3–7
 
-### DML — Data Manipulation Language
-- INSERT
-- UPDATE
-- DELETE
+### Week 3: Basic SQL
+- SELECT, WHERE, DISTINCT
+- ORDER BY, LIMIT, OFFSET
+- Comparison and Logical Operators
+- NULL Handling
 
-### DDL — Data Definition Language
-- CREATE
-- ALTER
-- DROP
-- TRUNCATE
+### Week 4: Data Manipulation and Definition
+- CREATE, ALTER, DROP, TRUNCATE
+- INSERT, UPDATE, DELETE
+- Constraints: PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK, NOT NULL
+- DEFAULT Values
 
-### DCL — Data Control Language
-- GRANT
-- REVOKE
+### Week 5: Joins and Aggregation
+- INNER JOIN
+- LEFT JOIN
+- RIGHT JOIN
+- FULL OUTER JOIN
+- CROSS JOIN and SELF JOIN
+- COUNT, SUM, AVG, MIN, MAX
+- GROUP BY and HAVING
 
-### Transaction Control
-- BEGIN
-- COMMIT
-- ROLLBACK
-- SAVEPOINT
-
-Note: SQL command classification কিছু textbook ও database system-এ ভিন্নভাবে উপস্থাপিত হতে পারে।
-
-## 13. SELECT Statement
-
-```sql
-SELECT name, email
-FROM students;
-```
-
-Explanation:
-- SELECT নির্দিষ্ট columns বেছে নেয়।
-- FROM data source নির্ধারণ করে।
-
-## 14. WHERE Clause
-
-```sql
-SELECT *
-FROM students
-WHERE department = 'CSE';
-```
-
-WHERE condition অনুযায়ী rows filter করে।
-
-## 15. ORDER BY
-
-```sql
-SELECT *
-FROM students
-ORDER BY name ASC;
-```
-
-- ASC: Ascending order
-- DESC: Descending order
-
-## 16. INSERT
-
-```sql
-INSERT INTO students (student_id, name)
-VALUES (1, 'Faruk');
-```
-
-নতুন record যোগ করে।
-
-## 17. UPDATE
-
-```sql
-UPDATE students
-SET name = 'Omar Faruk'
-WHERE student_id = 1;
-```
-
-সতর্কতা: WHERE clause ছাড়া UPDATE করলে সব rows পরিবর্তিত হতে পারে।
-
-## 18. DELETE
-
-```sql
-DELETE FROM students
-WHERE student_id = 1;
-```
-
-WHERE clause ছাড়া DELETE করলে সব rows মুছে যেতে পারে।
-
-## 19. Aggregate Functions
-
-- COUNT(): Number of rows বা non-NULL values গণনা।
-- SUM(): মোট যোগফল।
-- AVG(): Average।
-- MIN(): সর্বনিম্ন value।
-- MAX(): সর্বোচ্চ value।
-
-```sql
-SELECT department, COUNT(*) AS total_students
-FROM students
-GROUP BY department;
-```
-
-## 20. GROUP BY vs HAVING
-
-GROUP BY rows-কে group করে।
-
-HAVING grouped results-এর ওপর condition প্রয়োগ করে।
-
-```sql
-SELECT department, COUNT(*) AS total
-FROM students
-GROUP BY department
-HAVING COUNT(*) > 5;
-```
-
-## 21. SQL JOIN
-
-### INNER JOIN
-শুধু matching rows ফেরত দেয়।
-
-```sql
-SELECT s.name, e.course_id
-FROM students AS s
-INNER JOIN enrollments AS e
-ON s.student_id = e.student_id;
-```
-
-### LEFT JOIN
-Left table-এর সব rows এবং matching right-side rows ফেরত দেয়।
-
-### RIGHT JOIN
-Right table-এর সব rows এবং matching left-side rows ফেরত দেয়।
-
-### FULL OUTER JOIN
-দুই table-এর সব rows ফেরত দেয়; unmatched side-এ NULL থাকে।
-
-### CROSS JOIN
-দুই table-এর Cartesian product তৈরি করে।
-
-### SELF JOIN
-একই table-কে নিজের সঙ্গে join করে।
-
-## 22. Subquery
-
-একটি query-এর ভেতরে আরেকটি query।
-
-```sql
-SELECT name
-FROM students
-WHERE student_id IN (
-    SELECT student_id
-    FROM enrollments
-);
-```
-
-## 23. CTE
-
-CTE (Common Table Expression) হলো `WITH` clause দিয়ে সংজ্ঞায়িত temporary named query result।
-
-```sql
-WITH department_counts AS (
-    SELECT department, COUNT(*) AS total
-    FROM students
-    GROUP BY department
-)
-SELECT *
-FROM department_counts
-WHERE total > 5;
-```
-
-## 24. Window Functions
-
-Window functions rows-কে collapse না করে related rows-এর ওপর calculation করতে দেয়।
-
-```sql
-SELECT
-    student_id,
-    score,
-    RANK() OVER (ORDER BY score DESC) AS position
-FROM results;
-```
-
-Important functions:
-- ROW_NUMBER()
-- RANK()
-- DENSE_RANK()
-- LAG()
-- LEAD()
-- SUM() OVER()
-- AVG() OVER()
-
-## 25. SQL Transactions
-
-Transaction হলো operations-এর একটি logical unit।
-
-```sql
-BEGIN;
-
-UPDATE accounts
-SET balance = balance - 500
-WHERE account_id = 1;
-
-UPDATE accounts
-SET balance = balance + 500
-WHERE account_id = 2;
-
-COMMIT;
-```
-
-যেকোনো error হলে application বা database error-handling logic অনুযায়ী rollback করা প্রয়োজন হতে পারে।
-
-## 26. ACID Properties
-
-- Atomicity: Transaction সম্পূর্ণ হবে অথবা rollback হবে।
-- Consistency: Database constraints বজায় থাকবে।
-- Isolation: Concurrent transactions-এর interaction নিয়ন্ত্রিত থাকবে।
-- Durability: Commit করা data সঠিক durability configuration-এর অধীনে টিকে থাকবে।
-
-## 27. Advanced SQL Topics
-
-- CASE
-- COALESCE
-- NULLIF
-- EXISTS
-- NOT EXISTS
-- UNION
-- UNION ALL
-- INTERSECT
-- EXCEPT
-- Recursive CTE
+### Week 6: Intermediate SQL
+- Subqueries
 - Correlated Subqueries
-- Date and Time Functions
-- JSON/JSONB
-- Conditional Aggregation
-- Ranking
+- CTEs using WITH
+- CASE Expressions
+- EXISTS and NOT EXISTS
+- UNION, UNION ALL, INTERSECT, EXCEPT
+
+### Week 7: Advanced SQL
+- Window Functions
+- ROW_NUMBER, RANK, DENSE_RANK
+- LAG and LEAD
 - Running Totals
-
-Practice target: 100 SQL problems.
+- Conditional Aggregation
+- Recursive CTEs
+- 100 SQL Practice Problems
 
 ---
 
-# PART 3: POSTGRESQL NOTES
+## Phase 3: PostgreSQL — Weeks 8–11
 
-## 28. What is PostgreSQL?
+### Week 8: PostgreSQL Fundamentals
+- PostgreSQL Installation
+- psql, pgAdmin, DBeaver
+- Database and Schema Management
+- Users and Roles
 
-PostgreSQL একটি open-source relational database system, যা advanced SQL, transactions, indexing, extensibility এবং concurrency control সমর্থন করে।
+### Week 9: PostgreSQL Features
+- Data Types
+- Constraints
+- Indexes
+- Views and Materialized Views
+- JSON and JSONB
+- UUID and Arrays
 
-Official Documentation:
-https://www.postgresql.org/docs/current/
+### Week 10: Transactions
+- Transactions and ACID Properties
+- BEGIN, COMMIT, ROLLBACK
+- Isolation Levels
+- Locks and Deadlocks
+- Concurrency Control
 
-## 29. PostgreSQL Data Types
-
-- SMALLINT
-- INTEGER
-- BIGINT
-- NUMERIC
-- REAL
-- DOUBLE PRECISION
-- BOOLEAN
-- CHAR
-- VARCHAR
-- TEXT
-- DATE
-- TIME
-- TIMESTAMP
-- TIMESTAMPTZ
-- UUID
-- JSON
-- JSONB
-- ARRAY
-
-Data type বাছাই করার সময় storage, validation এবং query requirements বিবেচনা করতে হবে।
-
-## 30. Constraints
-
-- PRIMARY KEY
-- FOREIGN KEY
-- UNIQUE
-- NOT NULL
-- CHECK
-- DEFAULT
-
-Example:
-
-```sql
-CREATE TABLE products (
-    product_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
-    price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
-    sku TEXT UNIQUE
-);
-```
-
-## 31. Views
-
-View হলো stored query definition-এর মাধ্যমে উপস্থাপিত virtual table।
-
-```sql
-CREATE VIEW active_students AS
-SELECT student_id, name
-FROM students
-WHERE status = 'active';
-```
-
-## 32. Materialized Views
-
-Materialized view query result সংরক্ষণ করে। Data update করতে সাধারণত refresh করতে হয়।
-
-```sql
-REFRESH MATERIALIZED VIEW sales_summary;
-```
-
-## 33. Functions and Procedures
-
-Functions values বা result sets ফেরত দিতে পারে। Procedures procedural operations চালানোর জন্য ব্যবহৃত হয়।
-
-Learn:
+### Week 11: Advanced PostgreSQL
+- Functions and Procedures
 - PL/pgSQL
-- Function parameters
-- Return types
-- Exception handling
-- Stored procedures
 - Triggers
-
-## 34. Indexing Basics
-
-Index data search দ্রুত করতে পারে, কিন্তু অতিরিক্ত index storage ও write overhead বাড়ায়।
-
-```sql
-CREATE INDEX idx_students_email
-ON students(email);
-```
-
-Index সব query-কে দ্রুত করবে না। Query pattern ও execution plan অনুযায়ী index design করতে হয়।
-
-## 35. PostgreSQL Administration
-
-- psql
-- pgAdmin
-- DBeaver
-- Database Roles
-- Permissions
-- Database Configuration
-- Connection Management
-- Logs
-- Extensions
-- Backup and Restore
-- Upgrades
+- Exception Handling
+- Database Migrations
+- Roles and Permissions
 
 ---
 
-# PART 4: DATABASE INTERNALS
+## Phase 4: Database Internals — Weeks 12–13
 
-## 36. Database Storage
+### Week 12: Storage and Index Internals
+- Database Pages and Blocks
+- Heap Tables and Tuple Storage
+- B-Tree Index
+- Buffer Cache and Shared Buffers
+- Write-Ahead Logging (WAL)
+- Multi-Version Concurrency Control (MVCC)
 
-Learn:
-- Pages and Blocks
-- Heap Tables
-- Tuple Storage
-- Buffer Cache
-- Shared Buffers
-- Disk I/O
-- WAL
-- Checkpoints
-- Background Processes
-
-## 37. B-Tree Index
-
-B-tree একটি balanced search tree family-এর structure, যা PostgreSQL-এর default index type।
-
-Benefits:
-- Equality searches
-- Range queries
-- Ordered retrieval
-- অনেক ক্ষেত্রে sorting-এর কাজ কমানো
-
-## 38. Composite Index
-
-একাধিক column নিয়ে তৈরি index।
-
-```sql
-CREATE INDEX idx_orders_customer_date
-ON orders(customer_id, created_at);
-```
-
-Column order গুরুত্বপূর্ণ। সাধারণত index-এর leading columns query predicates-এর সঙ্গে মিলে গেলে index বেশি কার্যকর হতে পারে।
-
-## 39. Query Planner
-
-Query planner SQL query execute করার জন্য সম্ভাব্য execution plans evaluate করে।
-
-Learn:
-- Cost Estimation
+### Week 13: Query Execution
+- Query Planner and Optimizer
 - Table Statistics
-- Sequential Scan
-- Index Scan
+- Sequential Scan and Index Scan
 - Join Algorithms
 - Cardinality Estimation
-- Sort and Aggregate Costs
-
-## 40. EXPLAIN ANALYZE
-
-```sql
-EXPLAIN (ANALYZE, BUFFERS)
-SELECT *
-FROM orders
-WHERE customer_id = 101;
-```
-
-EXPLAIN query plan দেখায়। ANALYZE query execute করে actual measurements সংগ্রহ করে।
-
-সতর্কতা: EXPLAIN ANALYZE সাধারণ SELECT-এর ক্ষেত্রে query চালায় এবং data-modifying statements-এর ক্ষেত্রে পরিবর্তনও ঘটাতে পারে। Production-এ ব্যবহারের আগে সতর্ক হও।
-
-## 41. MVCC
-
-MVCC (Multi-Version Concurrency Control) হলো এমন concurrency-control technique, যেখানে transactions-এর জন্য data versions ব্যবহৃত হয়।
-
-Benefits:
-- Readers ও writers-এর মধ্যে অনেক ক্ষেত্রে blocking কমায়।
-- Transaction snapshots সমর্থন করে।
-- Concurrent access সহজ করে।
-
-PostgreSQL-এ obsolete row versions পরিষ্কার করার জন্য VACUUM গুরুত্বপূর্ণ।
-
-## 42. WAL
-
-Write-Ahead Logging পরিবর্তনগুলোর log আগে লিখে crash recovery এবং replication-এ সহায়তা করে।
-
-Learn:
-- WAL Records
-- Checkpoints
-- WAL Archiving
-- Crash Recovery
-- Replication
-- PITR
+- EXPLAIN and EXPLAIN ANALYZE
 
 ---
 
-# PART 5: PERFORMANCE OPTIMIZATION
+## Phase 5: Performance Engineering — Weeks 14–16
 
-## 43. Query Optimization Checklist
+### Week 14: Query Optimization
+- Slow Query Analysis
+- Index Selection
+- Composite Indexes
+- JOIN Optimization
+- Avoiding N+1 Queries
+- Query Benchmarking
 
-- EXPLAIN ANALYZE ব্যবহার করো।
-- Slow query শনাক্ত করো।
-- WHERE conditions পরীক্ষা করো।
-- JOIN conditions পরীক্ষা করো।
-- উপযুক্ত index তৈরি করো।
-- অপ্রয়োজনীয় SELECT * এড়িয়ে চলো।
-- N+1 queries শনাক্ত করো।
-- Table statistics পরীক্ষা করো।
-- অতিরিক্ত indexing এড়িয়ে চলো।
-- Realistic data দিয়ে benchmark করো।
+### Week 15: Concurrency and Locking
+- MVCC
+- Row-Level and Table-Level Locks
+- Deadlock Detection
+- Isolation Anomalies
+- Lost Updates
+- Concurrency Control Strategies
 
-## 44. Connection Pooling
-
-Connection pooling database connections পুনরায় ব্যবহার করে connection overhead কমাতে পারে।
-
-Learn:
-- Connection Lifecycle
-- Pool Size
-- Idle Connections
-- Timeouts
-- Pool Exhaustion
-- Transaction Pooling
-- Session Pooling
-
-Tools:
+### Week 16: Performance Monitoring
+- Connection Pooling
 - PgBouncer
-- Application-Level Connection Pools
-
-## 45. Performance Metrics
-
 - Query Latency
-- p50 Latency
-- p95 Latency
-- p99 Latency
-- Throughput
-- Transactions Per Second
-- CPU Utilization
-- Memory Usage
-- Disk I/O
+- p50, p95, p99 Latency
+- Throughput and Transactions per Second
+- CPU, Memory, and Disk I/O
 - Cache Hit Ratio
-- Connection Count
-- Replication Lag
 
 ---
 
-# PART 6: BACKUP, RECOVERY AND REPLICATION
+## Phase 6: Reliability and Security — Weeks 17–20
 
-## 46. Backup Types
+### Week 17: Database Security
+- Authentication and Authorization
+- Least Privilege
+- Roles and Permissions
+- TLS and Encryption
+- SQL Injection Prevention
+- Row-Level Security
+- Secrets Management
+- Audit Logging
 
-### Logical Backup
-SQL objects ও data export করে।
-
-Tools:
-- pg_dump
-- pg_restore
-
-### Physical Backup
-Database-এর physical files এবং প্রয়োজনীয় recovery information নিয়ে কাজ করে।
-
-Learn:
+### Week 18: Backup and Restore
+- Logical and Physical Backups
+- pg_dump and pg_restore
 - Base Backups
-- WAL Archiving
-- PITR
 - Backup Retention
 - Restore Verification
 
-## 47. RPO and RTO
-
-RPO (Recovery Point Objective): সর্বোচ্চ কতটা data loss গ্রহণযোগ্য।
-
-RTO (Recovery Time Objective): কত সময়ের মধ্যে service restore করতে হবে।
-
-## 48. Replication
-
-Replication হলো এক database server থেকে অন্য server-এ database changes replicate করা।
-
-Types:
+### Week 19: Recovery and Replication
+- WAL Archiving
+- Point-in-Time Recovery (PITR)
 - Streaming Replication
-- Synchronous Replication
-- Asynchronous Replication
-- Logical Replication
-
-## 49. High Availability
-
-Learn:
-- Primary and Standby
-- Failover
-- Switchover
+- Synchronous and Asynchronous Replication
 - Replication Lag
+
+### Week 20: High Availability
+- Primary and Standby Servers
+- Failover and Switchover
 - Failure Detection
 - Split-Brain Prevention
-- Recovery Testing
+- Monitoring and Alerting
+- Disaster Recovery Testing
+- RPO and RTO
 
 ---
 
-# PART 7: DATABASE SECURITY
+## Phase 7: NoSQL and Distributed Systems — Weeks 21–24
 
-## 50. Security Fundamentals
-
-- Authentication
-- Authorization
-- Least Privilege
-- Roles and Permissions
-- TLS
-- Secrets Management
-- Encryption at Rest
-- Audit Logging
-- SQL Injection Prevention
-- Row-Level Security
-- Backup Security
-
-## 51. SQL Injection Prevention
-
-Parameterized queries ব্যবহার করো।
-
-Python example:
-
-```python
-cursor.execute(
-    "SELECT * FROM users WHERE email = %s",
-    (email,)
-)
-```
-
-User input-কে SQL string-এর সঙ্গে সরাসরি concatenate করা উচিত নয়।
-
----
-
-# PART 8: NOSQL AND DISTRIBUTED SYSTEMS
-
-## 52. Redis
-
-Learn:
+### Week 21: Redis
 - Key-Value Storage
-- Strings
-- Hashes
-- Lists
-- Sets
+- Strings, Hashes, Lists, Sets
 - Sorted Sets
-- TTL
-- Eviction Policies
-- Caching
-- Persistence
-- Replication
+- TTL and Eviction Policies
+- Caching Strategies
+- Persistence and Replication
 
-## 53. MongoDB
-
-Learn:
-- Documents
-- Collections
+### Week 22: MongoDB
+- Documents and Collections
 - BSON
 - Schema Design
-- Embedding
-- Referencing
+- Embedding and Referencing
 - Indexes
 - Aggregation Pipeline
-- Replica Sets
-- Sharding
+- Replica Sets and Sharding
 
-## 54. Distributed Systems
-
-Learn:
-- Partitioning
+### Week 23: Distributed Database Concepts
+- Partitioning and Sharding
 - Replication
-- Sharding
-- Consistency Models
-- Eventual Consistency
+- Strong and Eventual Consistency
 - CAP Theorem
 - Quorums
 - Leader Election
+
+### Week 24: Distributed Systems
 - Distributed Transactions
 - Idempotency
 - Retries and Timeouts
-
-## 55. Other Technologies
-
-- Apache Kafka: Event Streaming
-- Apache Cassandra: Distributed Database
-- ClickHouse: Analytical Database
-- Elasticsearch: Search and Analytics
-- DuckDB: Analytical SQL Engine
-- Vector Databases: Similarity Search
+- Apache Kafka
+- Event-Driven Architecture
+- Failure Handling
 
 ---
 
-# PART 9: LINUX, DOCKER AND CLOUD
+## Phase 8: Infrastructure and Cloud — Weeks 25–27
 
-## 56. Linux
-
-Learn:
-- Filesystem
-- Permissions
+### Week 25: Linux and Networking
+- Linux Filesystem and Permissions
 - Users and Groups
-- Processes
-- Memory
-- Disk Space
-- Networking
-- TCP/IP
-- DNS
-- Logs
+- Processes and Memory
+- Disk Management
+- TCP/IP and DNS
 - Bash Scripting
-- Systemd
+- Logs and Systemd
 
-## 57. Docker
-
-Learn:
-- Images
-- Containers
+### Week 26: Docker
+- Images and Containers
 - Dockerfile
 - Docker Compose
-- Volumes
-- Networks
+- Volumes and Networks
 - Environment Variables
 - Health Checks
 - Persistent Storage
-- Container Recovery
 
-## 58. AWS
-
-Learn:
+### Week 27: AWS and Cloud Databases
 - Amazon RDS
 - Amazon Aurora
 - Amazon DynamoDB
 - IAM
-- VPC
-- Subnets
+- VPC and Subnets
 - Security Groups
 - CloudWatch
 - Automated Backups
-- Snapshots
-- Read Replicas
+- Snapshots and Read Replicas
 - Multi-AZ Deployments
-
-Resource:
-https://aws.amazon.com/rds/
-
-## 59. Infrastructure Automation
-
-Learn:
-- Git and GitHub
-- CI/CD
-- Terraform
-- Infrastructure as Code
-- Configuration Management
-- Secrets Management
-- Automated Backup Verification
-- Monitoring and Alerting
 
 ---
 
-# PART 10: PYTHON DATABASE AUTOMATION
+## Phase 9: Python Database Automation — Week 28
 
-## 60. Python Database Skills
-
-Learn:
 - psycopg
 - SQLAlchemy
 - Django ORM
@@ -863,13 +266,10 @@ Learn:
 - Connection Pooling
 - Parameterized Queries
 - Database Migrations
-- Error Handling
-- Retry Logic
-- Logging
-- Data Validation
+- Error Handling and Retry Logic
+- Logging and Data Validation
 
-## 61. Automation Projects
-
+### Automation Projects
 - Database Health Checker
 - Backup Verification Script
 - Slow Query Report Generator
@@ -879,59 +279,68 @@ Learn:
 
 ---
 
-# PART 11: PORTFOLIO PROJECTS
+## Phase 10: Advanced Database Architecture — Weeks 29–30
 
-## Project 1: E-commerce Database
+### Week 29: Database Architecture
+- OLTP vs OLAP
+- Data Warehousing Fundamentals
+- Read and Write Scaling
+- Caching Architecture
+- Database Design Trade-offs
+- High-Level System Design
 
-Features:
-- Customers
-- Products
-- Orders
-- Payments
-- Inventory
-- Constraints
-- Relationships
-- Indexes
-- Transactions
-- Sales Reports
+### Week 30: Advanced Topics
+- Table Partitioning
+- Change Data Capture (CDC)
+- Analytical Databases
+- ClickHouse
+- Elasticsearch
+- DuckDB
+- Vector Databases
+- Database Scaling Strategies
 
-## Project 2: Performance Optimization
+---
 
-Features:
-- Large Dataset
-- Slow Query Analysis
-- Index Optimization
-- EXPLAIN ANALYZE
-- Benchmarking
-- Performance Report
+## Phase 11: Portfolio Projects — Week 31
 
-## Project 3: PostgreSQL Reliability
+### Project 1: E-commerce Database
+- Customers, Products, Orders, Payments
+- Inventory Management
+- Constraints and Relationships
+- Transactions and Sales Reports
 
-Features:
-- Primary and Standby
+### Project 2: PostgreSQL Performance Optimization
+- Generate a Large Dataset
+- Identify Slow Queries
+- Analyze Execution Plans
+- Optimize Indexes
+- Benchmark Before and After
+
+### Project 3: PostgreSQL Reliability
+- Primary and Standby Setup
 - Replication
-- Backup
-- Restore
+- Backup and Restore
 - PITR
-- Monitoring
-- Failover Testing
-- Disaster Recovery Guide
+- Monitoring and Failover Testing
 
-## Project 4: Django + PostgreSQL + Redis
-
-Features:
+### Project 4: Django + PostgreSQL + Redis
 - Django REST Framework
-- PostgreSQL
+- PostgreSQL Database
 - Redis Caching
 - Database Migrations
 - Connection Pooling
-- Docker
-- Security
-- Monitoring
+- Docker and Security
 
-## GitHub Requirements
+### Project 5: Database Automation Toolkit
+- Health Checks
+- Slow Query Reports
+- Backup Verification
+- Data Quality Validation
+- Monitoring and Alerts
 
-প্রতিটি project-এ রাখবে:
+### GitHub Requirements
+Every project should include:
+
 - README.md
 - ER Diagram
 - Architecture Diagram
@@ -944,132 +353,74 @@ Features:
 
 ---
 
-# PART 12: INTERVIEW PREPARATION
+## Phase 12: Interview and Job Preparation — Week 32
 
-## SQL Questions
-- Explain JOINs.
-- Explain GROUP BY vs HAVING.
-- Find the second-highest salary.
-- Find duplicate records.
-- Explain CTEs.
-- Explain Window Functions.
-- Find top 3 records per group.
+### SQL Interview Questions
+- Explain SQL JOINs.
+- GROUP BY vs HAVING
+- Find the Second-Highest Salary.
+- Find Duplicate Records.
+- Explain CTEs and Window Functions.
+- Find the Top 3 Records per Group.
 
-## Database Design Questions
-- What is normalization?
-- Explain primary and foreign keys.
-- What is referential integrity?
-- When should denormalization be used?
-- How would you design an e-commerce database?
+### Database Design Questions
+- What is Normalization?
+- Primary Key vs Foreign Key
+- What is Referential Integrity?
+- When Should Denormalization Be Used?
+- How Would You Design an E-commerce Database?
 
-## Performance Questions
-- What is an index?
-- How does a B-tree work?
-- Why can a query ignore an index?
-- How do you analyze a slow query?
-- What is a composite index?
-- What is EXPLAIN ANALYZE?
+### Performance Questions
+- What Is an Index?
+- How Does a B-Tree Work?
+- Why Might a Query Ignore an Index?
+- How Do You Analyze a Slow Query?
+- What Is a Composite Index?
+- Explain EXPLAIN ANALYZE.
 
-## Transaction Questions
+### Transaction Questions
 - Explain ACID.
-- What is MVCC?
-- What are isolation levels?
-- What causes deadlocks?
-- How do you prevent lost updates?
+- What Is MVCC?
+- What Are Isolation Levels?
+- What Causes Deadlocks?
+- How Can Lost Updates Be Prevented?
 
-## Administration Questions
-- Explain backup and restore.
-- What is PITR?
-- What is replication?
-- What is failover?
-- How do you monitor database health?
-- How do you recover from a failure?
+### Administration Questions
+- Explain Backup and Restore.
+- What Is PITR?
+- What Is Replication?
+- What Is Failover?
+- How Do You Monitor Database Health?
 
-## Distributed Systems Questions
+### Distributed Systems Questions
 - Replication vs Sharding
 - Strong vs Eventual Consistency
 - Explain the CAP Theorem.
-- What is partitioning?
-- What is idempotency?
+- What Is Idempotency?
+- What Is Change Data Capture?
 
 ---
 
-# PART 13: WEEK-BY-WEEK STUDY PLAN
+## Daily Study Routine
 
-Week 1: DBMS and RDBMS Fundamentals
-
-Week 2: ER Diagrams, Keys, Relationships, Normalization
-
-Week 3: Basic SQL
-
-Week 4: DDL, DML and Constraints
-
-Week 5: JOINs and Aggregations
-
-Week 6: Subqueries and CTEs
-
-Week 7: Window Functions and SQL Problems
-
-Week 8: PostgreSQL Installation and Tools
-
-Week 9: Schema Design and Indexes
-
-Week 10: Transactions and Isolation Levels
-
-Week 11: Views, Functions and Migrations
-
-Week 12: Storage, Pages, B-Tree and WAL
-
-Week 13: Index Design and EXPLAIN ANALYZE
-
-Week 14: Query Optimization
-
-Week 15: MVCC, Locks and Deadlocks
-
-Week 16: Performance Benchmarking
-
-Week 17: Security and Permissions
-
-Week 18: Backup and Restore
-
-Week 19: PITR and Replication
-
-Week 20: Monitoring and High Availability
-
-Week 21: Redis and Caching
-
-Week 22: MongoDB
-
-Week 23: Sharding and Consistency
-
-Week 24: Distributed Systems Project
-
-Week 25: Linux and Networking
-
-Week 26: Docker and Docker Compose
-
-Week 27: AWS RDS and Cloud Networking
-
-Week 28: Python Automation
-
-Week 29: Advanced Architecture
-
-Week 30: Partitioning, CDC and OLTP/OLAP
-
-Week 31: Portfolio Projects
-
-Week 32: Interview Preparation and Job Applications
+| Activity | Time |
+|---|---:|
+| Theory and Concepts | 30 minutes |
+| SQL Coding Practice | 45 minutes |
+| Hands-on Database Lab | 30 minutes |
+| Revision and Interview Questions | 15 minutes |
+| **Total** | **2 hours/day** |
 
 ---
 
-# FINAL ROADMAP SUMMARY
+## Final Roadmap Summary
 
-Recommended Learning Order:
+Recommended learning order:
 
 1. Database Fundamentals
-2. SQL Mastery
-3. PostgreSQL
-4. Database Design and Normalization
+2. Database Design and Normalization
+3. SQL Mastery
+4. PostgreSQL
 5. Transactions and ACID
 6. Indexing and Query Optimization
 7. Database Internals
@@ -1077,12 +428,14 @@ Recommended Learning Order:
 9. Database Security
 10. Linux and Networking
 11. Docker and Cloud
-12. Python Automation
+12. Python Database Automation
 13. NoSQL and Distributed Systems
 14. Advanced Database Architecture
 15. Portfolio Projects
 16. Interview Preparation
 
-**Final Goal:** Become capable of designing, optimizing, securing, monitoring, backing up, recovering, and operating reliable databases in real-world applications.
+## Final Goal
 
-**Study Strategy:** প্রতিটি topic-এর জন্য Theory + Notes + SQL Practice + Practical Lab + Project অনুসরণ করো। শুধু notes পড়লে হবে না; নিজে database তৈরি করে query execute এবং error debug করতে হবে।
+Become capable of designing, optimizing, securing, monitoring, backing up, recovering, and operating reliable databases for real-world applications.
+
+**Study Strategy:** প্রতিটি topic-এর জন্য Theory → Notes → SQL Practice → Practical Lab → Mini Project অনুসরণ করো। শুধু notes পড়বে না; নিজে database তৈরি করবে, query execute করবে, execution plan বিশ্লেষণ করবে এবং error debug করবে.
