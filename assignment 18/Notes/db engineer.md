@@ -439,3 +439,6 @@ Recommended learning order:
 Become capable of designing, optimizing, securing, monitoring, backing up, recovering, and operating reliable databases for real-world applications.
 
 **Study Strategy:** প্রতিটি topic-এর জন্য Theory → Notes → SQL Practice → Practical Lab → Mini Project অনুসরণ করো। শুধু notes পড়বে না; নিজে database তৈরি করবে, query execute করবে, execution plan বিশ্লেষণ করবে এবং error debug করবে.
+
+
+========================================================================================
