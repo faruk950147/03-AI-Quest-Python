@@ -1,2989 +1,1572 @@
+# System Design — Complete Notes (বাংলায়)
 
-# SYSTEM DESIGN: BEGINNER TO ADVANCED
-## Complete Notes in Bangla + English
-### Python | Django | Backend Engineering | System Design Interviews
+**Level:** Beginner to Intermediate  
+**Focus:** Backend Development, HLD, LLD এবং Software Engineer Interview  
+**Example Stack:** Python, Django REST Framework, PostgreSQL, Redis
 
----
+## Table of Contents
 
-# TABLE OF CONTENTS
-
-1. Introduction to System Design
-2. HLD vs LLD
-3. Requirements Gathering
-4. Client-Server Architecture
-5. Internet and Networking Basics
-6. HTTP, HTTPS, DNS and REST API
-7. Latency, Throughput and Availability
-8. Capacity Estimation
-9. Database Fundamentals
-10. SQL vs NoSQL
-11. Database Schema and Normalization
-12. Indexing and Query Optimization
-13. Transactions and ACID
-14. Database Replication
-15. Database Sharding
-16. Caching and Redis
-17. Load Balancing
-18. CDN and Object Storage
-19. Message Queues and Background Jobs
-20. Scalability
-21. Distributed Systems
-22. CAP Theorem
-23. Consistency Models
-24. Fault Tolerance and Reliability
-25. Idempotency, Retry and Circuit Breaker
-26. Rate Limiting
-27. Monolith vs Microservices
-28. Event-Driven Architecture
-29. API Gateway
-30. Authentication and Security
-31. Logging, Monitoring and Observability
-32. Search Systems
-33. File Upload System
-34. URL Shortener Design
-35. Chat Application Design
-36. E-commerce System Design
-37. Notification Service Design
-38. News Feed Design
-39. Video Streaming System
-40. Ride-Sharing System
-41. Ticket Booking System
-42. System Design Interview Framework
-43. Common Interview Questions and Answers
-44. Common Mistakes
-45. Python and Django Practical Examples
-46. Beginner-to-Advanced Project Roadmap
-47. 12-Week Study Plan
-48. Final Checklist
-49. Glossary
-50. Learning Resources
+1. [System Design Fundamentals](#1-system-design-fundamentals)
+2. [Architecture Types](#2-architecture-types)
+3. [High-Level Design (HLD)](#3-high-level-design-hld)
+4. [API Design](#4-api-design)
+5. [Scalability and Performance](#5-scalability-and-performance)
+6. [Caching and CDN](#6-caching-and-cdn)
+7. [Database Design](#7-database-design)
+8. [Distributed Systems](#8-distributed-systems)
+9. [Security and Reliability](#9-security-and-reliability)
+10. [Low-Level Design (LLD)](#10-low-level-design-lld)
+11. [OOP and SOLID Principles](#11-oop-and-solid-principles)
+12. [Design Patterns](#12-design-patterns)
+13. [Observability](#13-observability)
+14. [System Design Interview Framework](#14-system-design-interview-framework)
+15. [Practical System Design Problems](#15-practical-system-design-problems)
+16. [Study Roadmap](#16-study-roadmap)
+17. [Interview Revision Questions](#17-interview-revision-questions)
 
 ---
 
-# 1. INTRODUCTION TO SYSTEM DESIGN
+# 1. System Design Fundamentals
 
-## 1.1 What is System Design?
+## 1.1 What Is System Design?
 
-System Design হলো একটি software system কীভাবে তৈরি, organize, scale এবং maintain করা হবে তার পরিকল্পনা।
+System Design হলো software system-এর architecture, components, database, communication, data flow, scalability, security এবং reliability পরিকল্পনা করার প্রক্রিয়া।
 
-সহজভাবে:
-- কোন components থাকবে?
-- Components কীভাবে communicate করবে?
-- Data কোথায় store হবে?
-- Traffic কীভাবে handle হবে?
-- System failure হলে কী হবে?
-- Security কীভাবে নিশ্চিত হবে?
-- Cost ও performance-এর মধ্যে balance কীভাবে করা হবে?
+### Example: E-commerce System
 
-Example: একটি online shopping application design করতে হলে ভাবতে হবে:
-- User authentication
-- Product catalog
-- Shopping cart
-- Order processing
-- Payment integration
-- Database
-- Cache
-- Notification
-- Load balancing
-- Monitoring
+একটি e-commerce application-এ থাকতে পারে:
 
-## 1.2 Why is System Design Important?
+- User Authentication
+- Product Catalog
+- Shopping Cart
+- Order Management
+- Payment Processing
+- Inventory Management
+- Notification System
+- Database and Cache
 
-System Design সাহায্য করে:
-- Large traffic handle করতে
-- Application fast রাখতে
-- Failure থেকে recover করতে
-- Data consistency বজায় রাখতে
-- Infrastructure cost নিয়ন্ত্রণ করতে
-- Software maintainable রাখতে
-- Technical trade-offs বুঝতে
+System Design নির্ধারণ করে এই component-গুলো কীভাবে একসঙ্গে কাজ করবে।
 
-## 1.3 Example: Small vs Large Application
+## 1.2 Why Is System Design Important?
 
-Small application:
+- Scalability বাড়াতে।
+- Application performance উন্নত করতে।
+- Database load কমাতে।
+- System failure সামলাতে।
+- Security নিশ্চিত করতে।
+- Code maintainability বাড়াতে।
+- বড় traffic handle করতে।
+- ভবিষ্যতে নতুন feature যোগ করা সহজ করতে।
 
-User -> Django -> PostgreSQL
+## 1.3 Types of System Design
 
-Large application:
+| Type | Description | Example |
+|---|---|---|
+| HLD | High-level architecture | YouTube architecture |
+| LLD | Class ও component design | Parking Lot classes |
+| Database Design | Data model ও relationships | User ও Order tables |
+| API Design | API contract ও endpoints | REST API |
+| Infrastructure Design | Deployment ও networking | Load balancer, containers |
 
-Users
-  |
-CDN / DNS
-  |
-Load Balancer
-  |
-Application Servers
-  |
-Cache / Message Queue / Database
-  |
-Object Storage / Monitoring
+System Design-এর প্রধান দুইটি category হলো HLD এবং LLD।
 
-মনে রাখবে: সব application-এর জন্য complex architecture দরকার হয় না। Requirements অনুযায়ী design নির্বাচন করতে হয়।
+## 1.4 Functional Requirements
 
----
+Functional Requirements বোঝায় system কী কী কাজ করবে।
 
-# 2. HIGH-LEVEL DESIGN (HLD) VS LOW-LEVEL DESIGN (LLD)
+Example — Chat Application:
 
-## 2.1 High-Level Design
+- User message পাঠাতে পারবে।
+- User message receive করতে পারবে।
+- Message history দেখতে পারবে।
+- Online status দেখতে পারবে।
 
-HLD system-এর বড় components এবং তাদের interactions ব্যাখ্যা করে।
+## 1.5 Non-Functional Requirements
 
-Examples:
-- Client
-- API server
-- Database
-- Cache
-- Load balancer
-- Message broker
-- Object storage
+Non-Functional Requirements বোঝায় system কত ভালোভাবে কাজ করবে।
 
-Interview-এ HLD-এর focus:
-- Architecture
-- Data flow
-- Scalability
-- Availability
-- Storage choices
-- Bottlenecks
-- Trade-offs
-
-## 2.2 Low-Level Design
-
-LLD individual components কীভাবে implement হবে তা ব্যাখ্যা করে।
-
-Examples:
-- Class design
-- Interfaces
-- Database models
-- Methods
-- Design patterns
-- Object relationships
-
-Django example:
-
-```python
-from django.db import models
-
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-```
-
-এই model হলো implementation-level design-এর একটি অংশ।
-
-## 2.3 Difference
-
-| HLD | LLD |
+| Requirement | Meaning |
 |---|---|
-| System architecture | Component implementation |
-| Services and data flow | Classes and methods |
-| Scalability and availability | Code structure and patterns |
-| Architecture diagrams | Class diagrams |
-| Large-scale view | Detailed view |
+| Scalability | Workload বাড়লে system সামলাতে পারবে |
+| Availability | Service ব্যবহারযোগ্য থাকবে |
+| Reliability | নির্ভরযোগ্যভাবে কাজ করবে |
+| Performance | দ্রুত response দেবে |
+| Security | Unauthorized access প্রতিরোধ করবে |
+| Maintainability | Code পরিবর্তন করা সহজ হবে |
+| Durability | Committed data সংরক্ষিত থাকবে |
 
----
+## 1.6 Client-Server Architecture
 
-# 3. REQUIREMENTS GATHERING
-
-Design করার আগে requirements পরিষ্কার করতে হবে।
-
-## 3.1 Functional Requirements
-
-System কী কী কাজ করবে?
-
-Example: E-commerce
-- User register করতে পারবে
-- User login করতে পারবে
-- Products browse করতে পারবে
-- Cart-এ item যোগ করতে পারবে
-- Order place করতে পারবে
-- Payment করতে পারবে
-
-## 3.2 Non-Functional Requirements
-
-System কত ভালোভাবে কাজ করবে?
-
-Examples:
-- Performance
-- Scalability
-- Availability
-- Reliability
-- Security
-- Maintainability
-- Durability
-- Cost efficiency
-
-Example requirements:
-- API response time অধিকাংশ request-এর জন্য 200 ms-এর নিচে রাখতে হবে
-- System 100,000 daily active users handle করবে
-- Payment data secure রাখতে হবে
-- Database backup থাকতে হবে
-
-এগুলো উদাহরণ; real target business requirements অনুযায়ী ঠিক করতে হবে।
-
-## 3.3 Constraints
-
-Constraints হলো design-এর সীমাবদ্ধতা।
-
-Examples:
-- Budget
-- Deadline
-- Team size
-- Existing technology
-- Legal requirements
-- Data residency
-- Cloud provider
-
-## 3.4 Interview Rule
-
-Design শুরু করার আগে জিজ্ঞেস করো:
-1. Main features কী?
-2. Expected users কত?
-3. Daily requests কত?
-4. Read বেশি, নাকি write বেশি?
-5. Data কতদিন রাখতে হবে?
-6. Availability target কত?
-7. Strong consistency দরকার কি?
-8. Budget বা technology constraints কী?
-
----
-
-# 4. CLIENT-SERVER ARCHITECTURE
-
-Client হলো request পাঠানো application।
-
-Examples:
-- Browser
-- Mobile app
-- Desktop application
-
-Server হলো request process করে response দেওয়া system।
-
-Diagram:
-
+```text
 Client
   |
   | HTTP Request
   v
-Server
+Application Server
   |
   v
 Database
   |
   v
-Server
+Application Server
   |
   | HTTP Response
   v
 Client
-
-Example:
-
-GET /api/products/
-
-Response:
-
-```json
-{
-  "results": [
-    {
-      "id": 1,
-      "name": "Keyboard",
-      "price": "1500.00"
-    }
-  ]
-}
 ```
 
-Client সাধারণত business logic-এর authoritative source নয়। Sensitive validation ও authorization server-side করতে হয়।
+### Components
+
+- **Client:** Browser, mobile app বা frontend।
+- **Server:** Request process করে।
+- **Database:** Data store করে।
+- **Response:** Server-এর ফেরত পাঠানো result।
+
+### Django Request Flow
+
+```text
+Client
+  -> URL Router
+  -> Middleware
+  -> View / API View
+  -> Business Logic
+  -> Django ORM
+  -> Database
+  -> JSON Response
+```
 
 ---
 
-# 5. INTERNET AND NETWORKING BASICS
+# 2. Architecture Types
 
-## 5.1 IP Address
+## 2.1 Monolithic Architecture
 
-IP address network-এ device বা network interface identify করতে সাহায্য করে।
+একটি application-এর মধ্যে একাধিক business module থাকে এবং সাধারণত একসঙ্গে deploy করা হয়।
+
+### Advantages
+
+- সহজ development।
+- সহজ deployment।
+- শুরুতে কম operational complexity।
+- Local function call-এর মাধ্যমে component communication।
+
+### Disadvantages
+
+- বড় codebase maintain করা কঠিন হতে পারে।
+- পুরো application deploy করতে হতে পারে।
+- আলাদা module স্বাধীনভাবে scale করা কঠিন হতে পারে।
+
+### Example
+
+একটি Django project-এ:
+
+```text
+E-commerce Application
+├── users
+├── products
+├── cart
+├── orders
+└── payments
+```
+
+## 2.2 Microservices Architecture
+
+Application-কে একাধিক independent service-এ ভাগ করা হয়।
+
+```text
+API Gateway
+    |
+    ├── User Service
+    ├── Product Service
+    ├── Order Service
+    ├── Payment Service
+    └── Notification Service
+```
+
+### Advantages
+
+- Service অনুযায়ী scaling।
+- Independent deployment সম্ভব।
+- Service-specific technology ব্যবহার করা যায়।
+- Failure isolation করা সম্ভব।
+
+### Disadvantages
+
+- Network communication complexity।
+- Distributed data consistency।
+- Monitoring ও debugging কঠিন।
+- Deployment ও infrastructure পরিচালনা জটিল।
+
+**Important:** ছোট application-এর জন্য modular monolith অনেক সময় microservices-এর চেয়ে ভালো starting point।
+
+## 2.3 Layered Architecture
+
+```text
+Presentation Layer
+        |
+        v
+Application / Business Layer
+        |
+        v
+Data Access Layer
+        |
+        v
+Database
+```
+
+### Layers
+
+1. Presentation Layer — UI ও API interface।
+2. Business Layer — Business rules।
+3. Data Access Layer — Database operations।
+4. Database Layer — Data storage।
+
+## 2.4 Event-Driven Architecture
+
+একটি event ঘটলে অন্য component সেই event process করে।
+
+```text
+Order Service
+     |
+     v
+Message Broker
+     |
+     ├── Email Worker
+     ├── Inventory Worker
+     └── Analytics Worker
+```
+
+Example: `OrderCreated` event-এর পরে email notification পাঠানো।
+
+## 2.5 Serverless Architecture
+
+Cloud provider-managed functions বা services ব্যবহার করে application-এর কিছু অংশ চালানো হয়।
 
 Example:
-192.0.2.10
 
-## 5.2 Port
+- AWS Lambda
+- Azure Functions
+- Google Cloud Functions
 
-Port একটি machine-এর নির্দিষ্ট network service-এ connection নির্দেশ করে।
-
-Common ports:
-- HTTP: 80
-- HTTPS: 443
-- PostgreSQL: 5432
-- Redis: 6379
-
-Production-এ database port public internet-এ expose করা উচিত নয়।
-
-## 5.3 TCP
-
-TCP reliable, ordered byte stream দেয়।
-
-ব্যবহার:
-- HTTPS traffic
-- Database connections
-- অনেক API communication
-
-## 5.4 UDP
-
-UDP connectionless datagram transport।
-
-ব্যবহার:
-- DNS-এর কিছু query
-- Real-time media
-- Gaming
-- কিছু low-latency protocol
-
-## 5.5 TLS
-
-TLS communication encrypt করে এবং server identity verify করতে সাহায্য করে।
-
-HTTPS = HTTP over TLS.
-
-## 5.6 DNS
-
-DNS domain name-কে সংশ্লিষ্ট IP address বা অন্য DNS record-এ resolve করতে সাহায্য করে।
-
-Example:
-example.com -> IP address
-
-DNS change সব জায়গায় সঙ্গে সঙ্গে কার্যকর হবে এমন নয়; caching ও TTL গুরুত্বপূর্ণ।
+Serverless মানে server নেই নয়; server management-এর বড় অংশ provider পরিচালনা করে।
 
 ---
 
-# 6. HTTP, HTTPS, DNS AND REST API
+# 3. High-Level Design (HLD)
 
-## 6.1 HTTP Methods
+HLD-তে পুরো system-এর major components, responsibilities, communication এবং data flow নির্ধারণ করা হয়।
 
-GET:
-Resource পড়া।
+## 3.1 Three-Tier Architecture
 
-POST:
-Resource তৈরি বা operation শুরু করা।
+```text
+Presentation Tier
+        |
+        v
+Application Tier
+        |
+        v
+Data Tier
+```
 
-PUT:
-সাধারণত resource replace করা।
+- Presentation: React, HTML বা mobile UI।
+- Application: Django বা FastAPI।
+- Data: PostgreSQL, Redis বা object storage।
 
-PATCH:
-Resource-এর কিছু field update করা।
+## 3.2 API Gateway
 
-DELETE:
-Resource delete করা।
+API Gateway client request গ্রহণ করে এবং উপযুক্ত backend service-এ পাঠায়।
 
-## 6.2 HTTP Status Codes
+### Responsibilities
 
-200 OK
-201 Created
-202 Accepted
-204 No Content
-400 Bad Request
-401 Unauthorized
-403 Forbidden
-404 Not Found
-409 Conflict
-429 Too Many Requests
-500 Internal Server Error
-502 Bad Gateway
-503 Service Unavailable
-504 Gateway Timeout
-
-401 সাধারণত authentication দরকার বা invalid।
-403 মানে request বোঝা হয়েছে, কিন্তু permission নেই।
-
-## 6.3 REST API Example
-
-Endpoints:
-
-GET    /api/products/
-GET    /api/products/42/
-POST   /api/products/
-PATCH  /api/products/42/
-DELETE /api/products/42/
-
-Good API practices:
-- Consistent naming
-- Input validation
-- Authentication and authorization
-- Pagination
-- Error response format
-- API versioning where needed
+- Request routing
+- Authentication integration
 - Rate limiting
-- Documentation
+- Request logging
+- API version routing
 
-## 6.4 Pagination
+API Gateway নিজেও bottleneck বা single point of failure হতে পারে; তাই production design-এ redundancy ও scaling বিবেচনা করতে হয়।
 
-Offset pagination:
+## 3.3 Load Balancer
 
-GET /api/products/?limit=20&offset=40
+Load balancer incoming requests একাধিক server-এর মধ্যে distribute করে।
 
-Cursor pagination:
+```text
+              Client
+                |
+                v
+          Load Balancer
+          /     |     \
+         v      v      v
+      Server1 Server2 Server3
+```
 
-GET /api/products/?cursor=eyJpZCI6MTAwfQ
+### Algorithms
 
-Large datasets-এ cursor pagination অনেক ক্ষেত্রে বেশি efficient এবং changing data-এর সঙ্গে বেশি stable হতে পারে।
+- Round Robin
+- Weighted Round Robin
+- Least Connections
+- IP Hash
+
+### Benefits
+
+- Traffic distribution
+- Healthy server-এ routing
+- Overload কমানো
+- Availability বাড়াতে সাহায্য করা
+
+## 3.4 Reverse Proxy
+
+Reverse proxy client এবং backend server-এর মাঝখানে কাজ করে।
+
+Common uses:
+
+- TLS termination
+- Request routing
+- Compression
+- Static file serving
+- Load balancing
+
+Examples: Nginx, HAProxy।
+
+## 3.5 API Versioning
+
+API versioning backward compatibility বজায় রাখতে সাহায্য করে।
+
+Example:
+
+```text
+/api/v1/products/
+/api/v2/products/
+```
+
+Versioning-এর পাশাপাশি deprecation policy ও migration plan থাকা উচিত।
 
 ---
 
-# 7. LATENCY, THROUGHPUT AND AVAILABILITY
+# 4. API Design
 
-## 7.1 Latency
+## 4.1 REST API
 
-একটি request সম্পন্ন হতে যত সময় লাগে।
+REST API resource-oriented HTTP interface ব্যবহার করে।
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/products/` | List products |
+| GET | `/api/products/10/` | Retrieve product |
+| POST | `/api/products/` | Create product |
+| PUT | `/api/products/10/` | Replace product |
+| PATCH | `/api/products/10/` | Partially update product |
+| DELETE | `/api/products/10/` | Delete product |
+
+## 4.2 HTTP Status Codes
+
+| Code | Meaning |
+|---|---|
+| 200 | OK |
+| 201 | Created |
+| 204 | Successful, no response body |
+| 400 | Bad Request |
+| 401 | Unauthenticated |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 409 | Conflict |
+| 429 | Too Many Requests |
+| 500 | Internal Server Error |
+| 503 | Service Unavailable |
+
+## 4.3 Pagination
+
+অনেক data একবারে পাঠানোর বদলে ছোট অংশে পাঠানো হয়।
 
 Example:
-API latency = 120 ms
 
-## 7.2 Throughput
+```http
+GET /api/products/?page=2&page_size=20
+```
 
-একক সময়ে system যতগুলো operation handle করে।
+Offset pagination সহজ, কিন্তু বড় dataset-এ cursor pagination বেশি কার্যকর হতে পারে।
 
-Example:
-5,000 requests/second
+## 4.4 API Security
 
-## 7.3 RPS
+- Input validation।
+- Authentication।
+- Authorization।
+- Rate limiting।
+- HTTPS।
+- Consistent error handling।
+- Sensitive data filtering।
+- Request size limits।
 
-Requests Per Second.
+## 4.5 Idempotent HTTP Operations
 
-Formula:
+একই request পুনরায় পাঠালে server-এর state-এর ওপর একই effect হওয়াকে idempotency বলা হয়।
 
-RPS = Total Requests / Total Seconds
-
-Example:
-864,000 requests/day ÷ 86,400 seconds/day
-= 10 average requests/second
-
-Peak traffic average-এর অনেক বেশি হতে পারে।
-
-## 7.4 Percentile Latency
-
-p50: 50% requests এই সময়ের মধ্যে complete হয়।
-
-p95: 95% requests এই সময়ের মধ্যে complete হয়।
-
-p99: 99% requests এই সময়ের মধ্যে complete হয়।
-
-শুধু average latency দেখলে slow requests আড়াল হয়ে যেতে পারে।
-
-## 7.5 Availability
-
-Availability = Uptime / Total Scheduled Time × 100%
-
-Illustrative annual downtime:
-
-| Availability | Approx. downtime/year |
-|---|---:|
-| 99% | 3.65 days |
-| 99.9% | 8.76 hours |
-| 99.99% | 52.6 minutes |
-| 99.999% | 5.26 minutes |
-
-এই হিসাব 365-day year ধরে করা হয়েছে।
+GET, PUT এবং DELETE-এর intended semantics সাধারণত idempotent। POST সাধারণত idempotent নয়, তবে idempotency key ব্যবহার করে নির্দিষ্ট POST operation-কে safely retry করা যায়।
 
 ---
 
-# 8. CAPACITY ESTIMATION
+# 5. Scalability and Performance
 
-Interview-এ exact number নয়, assumptions পরিষ্কারভাবে দেখানো গুরুত্বপূর্ণ।
+## 5.1 Scalability
 
-## 8.1 Daily Active Users
+Scalability হলো workload বাড়লে system-এর capacity ও performance বজায় রাখার ক্ষমতা।
 
-ধরি:
-- DAU = 1,000,000
-- User প্রতি দিনে 20 requests
+### Vertical Scaling
+
+একটি server-এর CPU, RAM বা storage বাড়ানো।
+
+Advantages:
+
+- সহজ implementation।
+- কম distributed coordination।
+
+Disadvantages:
+
+- Hardware limit।
+- Single-server dependency থাকতে পারে।
+
+### Horizontal Scaling
+
+একাধিক server বা instance যোগ করা।
+
+```text
+              Load Balancer
+              /     |     \
+             v      v      v
+          Server1 Server2 Server3
+```
+
+Advantages:
+
+- Capacity বাড়ানো যায়।
+- Redundancy সম্ভব।
+- Traffic distribute করা যায়।
+
+Challenges:
+
+- Shared state।
+- Database bottleneck।
+- Session management।
+- Distributed coordination।
+
+## 5.2 Stateless Application
+
+Stateless application প্রতিটি request process করার জন্য local server session-এর ওপর নির্ভর করে না।
+
+Benefits:
+
+- সহজ horizontal scaling।
+- যেকোনো healthy instance-এ request পাঠানো যায়।
+- Instance replacement সহজ হয়।
+
+Session বা shared state প্রয়োজন হলে external session store বা অন্য shared storage ব্যবহার করা যেতে পারে।
+
+## 5.3 Latency vs Throughput
+
+- **Latency:** একটি request সম্পন্ন হতে কত সময় লাগে।
+- **Throughput:** নির্দিষ্ট সময়ে কত request process হয়।
+
+Example:
+
+- API latency: 100 ms।
+- Throughput: 1,000 requests/second।
+
+দুটি আলাদা metric। একটি system-এর throughput বাড়লেও latency খারাপ হতে পারে।
+
+## 5.4 Capacity Estimation
+
+ধরা যাক:
+
+- Daily users = 100,000
+- Requests per user per day = 20
 
 Daily requests:
 
-1,000,000 × 20
-= 20,000,000 requests/day
+```text
+100,000 × 20 = 2,000,000 requests/day
+```
 
 Average RPS:
 
-20,000,000 / 86,400
-≈ 231 RPS
+```text
+2,000,000 / 86,400 ≈ 23.15 requests/second
+```
 
-যদি peak traffic average-এর 5 গুণ হয়:
+Peak traffic average-এর 5 গুণ হলে:
 
-Peak RPS ≈ 1,155
+```text
+23.15 × 5 ≈ 116 requests/second
+```
 
-এটি illustrative estimate, production measurement নয়।
-
-## 8.2 Storage Estimation
-
-ধরি:
-- 2 million new records/day
-- Average stored record size = 1 KB
-
-Daily raw storage:
-
-2,000,000 × 1 KB
-≈ 2 GB/day
-
-One year:
-
-2 GB × 365
-≈ 730 GB/year
-
-Actual storage বেশি হতে পারে:
-- Indexes
-- Replicas
-- Metadata
-- Backups
-- Logs
-- Database overhead
-
-## 8.3 Bandwidth
-
-Bandwidth per second:
-
-Requests/second × Average response size
-
-ধরি:
-- 1,000 RPS
-- 50 KB average response
-
-Approximate outgoing bandwidth:
-
-1,000 × 50 KB
-= 50 MB/s
-
-Protocol overhead ও cache hit ratio এখানে ধরা হয়নি।
-
-## 8.4 Database Connections
-
-যদি 10 application instances-এর প্রতিটি 30 database connections ধরে:
-
-10 × 30 = 300 connections
-
-Database-এর connection limit ও workload অনুযায়ী connection pool configure করতে হবে।
+এটি illustrative estimate। বাস্তব capacity নির্ভর করে request complexity, caching, database load, traffic pattern এবং downstream services-এর ওপর।
 
 ---
 
-# 9. DATABASE FUNDAMENTALS
+# 6. Caching and CDN
 
-Database application data store করে।
+## 6.1 What Is Caching?
 
-Common choices:
+Cache হলো frequently accessed data দ্রুত সরবরাহ করার জন্য ব্যবহৃত storage layer।
+
+### Benefits
+
+- Response time কমানো।
+- Database load কমানো।
+- Repeated computation এড়ানো।
+- Read-heavy workload উন্নত করা।
+
+## 6.2 Cache Types
+
+| Type | Example |
+|---|---|
+| Browser Cache | CSS, JS, images |
+| CDN Cache | Static content |
+| Application Cache | Frequently accessed objects |
+| Distributed Cache | Redis |
+| Database Cache | Database-managed query/page caching |
+
+## 6.3 Cache-Aside Pattern
+
+```text
+Application
+    |
+    v
+Check Cache
+    |
+    ├── Cache Hit -> Return Data
+    |
+    └── Cache Miss
+            |
+            v
+         Database
+            |
+            v
+        Update Cache
+            |
+            v
+        Return Data
+```
+
+Python conceptual example:
+
+```python
+def get_product(product_id):
+    key = f"product:{product_id}"
+
+    product = cache.get(key)
+
+    if product is not None:
+        return product
+
+    product = load_product_from_db(product_id)
+
+    if product is not None:
+        cache.set(key, product, timeout=300)
+
+    return product
+```
+
+## 6.4 Cache Invalidation
+
+Data পরিবর্তিত হলে cache update বা delete করতে হয়।
+
+Common strategies:
+
+- TTL (Time To Live)
+- Write-through
+- Cache-aside invalidation
+- Event-based invalidation
+
+### Common Problems
+
+- Cache stampede
+- Hot keys
+- Stale data
+- Cache misses
+- Inconsistent invalidation
+
+## 6.5 CDN
+
+CDN হলো geographically distributed server network, যা user-এর কাছাকাছি location থেকে content serve করে।
+
+### Benefits
+
+- Latency কমানো।
+- Origin server-এর traffic কমানো।
+- Static content দ্রুত সরবরাহ।
+- Geographic distribution।
+
+Private authenticated content cache করার সময় access control ও cache key সঠিকভাবে configure করতে হবে।
+
+---
+
+# 7. Database Design
+
+## 7.1 SQL vs NoSQL
+
+### SQL
+
+Data relational tables-এ রাখা হয়।
+
+Examples:
+
 - PostgreSQL
 - MySQL
-- SQLite
+
+Use cases:
+
+- Orders
+- Payments
+- Inventory
+- Relational business data
+
+### NoSQL
+
+Document, key-value, wide-column অথবা graph data model ব্যবহার করতে পারে।
+
+Examples:
+
 - MongoDB
-- Redis
-- Elasticsearch / OpenSearch
+- DynamoDB
 - Cassandra
+- Neo4j
 
-একটি technology সব workload-এর জন্য best নয়।
+Database selection নির্ভর করে access patterns, consistency, transaction requirements এবং operational constraints-এর ওপর।
 
-## 9.1 Relational Database
+## 7.2 Database Indexing
 
-Data tables, rows এবং columns-এ রাখা হয়।
+Index data দ্রুত খুঁজতে সাহায্য করে।
+
+```sql
+CREATE INDEX idx_users_email
+ON users(email);
+```
+
+### Advantages
+
+- Search performance উন্নত হতে পারে।
+- Sorting দ্রুত হতে পারে।
+- Unique constraints enforce করা যায়।
+
+### Disadvantages
+
+- Storage লাগে।
+- Write operations ধীর হতে পারে।
+- Index maintenance overhead তৈরি হয়।
+
+Query plan পরীক্ষা করে index তৈরি করা উচিত।
+
+## 7.3 Normalization
+
+Normalization relational database-এর duplication ও update anomalies কমাতে সাহায্য করে।
+
+### 1NF
+
+Atomic values এবং repeating groups এড়ানো।
+
+### 2NF
+
+1NF পূরণ এবং partial dependency দূর করা।
+
+### 3NF
+
+2NF পূরণ এবং inappropriate transitive dependency দূর করা।
 
 Example:
 
-Users
-| id | name | email |
-|---|---|---|
-| 1 | Omar | omar@example.com |
-| 2 | Sara | sara@example.com |
+```text
+Customer
+--------
+id
+name
+phone
 
-Orders
-| id | user_id | total |
-|---|---|---|
-| 101 | 1 | 2500 |
-| 102 | 2 | 1800 |
+Order
+-----
+id
+customer_id
 
-`user_id` users table-এর সঙ্গে relation তৈরি করে।
+Product
+-------
+id
+name
 
-## 9.2 Primary Key
-
-প্রতিটি row uniquely identify করে।
-
-## 9.3 Foreign Key
-
-অন্য table-এর row-এর সঙ্গে relation establish করে।
-
-## 9.4 Constraints
-
-Examples:
-- NOT NULL
-- UNIQUE
-- CHECK
-- FOREIGN KEY
-
-Constraints database level-এ invalid data আটকাতে সাহায্য করে।
-
----
-
-# 10. SQL VS NOSQL
-
-## SQL
-
-Examples:
-- PostgreSQL
-- MySQL
-
-Strengths:
-- Relationships
-- Joins
-- Transactions
-- Structured schema
-- Complex queries
-
-## NoSQL
-
-Examples:
-- MongoDB
-- Cassandra
-- DynamoDB
-
-NoSQL database-গুলোর data model ও consistency guarantees আলাদা হতে পারে।
-
-Potential benefits:
-- Flexible document schema
-- Particular access patterns-এর জন্য horizontal scaling
-- Large distributed workloads-এর জন্য suitable data models
-
-## Selection Guide
-
-PostgreSQL ব্যবহার করো যখন:
-- Relational data আছে
-- Transactions দরকার
-- Complex joins আছে
-- Strong consistency গুরুত্বপূর্ণ
-
-Document database বিবেচনা করো যখন:
-- Data naturally documents আকারে থাকে
-- Access pattern document-oriented
-- Flexible schema দরকার
-
-Key-value store ব্যবহার করো যখন:
-- Key দিয়ে দ্রুত lookup দরকার
-- Cache বা session data রাখা হবে
-
-Database বাছাই hype দেখে নয়; data model, query pattern, consistency এবং operations বিবেচনা করে করতে হবে।
-
----
-
-# 11. DATABASE SCHEMA AND NORMALIZATION
-
-## 11.1 Normalization
-
-Normalization duplicate data এবং update anomalies কমাতে সাহায্য করে।
-
-Bad design:
-
-Orders table-এ প্রতিটি order-এর সঙ্গে customer name, email ও address বারবার রাখা।
-
-Better design:
-
-Users table
-Orders table
-OrderItems table
-
-## 11.2 Example Schema
-
-```sql
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE orders (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id),
-    status VARCHAR(30) NOT NULL,
-    total NUMERIC(12, 2) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_orders_user_created
-ON orders(user_id, created_at DESC);
+OrderItem
+---------
+order_id
+product_id
+quantity
 ```
 
-## 11.3 Denormalization
+## 7.4 ACID Properties
 
-Read performance improve করার জন্য controlled duplication।
-
-Advantages:
-- Fewer joins
-- Faster reads in some workloads
-
-Disadvantages:
-- Duplicate data
-- Update complexity
-- Consistency problems
-
-প্রথমে sensible normalized design দিয়ে শুরু করো; measurements দেখে denormalize করো।
-
----
-
-# 12. INDEXING AND QUERY OPTIMIZATION
-
-## 12.1 What is an Index?
-
-Index database-কে matching rows খুঁজে পেতে সাহায্য করে।
-
-Without index:
-Large table-এর অনেক row scan হতে পারে।
-
-With index:
-Database relevant rows দ্রুত locate করতে পারে।
-
-## 12.2 Example
-
-```sql
-CREATE INDEX idx_users_email ON users(email);
-```
-
-Query:
-
-```sql
-SELECT *
-FROM users
-WHERE email = 'omar@example.com';
-```
-
-## 12.3 Composite Index
-
-```sql
-CREATE INDEX idx_orders_user_status
-ON orders(user_id, status);
-```
-
-Column order গুরুত্বপূর্ণ। Index-এর usefulness query pattern-এর ওপর নির্ভর করে।
-
-## 12.4 Index Disadvantages
-
-- Additional storage
-- INSERT overhead
-- UPDATE overhead
-- DELETE overhead
-- Maintenance cost
-
-## 12.5 Query Optimization
-
-Check:
-- `EXPLAIN`
-- `EXPLAIN ANALYZE`
-- N+1 queries
-- Missing indexes
-- Over-fetching
-- Large OFFSET pagination
-- Unnecessary joins
-- Slow queries
+- **Atomicity:** সব operation commit হবে অথবা transaction rollback হবে।
+- **Consistency:** Constraints ও invariants বজায় থাকবে।
+- **Isolation:** Concurrent transaction নির্ধারিত isolation rules মেনে চলবে।
+- **Durability:** Commit সফল হলে data database-এর durability guarantees অনুযায়ী সংরক্ষিত থাকবে।
 
 Django example:
-
-```python
-orders = (
-    Order.objects
-    .filter(user_id=1)
-    .select_related("user")
-    .order_by("-created_at")
-)
-```
-
-`select_related()` foreign-key বা one-to-one relation-এর জন্য useful। Many-to-many বা reverse one-to-many-এর জন্য সাধারণত `prefetch_related()` বিবেচনা করো।
-
----
-
-# 13. TRANSACTIONS AND ACID
-
-ACID database transactions-এর চারটি গুরুত্বপূর্ণ property।
-
-## Atomicity
-
-Transaction পুরোপুরি succeed করবে অথবা rollback হবে।
-
-## Consistency
-
-Transaction database constraints ও rules বজায় রাখবে।
-
-## Isolation
-
-Concurrent transactions একে অপরকে কীভাবে observe করবে তা নির্ধারণ করে।
-
-## Durability
-
-Committed data failure-এর পরও টিকে থাকার guarantee পায়, database configuration অনুযায়ী।
-
-## Django Transaction Example
 
 ```python
 from django.db import transaction
 
 @transaction.atomic
-def create_order(user, product, quantity):
-    if quantity <= 0:
-        raise ValueError("Quantity must be positive")
-
-    product = Product.objects.select_for_update().get(
-        pk=product.pk
-    )
-
-    if product.stock < quantity:
-        raise ValueError("Insufficient stock")
-
-    product.stock -= quantity
-    product.save(update_fields=["stock"])
-
-    order = Order.objects.create(
-        user=user,
-        status="pending",
-    )
-
-    OrderItem.objects.create(
-        order=order,
-        product=product,
-        quantity=quantity,
-    )
-
-    return order
+def create_order():
+    # Validate business rules.
+    # Create order.
+    # Create order items.
+    # Update related records.
+    pass
 ```
 
-এটি illustrative example। বাস্তবে price snapshot, order total, inventory reservation, payment flow, retry handling এবং idempotency-ও design করতে হবে।
+## 7.5 Database Replication
 
----
+এক database-এর data অন্য server-এ replicate করা।
 
-# 14. DATABASE REPLICATION
+```text
+        Primary Database
+          /         \
+         v           v
+    Replica 1     Replica 2
+```
 
-Replication হলো database data-এর copies maintain করা।
+### Benefits
 
-Architecture:
+- Read scaling।
+- Redundancy।
+- Disaster recovery।
 
-Application
-    |
-    v
-Primary Database
-    |
-    +----> Replica 1
-    |
-    +----> Replica 2
+### Challenges
 
-Primary সাধারণত writes গ্রহণ করে। Replicas read traffic নিতে পারে, যদি consistency requirements অনুমতি দেয়।
+- Replication lag।
+- Failover complexity।
+- Stale reads।
 
-## Advantages
+## 7.6 Database Sharding
 
-- Read scalability
-- Failover options
-- Additional copies
+বড় dataset-কে একাধিক partition বা shard-এ ভাগ করা।
 
-## Disadvantages
+```text
+Shard 1 -> Users 1–100000
+Shard 2 -> Users 100001–200000
+Shard 3 -> Users 200001–300000
+```
 
-- Replication lag
-- Operational complexity
-- Failover complexity
-- Replica data পুরোনো হতে পারে
+### Strategies
 
-Read-after-write consistency দরকার হলে কিছু read primary থেকে করতে হতে পারে।
+- Range-based sharding
+- Hash-based sharding
+- Directory-based sharding
 
----
+### Challenges
 
-# 15. DATABASE SHARDING
-
-Sharding হলো data-কে একাধিক database node-এ partition করা।
-
-Example:
-
-User IDs 1–1M -> Shard A
-User IDs 1M–2M -> Shard B
-User IDs 2M–3M -> Shard C
-
-## Common Strategies
-
-### Range-based Sharding
-
-ID range বা date range অনুযায়ী।
-
-Problem:
-Hot ranges তৈরি হতে পারে।
-
-### Hash-based Sharding
-
-hash(key) অনুযায়ী partition।
-
-Advantage:
-Data distribution balanced হতে পারে।
-
-Disadvantage:
-Resharding complex হতে পারে।
-
-### Geographic Sharding
-
-Region অনুযায়ী data partition।
-
-## Sharding Challenges
-
-- Cross-shard joins
-- Transactions across shards
+- Hot shards
+- Cross-shard queries
 - Rebalancing
-- Hot partitions
-- Global uniqueness
-- Operational complexity
+- Distributed transactions
 
-Sharding সাধারণত প্রথম solution নয়। Indexing, query optimization, caching ও replication যথেষ্ট কি না আগে evaluate করো।
+**Remember:** Replication data copy করে; sharding data ভাগ করে।
 
----
+## 7.7 SQL Query Optimization
 
-# 16. CACHING AND REDIS
+- Slow query identify করা।
+- `EXPLAIN` ব্যবহার করা।
+- Appropriate index তৈরি করা।
+- N+1 queries এড়ানো।
+- Pagination ব্যবহার করা।
+- অপ্রয়োজনীয় columns retrieve না করা।
+- Connection pooling বিবেচনা করা।
 
-## 16.1 What is Caching?
-
-Frequently accessed data দ্রুত ফেরত দেওয়ার জন্য temporary storage-এ রাখা।
-
-Architecture:
-
-Client
-  |
-Application
-  |
-  +---- Cache Hit ----> Return Data
-  |
-  +---- Cache Miss ---> Database
-                           |
-                           v
-                       Store in Cache
-                           |
-                           v
-                       Return Data
-
-## 16.2 Cache Benefits
-
-- Lower latency
-- Lower database load
-- Better throughput
-- Faster repeated reads
-
-## 16.3 Cache Problems
-
-- Stale data
-- Cache invalidation
-- Cache stampede
-- Hot keys
-- Memory limitations
-- Cache outages
-
-## 16.4 Cache-Aside Pattern
-
-1. Cache lookup
-2. Hit হলে return
-3. Miss হলে database query
-4. Result cache-এ store
-5. Result return
-
-Python example:
+Django example:
 
 ```python
-import json
-import redis
+orders = Order.objects.select_related("customer")
 
-redis_client = redis.Redis(
-    host="localhost",
-    port=6379,
-    decode_responses=True,
-)
-
-def get_product(product_id):
-    key = f"product:{product_id}"
-
-    cached = redis_client.get(key)
-    if cached:
-        return json.loads(cached)
-
-    product = load_product_from_database(product_id)
-
-    if product is not None:
-        redis_client.setex(
-            key,
-            300,
-            json.dumps(product),
-        )
-
-    return product
+for order in orders:
+    print(order.customer.name)
 ```
 
-`load_product_from_database()` এখানে illustrative placeholder।
-
-## 16.5 Cache Invalidation
-
-Product update হলে cache invalidate করা যেতে পারে:
-
-```python
-redis_client.delete(f"product:{product_id}")
-```
-
-Cache TTL ব্যবহার করো। Critical consistency requirement থাকলে শুধু TTL যথেষ্ট নাও হতে পারে।
-
-## 16.6 Cache Stampede
-
-একটি popular key expire হলে অনেক request একই সময় database-এ চলে যায়।
-
-Mitigations:
-- TTL jitter
-- Single-flight request coalescing
-- Short-lived stale-while-revalidate
-- Controlled refresh
-- Locking with careful timeout handling
+Reverse foreign key বা many-to-many relations-এর জন্য `prefetch_related()` ব্যবহার করা যায়।
 
 ---
 
-# 17. LOAD BALANCING
+# 8. Distributed Systems
 
-Load balancer incoming requests একাধিক server-এ distribute করে।
+## 8.1 Distributed System
 
-Architecture:
-
-Users
-  |
-Load Balancer
-  |
-  +---- App Server 1
-  +---- App Server 2
-  +---- App Server 3
-              |
-           Database
-
-## Common Algorithms
-
-### Round Robin
-একটির পর একটি server নির্বাচন।
-
-### Least Connections
-যে server-এ active connection কম, তাকে preference।
-
-### Weighted Round Robin
-Server capacity অনুযায়ী weight দেওয়া।
-
-### Consistent Hashing
-একই key-কে consistent node-এ route করতে সাহায্য করে।
-
-## Health Checks
-
-Unhealthy server-এ traffic না পাঠাতে health checks ব্যবহার করা হয়।
-
-## Important Django Considerations
-
-- Session state external storage-এ রাখতে হতে পারে
-- Uploaded files local disk-এ রাখলে instance-ভেদে সমস্যা হতে পারে
-- Application instances stateless রাখা সহজে scale করতে সাহায্য করে
-- Secret configuration environment/secret manager থেকে নিতে হবে
-
----
-
-# 18. CDN AND OBJECT STORAGE
-
-## 18.1 CDN
-
-Content Delivery Network ব্যবহারকারীর কাছাকাছি edge location থেকে static content deliver করে।
-
-Useful for:
-- Images
-- CSS
-- JavaScript
-- Public downloads
-- Video segments
-
-Benefits:
-- Lower latency
-- Reduced origin load
-- Improved delivery performance
-
-## 18.2 Object Storage
+একাধিক network-connected computer বা service মিলে একটি logical system হিসেবে কাজ করে।
 
 Examples:
-- Amazon S3
-- Cloudflare R2
-- Google Cloud Storage
-- Azure Blob Storage
 
-Large files database row-এর মধ্যে না রেখে object storage-এ রাখা সাধারণ pattern।
+- Distributed databases
+- Microservices
+- Message brokers
+- Distributed caching
 
-Database-এ রাখা যেতে পারে:
-- Object key
-- Owner
-- File metadata
-- Content type
-- Permissions
-- Upload status
+### Challenges
 
-## 18.3 File Upload Flow
+- Network failures
+- Partial failures
+- Consistency
+- Duplicate messages
+- Ordering
+- Clock differences
+- Distributed debugging
 
-Client
-  |
-API Server -> Validate Permission
-  |
-Pre-signed Upload URL
-  |
-Object Storage
-  |
-Database Metadata
-  |
-CDN / Authorized Download
+## 8.2 CAP Theorem
 
-Large file application server-এর মধ্য দিয়ে stream করতেই হবে এমন নয়। Pre-signed URL ব্যবহার করে client সরাসরি storage-এ upload করতে পারে।
+CAP-এর তিনটি property:
 
----
+- **Consistency:** CAP-এর অর্থে প্রতিটি successful read সর্বশেষ successful write দেখতে পায়।
+- **Availability:** প্রতিটি request non-error response পায়, যদিও সেটি stale হতে পারে।
+- **Partition Tolerance:** Network partition হলেও system কাজ চালিয়ে যাওয়ার চেষ্টা করে।
 
-# 19. MESSAGE QUEUES AND BACKGROUND JOBS
+Network partition-এর সময় strict consistency এবং full availability একসঙ্গে guarantee করা যায় না।
 
-## 19.1 Why Queues?
+## 8.3 Strong vs Eventual Consistency
 
-কিছু কাজ request-এর response-এর মধ্যে করতে হয় না।
+| Strong Consistency | Eventual Consistency |
+|---|---|
+| Defined model অনুযায়ী latest write দেখা যায় | Update বন্ধ হলে replicas eventually converge করতে পারে |
+| Financial balance-এর মতো ক্ষেত্রে প্রয়োজন হতে পারে | Social feed বা distributed cache-এ উপযোগী হতে পারে |
+| Latency trade-off থাকতে পারে | সাময়িক stale data দেখা যেতে পারে |
 
-Examples:
-- Email sending
-- SMS
-- Image processing
-- Report generation
-- Webhook delivery
-- Analytics
-- Video transcoding
+## 8.4 Message Queue
 
-Architecture:
+Message queue producer এবং consumer-কে asynchronous processing-এর মাধ্যমে আলাদা করে।
 
-Client
-  |
-Django API
-  |
-Save Data + Enqueue Job
-  |
-Return Response
-
-Queue
-  |
-Worker
-  |
-Execute Job
-
-## 19.2 Common Technologies
-
-- Celery
-- RabbitMQ
-- Redis-backed queues
-- Kafka
-- Amazon SQS
-
-সব queue technology একই purpose বা delivery guarantee দেয় না।
-
-## 19.3 Celery Example
-
-```python
-from celery import shared_task
-
-@shared_task
-def send_welcome_email(user_id):
-    user = User.objects.get(pk=user_id)
-    send_email_to_user(user.email)
-```
-
-Request handler:
-
-```python
-send_welcome_email.delay(user.id)
-```
-
-এখানে worker ও broker আলাদাভাবে configure করতে হবে।
-
-## 19.4 Important Queue Concepts
+### Components
 
 - Producer
-- Consumer
 - Broker
-- Acknowledgement
+- Consumer
+- Acknowledgment
 - Retry
-- Dead-letter queue
-- Consumer lag
-- Backpressure
-- Idempotent processing
+- Dead Letter Queue (DLQ)
 
-Queue-তে message পাঠানো হয়েছে মানেই কাজটি সফলভাবে complete হয়েছে—এমন নয়।
+### Technologies
 
----
+- RabbitMQ
+- Apache Kafka
+- Amazon SQS
+- Redis Streams
 
-# 20. SCALABILITY
+### Important Concepts
 
-Scalability হলো workload বাড়লে system-এর capacity বাড়ানোর ক্ষমতা।
+- At-most-once delivery
+- At-least-once delivery
+- Idempotent consumers
+- Message ordering
+- Retry policy
 
-## 20.1 Vertical Scaling
+At-least-once delivery-তে duplicate message আসতে পারে। তাই consumer-কে duplicate-safe রাখা গুরুত্বপূর্ণ।
 
-একটি machine-এর CPU, RAM বা storage বাড়ানো।
+## 8.5 Retry, Timeout and Backoff
 
-Advantages:
-- Simple
-- Fewer distributed components
+- **Timeout:** নির্দিষ্ট সময়ে response না এলে অপেক্ষা বন্ধ করা।
+- **Retry:** ব্যর্থ operation আবার চেষ্টা করা।
+- **Exponential Backoff:** Retry-এর delay ক্রমান্বয়ে বাড়ানো।
+- **Jitter:** Retry timing-এ random variation যোগ করা।
 
-Disadvantages:
-- Hardware limits
-- Large instance cost
-- Single-node failure risk
+Blind retry না করে error type, operation semantics এবং idempotency বিবেচনা করতে হবে।
 
-## 20.2 Horizontal Scaling
+## 8.6 Circuit Breaker
 
-আরও server বা instance যোগ করা।
+Remote service বারবার fail করলে নতুন request সাময়িকভাবে block করার pattern।
 
-Advantages:
-- Higher aggregate capacity
-- Redundancy
-- Flexible scaling
+### States
 
-Disadvantages:
-- Coordination complexity
-- Distributed state
-- Network failures
-- Operational overhead
+1. Closed — Request চলতে থাকে।
+2. Open — Request দ্রুত fail বা fallback হয়।
+3. Half-open — সীমিত request দিয়ে recovery পরীক্ষা করা হয়।
 
-## 20.3 Stateless Architecture
+## 8.7 Transactional Outbox
 
-Application instance request process করার জন্য local in-memory state-এর ওপর নির্ভর না করলে horizontal scaling সহজ হয়।
+Business data এবং event outbox record একই database transaction-এ সংরক্ষণ করা হয়।
 
-Examples:
-- Shared session store
-- Database-backed state
-- Object storage
-- External cache
+```text
+Database Transaction
+    |
+    ├── Save Order
+    └── Save Outbox Event
+              |
+              v
+        Event Publisher
+              |
+              v
+         Message Broker
+```
 
-## 20.4 Bottleneck
-
-System-এর যে component overall throughput সীমাবদ্ধ করে।
-
-Examples:
-- Slow database query
-- CPU-intensive endpoint
-- Connection pool exhaustion
-- Third-party API
-- Single queue consumer
-
-Optimization করার আগে measurement দরকার।
+এতে database commit-এর সঙ্গে event publishing-এর consistency সমস্যা কমানো যায়। Duplicate event handling তবুও দরকার।
 
 ---
 
-# 21. DISTRIBUTED SYSTEMS
+# 9. Security and Reliability
 
-Distributed system হলো network-এর মাধ্যমে communicate করা একাধিক independent nodes-এর system।
+## 9.1 Authentication vs Authorization
 
-Examples:
-- Distributed database
-- Microservices architecture
-- Kafka cluster
-- Distributed cache
-- Cloud storage
+- Authentication: User কে তা যাচাই করা।
+- Authorization: User কী করতে পারবে তা যাচাই করা।
 
-## 21.1 Distributed Systems Challenges
+### Authentication Methods
 
-- Network latency
-- Partial failure
-- Duplicate messages
-- Clock differences
-- Data consistency
-- Leader election
-- Network partition
-- Retry storms
-- Split brain
-
-## 21.2 Partial Failure
-
-একটি service fail করলেও পুরো system-এর অন্য parts চলতে পারে।
-
-Example:
-Order API কাজ করছে, কিন্তু notification service unavailable।
-
-ভালো design-এ order creation সফল হতে পারে, notification queue-তে রাখা হয় এবং পরে retry করা হয়।
-
-## 21.3 Timeouts
-
-Remote calls-এর জন্য timeout দরকার। Timeout না থাকলে threads বা connections দীর্ঘ সময় আটকে থাকতে পারে।
-
-## 21.4 Retries
-
-Temporary failure হলে retry করা যায়।
-
-কিন্তু retry:
-- Bounded হতে হবে
-- Exponential backoff ব্যবহার করতে পারে
-- Jitter ব্যবহার করতে পারে
-- Non-idempotent operation-এ duplicate side effect তৈরি করতে পারে
-
----
-
-# 22. CAP THEOREM
-
-CAP Theorem distributed data system-এর একটি fundamental concept।
-
-Network partition হলে system-এর behavior-এ trade-off আসে:
-
-- Consistency (C)
-- Availability (A)
-- Partition Tolerance (P)
-
-## Consistency
-
-CAP context-এ, successful operation-গুলোকে একটি single-copy sequential order-এর মতো দেখা যায় কি না, অর্থাৎ linearizable behavior।
-
-## Availability
-
-CAP-এর formal definition অনুযায়ী প্রতিটি request-এ non-error response দেওয়া হয়।
-
-## Partition Tolerance
-
-Network partition হলেও system কীভাবে behave করবে।
-
-## Practical Understanding
-
-Distributed network-এ partition সম্ভব। Partition ঘটলে system-কে consistency ও availability-এর মধ্যে trade-off করতে হতে পারে।
-
-CP-style behavior:
-- কিছু request reject বা block হতে পারে
-- Consistency বজায় রাখার চেষ্টা করে
-
-AP-style behavior:
-- কিছু request accept হতে পারে
-- Temporary inconsistency থাকতে পারে
-
-বাস্তব database-এ CAP label alone দিয়ে পুরো system বোঝা যায় না। Exact consistency guarantee, failure mode ও operation semantics দেখতে হবে।
-
----
-
-# 23. CONSISTENCY MODELS
-
-## Strong Consistency / Linearizability
-
-Successful write-এর পর পরবর্তী read সর্বশেষ committed value দেখতে পায়, operation ordering guarantee অনুযায়ী।
-
-Useful for:
-- Account balances
-- Inventory reservation
-- Certain payment state transitions
-
-## Eventual Consistency
-
-নতুন update বন্ধ থাকলে replicas সময়ের সঙ্গে converge করার কথা।
-
-Useful for:
-- Some social counters
-- Search indexes
-- Analytics
-- Non-critical replicated views
-
-## Read-Your-Writes
-
-একজন user নিজের write-এর পর সেই update দেখতে পারে।
-
-## Monotonic Reads
-
-একজন reader একবার যে version দেখেছে, পরে তার চেয়ে পুরোনো version দেখতে পায় না।
-
-Consistency model system-এর requirements অনুযায়ী বেছে নিতে হবে।
-
----
-
-# 24. FAULT TOLERANCE AND RELIABILITY
-
-## 24.1 Fault Tolerance
-
-কোনো component fail করলেও system-এর critical functionality বজায় রাখার ক্ষমতা।
-
-## 24.2 Redundancy
-
-একাধিক instances বা copies রাখা।
-
-Examples:
-- Multiple application servers
-- Database replicas
-- Multiple availability zones
-
-## 24.3 Failover
-
-Primary component unavailable হলে backup component ব্যবহার করা।
-
-## 24.4 Disaster Recovery
-
-Major outage-এর পর system ও data restore করার পরিকল্পনা।
-
-Important concepts:
-
-RPO (Recovery Point Objective):
-কতটা recent data loss গ্রহণযোগ্য।
-
-RTO (Recovery Time Objective):
-কত সময়ের মধ্যে service recover করতে হবে।
-
-## 24.5 Backups
-
-Backups থাকতে হবে এবং restore test করতে হবে। Backup আছে মানেই recovery নিশ্চিত নয়।
-
-## 24.6 Graceful Degradation
-
-একটি optional service unavailable হলেও core service চালু রাখা।
-
-Example:
-Recommendation service down, কিন্তু product browsing চালু।
-
----
-
-# 25. IDEMPOTENCY, RETRY AND CIRCUIT BREAKER
-
-## 25.1 Idempotency
-
-একই operation একাধিকবার execute হলেও intended final effect একই থাকে।
-
-GET সাধারণত idempotent।
-
-PUT সাধারণত idempotent হওয়ার জন্য design করা হয়।
-
-POST operation স্বয়ংক্রিয়ভাবে idempotent নয়।
-
-## 25.2 Idempotency Key
-
-Payment বা order creation-এর জন্য client একটি unique key পাঠাতে পারে।
-
-Example:
-
-Idempotency-Key: 4c6d9e...
-
-Server:
-1. Key validate করে
-2. Existing operation check করে
-3. New operation create করে
-4. Result store করে
-5. Duplicate request-এ আগের result return করে
-
-Idempotency key-এর uniqueness, expiry এবং concurrent request handling design করতে হবে।
-
-## 25.3 Exponential Backoff
-
-Retry delay বাড়ানো:
-
-Attempt 1: 100 ms
-Attempt 2: 200 ms
-Attempt 3: 400 ms
-Attempt 4: 800 ms
-
-Jitter যোগ করলে clients একসঙ্গে retry করার ঝুঁকি কমে।
-
-## 25.4 Circuit Breaker
-
-Repeated failures হলে remote dependency-তে request সাময়িকভাবে বন্ধ করে।
-
-States:
-- Closed: Requests pass through
-- Open: Requests blocked or fail fast
-- Half-open: Limited test requests allowed
-
-Circuit breaker outage-এর সময় resource exhaustion কমাতে সাহায্য করে।
-
----
-
-# 26. RATE LIMITING
-
-Rate limiting নির্দিষ্ট সময়ে request-এর সংখ্যা নিয়ন্ত্রণ করে।
-
-Example:
-100 requests per minute per user.
-
-## Algorithms
-
-### Fixed Window
-
-প্রতিটি fixed interval-এ counter।
-
-Problem:
-Window boundary-তে traffic burst হতে পারে।
-
-### Sliding Window
-
-Moving interval অনুযায়ী limit।
-
-### Token Bucket
-
-Tokens refill হয়। Token থাকলে request allowed।
-
-### Leaky Bucket
-
-Controlled rate-এ request process বা release করা হয়।
-
-## Example
-
-User:
-- Limit = 100 requests/minute
-- 101st request = HTTP 429
-
-## Implementation Considerations
-
-- Per user
-- Per IP
-- Per API key
-- Per endpoint
-- Distributed counter
-- Retry-After header
-- Trusted proxy configuration
-
-IP-based limiting একা যথেষ্ট নয়; NAT ও distributed attacks বিবেচনা করতে হবে।
-
----
-
-# 27. MONOLITH VS MICROSERVICES
-
-## Monolithic Architecture
-
-একটি application codebase বা deployable unit-এ major functionality থাকে।
-
-Advantages:
-- Easy to start
-- Simpler local development
-- Straightforward transactions
-- Fewer network calls
-
-Disadvantages:
-- Large codebase complexity
-- Coordinated deployments
-- Independent scaling সীমিত হতে পারে
-
-## Microservices Architecture
-
-System আলাদা services-এ বিভক্ত হয়।
-
-Example:
-
-User Service
-Product Service
-Order Service
-Payment Service
-Notification Service
-
-Advantages:
-- Independent deployment
-- Independent scaling
-- Clear service boundaries
-
-Disadvantages:
-- Network failure
-- Distributed transactions
-- Observability complexity
-- Deployment overhead
-- Data consistency challenges
-
-## Recommendation
-
-ছোট team ও early-stage project-এ modular monolith প্রায়ই practical starting point।
-
-কোনো service independently scale, deploy বা maintain করার বাস্তব কারণ তৈরি হলে microservices বিবেচনা করো।
-
----
-
-# 28. EVENT-DRIVEN ARCHITECTURE
-
-একটি component event publish করে, অন্য components সেই event consume করে।
-
-Example:
-
-Order Service
-  |
-  | OrderCreated event
-  v
-Message Broker
-  |
-  +----> Notification Consumer
-  |
-  +----> Analytics Consumer
-  |
-  +----> Inventory Consumer
-
-## Benefits
-
-- Loose coupling
-- Asynchronous processing
-- Independent consumers
-- Easier integration between bounded contexts
-
-## Challenges
-
-- Duplicate events
-- Event ordering
-- Eventual consistency
-- Schema evolution
-- Retry behavior
-- Debugging complexity
-
-## Transactional Outbox Pattern
-
-Problem:
-Database commit সফল হলো, কিন্তু event publish ব্যর্থ হলো।
-
-Solution:
-একই database transaction-এ business record ও outbox event লিখে রাখো। Background publisher পরে event publish করবে।
-
-Consumer idempotent হতে হবে, কারণ delivery duplicate হতে পারে।
-
----
-
-# 29. API GATEWAY
-
-API Gateway clients ও backend services-এর মধ্যে entry point হিসেবে কাজ করতে পারে।
-
-Responsibilities:
-- Routing
-- Authentication integration
-- Rate limiting
-- TLS termination
-- Request logging
-- Request transformation
-
-Diagram:
-
-Client
-  |
-API Gateway
-  |
-  +---- User Service
-  +---- Product Service
-  +---- Order Service
-
-Gateway নিজেই bottleneck বা single point of failure হতে পারে, তাই production deployment-এ redundancy ও monitoring দরকার।
-
----
-
-# 30. AUTHENTICATION AND SECURITY
-
-## Authentication
-
-User কে, তা verify করা।
-
-## Authorization
-
-User কী করতে পারবে, তা determine করা।
-
-## Common Mechanisms
-
-- Server-side sessions
-- Access tokens
+- Sessions
+- JWT
 - OAuth 2.0
 - OpenID Connect
-- API keys for appropriate machine-to-machine use cases
+- Multi-factor authentication
 
-## Security Practices
+JWT signed হলে সেটি স্বয়ংক্রিয়ভাবে encrypted হয় না।
+
+## 9.2 Security Principles
 
 - HTTPS/TLS
-- Password hashing using suitable password hash algorithms
 - Least privilege
 - Input validation
-- Output encoding
-- CSRF protection where relevant
-- Secure cookies
+- Parameterized queries
 - Secret management
-- Audit logs
-- Dependency updates
-- Database access control
-- Encryption at rest where required
-- Backup protection
+- Encryption at rest
+- Rate limiting
+- Audit logging
+- Backup and recovery
 
-## Django Security
+Django production settings-এ `DEBUG=False`, secure secret management, HTTPS এবং সঠিক cookie ও permission configuration নিশ্চিত করতে হবে।
 
-- `DEBUG = False` in production
-- Correct `ALLOWED_HOSTS`
-- Secure secret management
-- CSRF protection
-- HTTPS enforcement
-- Secure session cookies
-- Secure password handling
-- Permission checks on every sensitive operation
-- Avoid raw SQL unless safely parameterized
+## 9.3 Idempotency
 
-Never commit production passwords, tokens or secret keys to Git.
-
----
-
-# 31. LOGGING, MONITORING AND OBSERVABILITY
-
-## Logging
-
-Events-এর detailed record।
+একই operation একাধিকবার request করলেও duplicate side effect তৈরি না হওয়ার বৈশিষ্ট্য।
 
 Example:
-- Request received
-- Payment failed
-- Worker retry
-- Database timeout
 
-## Metrics
-
-Numerical measurements over time।
-
-Examples:
-- Requests per second
-- Error rate
-- p95 latency
-- CPU usage
-- Memory usage
-- Queue lag
-- Database connection count
-
-## Tracing
-
-একটি request multiple services অতিক্রম করলে পুরো path track করা।
-
-## The Three Pillars
-
-Logs + Metrics + Traces
-
-## Golden Signals
-
-- Latency
-- Traffic
-- Errors
-- Saturation
-
-## Tools
-
-- Prometheus
-- Grafana
-- OpenTelemetry
-- Sentry
-- ELK / OpenSearch stack
-
-Alert meaningful হতে হবে। Alert fatigue হলে important failures miss হতে পারে।
-
----
-
-# 32. SEARCH SYSTEMS
-
-Search requirements সাধারণ SQL query থেকে আলাদা হতে পারে।
-
-Possible features:
-- Full-text search
-- Typo tolerance
-- Autocomplete
-- Ranking
-- Filters
-- Facets
-- Highlighting
-
-Technologies:
-- PostgreSQL full-text search
-- Elasticsearch
-- OpenSearch
-- Dedicated search services
-
-Typical architecture:
-
-Client
-  |
-Search API
-  |
-Search Index
-  |
-Return Results
-
-Database source of truth হতে পারে, আর search index asynchronousভাবে update হতে পারে।
-
-এই কারণে search results সাময়িকভাবে stale হতে পারে।
-
----
-
-# 33. FILE UPLOAD SYSTEM DESIGN
-
-## Requirements
-
-- User upload করবে
-- File type validate হবে
-- File size limit থাকবে
-- File private বা public হতে পারে
-- Download authorization থাকবে
-- Metadata store হবে
-
-## Architecture
-
-Client
-  |
-Django API
-  |
-Authorize Upload
-  |
-Pre-signed URL
-  |
-Object Storage
-  |
-Metadata Database
-  |
-Optional CDN
-
-## Security Considerations
-
-- Maximum file size
-- Allowed file types
-- File content validation
-- Malware scanning where appropriate
-- Random object keys
-- Private bucket by default
-- Short-lived pre-signed URLs
-- Access control
-- Content-Disposition and safe serving
-- Quotas
-
-User-provided filename-কে trusted filesystem path হিসেবে ব্যবহার করো না।
-
----
-
-# 34. SYSTEM DESIGN CASE STUDY: URL SHORTENER
-
-## Requirements
-
-- Long URL থেকে short URL তৈরি
-- Short URL redirect
-- Duplicate long URL allowed কি না define করা
-- Expiration optional
-- Abuse protection
-- Analytics optional
-
-## API
-
-POST /api/urls/
-GET /{short_code}
-
-Request:
-
-```json
-{
-  "url": "https://example.com/articles/system-design"
-}
+```http
+POST /api/payments/
+Idempotency-Key: order-123-payment
 ```
 
-Response:
+Server idempotency key ও operation result সংরক্ষণ করে duplicate requests নিরাপদে handle করতে পারে।
 
-```json
-{
-  "short_code": "aB91x",
-  "short_url": "https://short.example/aB91x"
-}
-```
+## 9.4 Fault Tolerance
 
-## Architecture
+Component failure হলেও system কাজ চালিয়ে যেতে সাহায্য করা।
 
-Client
-  |
-Load Balancer
-  |
-URL Service
-  |
-  +---- Redis Cache
-  |
-  +---- PostgreSQL
-  |
-Analytics Queue
+Common techniques:
 
-## Database Schema
-
-urls:
-- id
-- short_code
-- original_url
-- created_at
-- expires_at
-- owner_id
-
-short_code-এর ওপর UNIQUE constraint দরকার।
-
-## Read Flow
-
-1. User short URL open করে
-2. Cache lookup
-3. Cache miss হলে database lookup
-4. URL expiry ও status check
-5. Redirect response
-6. Analytics event asynchronousভাবে process করা যেতে পারে
-
-## Short Code Generation
-
-Options:
-- Random token
-- Base62 encoding of unique ID
-- Carefully designed hash-based scheme
-
-Collision handling দরকার।
-
-Random code generate করলে unique constraint দিয়ে collision detect করে retry করা যায়।
-
-## Trade-offs
-
-- Random code vs encoded ID
-- 301 vs 302 redirect
-- Cache hit rate
-- Abuse detection
-- Analytics accuracy
-- Expiration cleanup
+- Redundant instances
+- Health checks
+- Failover
+- Timeouts
+- Retries
+- Circuit breakers
+- Graceful degradation
+- Backups
+- Disaster recovery
 
 ---
 
-# 35. SYSTEM DESIGN CASE STUDY: CHAT APPLICATION
+# 10. Low-Level Design (LLD)
 
-## Requirements
+LLD individual classes, objects, methods, interfaces এবং তাদের relationships নির্ধারণ করে।
 
-- One-to-one messaging
-- Group chat
-- Message history
-- Online presence
-- Delivery status
-- Notifications
-- Optional read receipts
+## 10.1 OOP Fundamentals
 
-## Architecture
+### Encapsulation
 
-Clients
-  |
+Data এবং methods একসঙ্গে রাখা এবং controlled interface দিয়ে state পরিবর্তন করা।
+
+```python
+class BankAccount:
+    def __init__(self, balance=0):
+        self.__balance = balance
+
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError("Amount must be positive")
+
+        self.__balance += amount
+
+    def get_balance(self):
+        return self.__balance
+```
+
+### Abstraction
+
+Implementation detail লুকিয়ে interface প্রকাশ করা।
+
+```python
+from abc import ABC, abstractmethod
+
+class PaymentMethod(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+```
+
+### Inheritance
+
+এক class অন্য class-এর behavior inherit করতে পারে।
+
+```python
+class Animal:
+    def speak(self):
+        return "Sound"
+
+class Dog(Animal):
+    def speak(self):
+        return "Bark"
+```
+
+### Polymorphism
+
+একই interface দিয়ে ভিন্ন implementation ব্যবহার করা।
+
+```python
+class CardPayment(PaymentMethod):
+    def pay(self, amount):
+        return f"Card payment: {amount}"
+
+class CashPayment(PaymentMethod):
+    def pay(self, amount):
+        return f"Cash payment: {amount}"
+```
+
+## 10.2 Composition vs Inheritance
+
+Inheritance হলো is-a relationship; composition হলো has-a বা uses-a relationship।
+
+```python
+class EmailSender:
+    def send(self, message):
+        print(message)
+
+class NotificationService:
+    def __init__(self, sender):
+        self.sender = sender
+
+    def notify(self, message):
+        self.sender.send(message)
+```
+
+Composition implementation পরিবর্তন করা সহজ করতে পারে।
+
+## 10.3 UML Relationships
+
+| Relationship | Meaning |
+|---|---|
+| Association | Class-গুলোর মধ্যে সম্পর্ক |
+| Inheritance | Is-a relationship |
+| Composition | Strong whole-part relationship |
+| Aggregation | Independent parts-সহ whole-part relationship |
+| Dependency | একটি class অন্যটির ওপর নির্ভরশীল |
+
+Example:
+
+```text
+Customer 1 ---- * Order
+Order    1 ---- * OrderItem
+Product  1 ---- * OrderItem
+```
+
+---
+
+# 11. OOP and SOLID Principles
+
+## 11.1 Single Responsibility Principle (SRP)
+
+একটি class-এর একটি সুস্পষ্ট responsibility থাকা উচিত।
+
+Example:
+
+- `InvoiceCalculator`
+- `InvoiceEmailer`
+
+## 11.2 Open/Closed Principle (OCP)
+
+Code extension-এর জন্য open এবং অপ্রয়োজনীয় modification-এর জন্য closed হওয়া উচিত।
+
+## 11.3 Liskov Substitution Principle (LSP)
+
+Subclass যেন base class-এর contract বজায় রেখে তার জায়গায় ব্যবহার করা যায়।
+
+## 11.4 Interface Segregation Principle (ISP)
+
+Client-কে অপ্রয়োজনীয় method-এর ওপর নির্ভর করতে বাধ্য করা উচিত নয়।
+
+## 11.5 Dependency Inversion Principle (DIP)
+
+High-level business logic-কে concrete implementation-এর বদলে abstraction-এর ওপর নির্ভর করতে উৎসাহিত করে।
+
+### SOLID-এর উদ্দেশ্য
+
+- Coupling কমানো।
+- Testing সহজ করা।
+- Code maintainability বাড়ানো।
+- Feature extension সহজ করা।
+
+---
+
+# 12. Design Patterns
+
+Design pattern হলো common software design problem-এর জন্য পরিচিত solution structure।
+
+## 12.1 Creational Patterns
+
+### Factory
+
+Object creation logic কেন্দ্রীভূত করে।
+
+Example: Payment type অনুযায়ী object তৈরি করা।
+
+### Builder
+
+ধাপে ধাপে complex object তৈরি করে।
+
+### Singleton
+
+একটি class-এর একটিমাত্র instance নিশ্চিত করার pattern। Shared global state তৈরি করতে পারে, তাই সাবধানে ব্যবহার করা উচিত।
+
+## 12.2 Structural Patterns
+
+- Adapter — Incompatible interface-কে compatible করা।
+- Decorator — Existing behavior wrap করে বাড়ানো।
+- Facade — Complex subsystem-এর simple interface।
+- Proxy — অন্য object-এর access নিয়ন্ত্রণ করা।
+
+## 12.3 Behavioral Patterns
+
+### Strategy
+
+Interchangeable algorithms আলাদা implementation-এ রাখা।
+
+### Observer
+
+State পরিবর্তন হলে subscribers-কে notify করা।
+
+### Command
+
+Action-কে object হিসেবে represent করা।
+
+## 12.4 Strategy Pattern Example
+
+```python
+from abc import ABC, abstractmethod
+
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+
+class CardPayment(PaymentStrategy):
+    def pay(self, amount):
+        return f"Paid {amount} using card"
+
+class MobilePayment(PaymentStrategy):
+    def pay(self, amount):
+        return f"Paid {amount} using mobile payment"
+
+class Checkout:
+    def __init__(self, payment_strategy):
+        self.payment_strategy = payment_strategy
+
+    def process(self, amount):
+        return self.payment_strategy.pay(amount)
+
+checkout = Checkout(CardPayment())
+print(checkout.process(500))
+```
+
+নতুন payment method যোগ করতে নতুন strategy implementation তৈরি করা যায়।
+
+---
+
+# 13. Observability
+
+Observability হলো system-এর output থেকে তার internal state সম্পর্কে ধারণা পাওয়ার ক্ষমতা।
+
+## 13.1 Three Pillars
+
+### Logs
+
+কী ঘটেছে তার record।
+
+Example: Failed payment, API error।
+
+### Metrics
+
+Numerical measurements।
+
+Example: Request rate, error rate, latency, CPU usage।
+
+### Distributed Tracing
+
+একটি request বিভিন্ন service-এর মধ্য দিয়ে কীভাবে গেছে তা অনুসরণ করা।
+
+Example:
+
+```text
+API Gateway
+    -> Order Service
+    -> Payment Service
+    -> Database
+```
+
+## 13.2 SLI, SLO and SLA
+
+- SLI: বাস্তবে পরিমাপ করা indicator।
+- SLO: Service-এর নির্ধারিত target।
+- SLA: Customer-এর সঙ্গে agreed service commitment।
+
+## 13.3 Availability
+
+```text
+Availability =
+    Uptime / Total Time × 100%
+```
+
+30 দিনের মাসে:
+
+| Availability | Approximate Downtime |
+|---|---:|
+| 99% | 432 minutes |
+| 99.9% | 43.2 minutes |
+| 99.99% | 4.32 minutes |
+
+---
+
+# 14. System Design Interview Framework
+
+যেকোনো system design problem সমাধানের জন্য এই ধাপগুলো অনুসরণ করো।
+
+## Step 1: Requirements Gathering
+
+- System-এর উদ্দেশ্য কী?
+- কারা ব্যবহার করবে?
+- Core features কী?
+- কী constraints আছে?
+
+## Step 2: Scale Estimation
+
+- Daily active users।
+- Requests per second।
+- Read/write ratio।
+- Data volume।
+- Peak traffic।
+
+## Step 3: API Design
+
+- Endpoints।
+- Request/response formats।
+- Authentication।
+- Error handling।
+
+## Step 4: Database Design
+
+- Entities।
+- Relationships।
+- Indexes।
+- Transactions।
+- Consistency requirements।
+
+## Step 5: High-Level Architecture
+
+- Client।
+- Application server।
+- Load balancer।
+- Database।
+- Cache।
+- Queue।
+- External services।
+
+## Step 6: Deep Dive
+
+- Bottlenecks।
+- Database performance।
+- Caching strategy।
+- Concurrency।
+- Failure handling।
+
+## Step 7: Security and Reliability
+
+- Authentication।
+- Authorization।
+- Timeouts।
+- Retries।
+- Idempotency।
+- Monitoring।
+- Recovery।
+
+## Step 8: Trade-offs
+
+কেন একটি solution বেছে নিলে এবং অন্য solution-এর কী সুবিধা-অসুবিধা আছে তা ব্যাখ্যা করো।
+
+---
+
+# 15. Practical System Design Problems
+
+## 15.1 URL Shortener
+
+### Requirements
+
+- Long URL-কে short URL-এ রূপান্তর।
+- Short code দিয়ে redirect।
+- Expiration support।
+- Optional analytics।
+
+### Architecture
+
+```text
+Client
+   |
+   v
+API Server
+   |
+   +----> Database
+   |
+   +----> Cache
+
+Short Code
+   |
+   v
+Lookup URL
+   |
+   v
+HTTP Redirect
+```
+
+### Database Model
+
+```text
+URLMapping
+----------
+id
+short_code
+long_url
+created_at
+expires_at
+user_id
+```
+
+### Important Decisions
+
+- Short code unique হতে হবে।
+- Collision handle করতে হবে।
+- Lookup-এর জন্য index ও cache ব্যবহার করা যায়।
+- Expiration policy নির্ধারণ করতে হবে।
+- User-submitted URLs validate করতে হবে।
+- Open redirect ও abuse প্রতিরোধ করতে হবে।
+
+## 15.2 Chat Application
+
+### Requirements
+
+- Send messages।
+- Receive messages।
+- Message history।
+- Delivery status।
+- Online status।
+
+### Architecture
+
+```text
+Client
+   |
+   v
 WebSocket Gateway
-  |
-Chat Service
-  |
-  +---- Message Database
-  |
-  +---- Presence Store
-  |
-  +---- Message Broker
-  |
-  +---- Notification Service
+   |
+   v
+Message Service
+   |
+   +----> Database
+   |
+   +----> Message Broker
+                |
+                v
+          Delivery Workers
+```
 
-## WebSocket
+### Important Decisions
 
-Persistent bidirectional connection দেয়।
+- Real-time communication-এর জন্য WebSocket ব্যবহার করা যেতে পারে।
+- Offline messages durable storage-এ রাখতে হবে।
+- Ordering strategy নির্ধারণ করতে হবে।
+- Duplicate delivery handle করতে হবে।
+- Presence information cache-এ রাখা যেতে পারে।
 
-Useful for:
-- Chat
-- Live notifications
-- Collaborative interfaces
+## 15.3 E-commerce Backend
 
-## Message Flow
-
-1. Sender sends message
-2. Server authenticates and authorizes sender
-3. Message persisted
-4. Server routes message to recipient connection
-5. Recipient acknowledges delivery
-6. Offline recipient notification পেতে পারে
-
-## Important Decisions
-
-- Message ordering
-- Message ID
-- Retry and deduplication
-- Group fan-out
-- Offline storage
-- WebSocket reconnection
-- Presence expiry
-- Encryption requirements
-
-Message delivered হওয়া এবং user message পড়া এক জিনিস নয়।
-
----
-
-# 36. SYSTEM DESIGN CASE STUDY: E-COMMERCE
-
-## Main Components
+### Core Components
 
 - User Service
 - Product Catalog
-- Search
-- Cart
+- Cart Service
 - Order Service
-- Inventory
+- Inventory Service
 - Payment Integration
-- Notification
-- Analytics
-
-## High-Level Architecture
-
-Client
-  |
-Load Balancer
-  |
-Django Application
-  |
-  +---- PostgreSQL
-  |
-  +---- Redis
-  |
-  +---- Queue / Workers
-  |
-  +---- Object Storage
-  |
-  +---- Payment Provider
-
-## Order Flow
-
-1. User checks out
-2. Server validates cart
-3. Price and stock are checked
-4. Order is created in a pending state
-5. Inventory is reserved according to business rules
-6. Payment provider processes payment
-7. Payment result is verified
-8. Order status is updated
-9. Confirmation notification is queued
-
-## Critical Concerns
-
-- Price must be calculated server-side
-- Inventory race conditions
-- Duplicate checkout requests
-- Payment webhook verification
-- Idempotency
-- Refund handling
-- Reservation expiration
-- Audit logs
-- Reconciliation jobs
-
-Payment provider API call-এর মধ্যে দীর্ঘ database transaction খোলা রাখা সাধারণত ভালো design নয়।
-
-একটি distributed checkout flow-এর জন্য explicit state machine ও compensation logic দরকার হতে পারে।
-
----
-
-# 37. SYSTEM DESIGN CASE STUDY: NOTIFICATION SERVICE
-
-## Requirements
-
-- Email
-- SMS
-- Push notifications
-- Retry failed delivery
-- User preferences
-- Delivery status
-- Rate limits
-
-## Architecture
-
-Application
-  |
-Notification API
-  |
-Queue
-  |
-Workers
-  |
-  +---- Email Provider
-  +---- SMS Provider
-  +---- Push Provider
-
-## Important Concepts
-
-- Template rendering
-- Provider fallback
-- Retry with backoff
-- Dead-letter queue
-- Deduplication
-- User opt-out
-- Delivery tracking
-- Provider rate limits
-
-Notification failure-এর কারণে core order creation fail করানো উচিত কি না, তা requirements অনুযায়ী নির্ধারণ করতে হবে।
-
----
-
-# 38. SYSTEM DESIGN CASE STUDY: NEWS FEED
-
-## Requirements
-
-- Follow users
-- Publish posts
-- Display personalized feed
-- Pagination
-- Ranking
-- Privacy checks
-
-## Two Strategies
-
-### Pull Model
-
-Feed request-এর সময় followed users-এর posts query করা হয়।
-
-Good for:
-- Smaller accounts
-- Lower write overhead
-
-Potential problem:
-- Read-time query expensive হতে পারে
-
-### Push Model
-
-নতুন post publish হলে followers-এর feed materialize করা হয়।
-
-Good for:
-- Fast feed reads
-
-Potential problem:
-- Celebrities with millions of followers can create enormous fan-out
-
-## Hybrid Model
-
-Most users-এর জন্য push, very high-follower accounts-এর জন্য pull বা hybrid retrieval।
-
-## Architecture
-
-Post Service
-  |
-Event Queue
-  |
-Feed Fan-out Workers
-  |
-Feed Store
-  |
-Feed API
-  |
-Client
-
-Feed design-এ ranking, deletion, privacy, duplicate posts এবং pagination বিবেচনা করতে হবে।
-
----
-
-# 39. SYSTEM DESIGN CASE STUDY: VIDEO STREAMING
-
-## Requirements
-
-- Video upload
-- Transcoding
-- Multiple resolutions
-- Streaming
-- Captions
-- Access control
-- Analytics
-
-## Architecture
-
-Uploader
-  |
-Object Storage
-  |
-Processing Queue
-  |
-Transcoding Workers
-  |
-Video Segments + Manifests
-  |
-CDN
-  |
-Viewer
-
-## Key Concepts
-
-- Adaptive bitrate streaming
-- HLS / MPEG-DASH
-- Transcoding
-- Segment storage
-- CDN cache
-- Signed URLs or cookies
-- Processing status
-
-Large media files সাধারণত application database-এ রাখা হয় না।
-
----
-
-# 40. SYSTEM DESIGN CASE STUDY: RIDE-SHARING
-
-## Requirements
-
-- Driver location updates
-- Passenger ride request
-- Nearby driver search
-- Matching
-- Ride status
-- ETA
-- Payments
-
-## Architecture
-
-Mobile Apps
-  |
-API Gateway
-  |
-Ride Service
-  |
-  +---- Location Service
-  |
-  +---- Matching Service
-  |
-  +---- Geospatial Store
-  |
-  +---- Queue
-  |
-  +---- Notification Service
-
-## Challenges
-
-- High-frequency location updates
-- Geospatial queries
-- Concurrent driver assignment
-- Matching latency
-- Location freshness
-- Ride state transitions
-- Network disconnection
-
-একজন driver যেন একই সময়ে দুইটি ride-এ assign না হয়, সে জন্য concurrency control দরকার।
-
----
-
-# 41. SYSTEM DESIGN CASE STUDY: TICKET BOOKING
-
-## Requirements
-
-- Search events
-- Show seat availability
-- Reserve seats
-- Payment
-- Confirm booking
-- Handle cancellation
-
-## Main Challenge
-
-একই seat অনেক user একসঙ্গে বুক করতে চাইতে পারে।
-
-## Possible Flow
-
-1. User selects seat
-2. Server creates temporary reservation
-3. Reservation has expiry time
-4. Payment is processed
-5. Successful payment-এর পর booking confirm
-6. Expired reservation release
-
-## Important Design Choices
-
-- Database transactions
-- Unique constraints
-- Row locking
-- Optimistic concurrency
-- Reservation TTL
-- Idempotency
-- Payment reconciliation
-- Queue-based expiration
-
-Cache availability দেখাতে সাহায্য করতে পারে, কিন্তু cache alone booking-এর authoritative source হওয়া উচিত নয়।
-
----
-
-# 42. SYSTEM DESIGN INTERVIEW FRAMEWORK
-
-একটি system design interview-এ এই sequence follow করো।
-
-## Step 1: Clarify Requirements
-
-Ask:
-- Core features কী?
-- User count কত?
-- Traffic pattern কী?
-- Read/write ratio কী?
-- Availability target কী?
-- Strong consistency কোথায় দরকার?
-
-## Step 2: Estimate Scale
-
-Estimate:
-- Daily active users
-- Requests per second
-- Peak RPS
-- Storage per day
-- Bandwidth
-- Read/write ratio
-
-Assumptions clearly state করবে।
-
-## Step 3: Define APIs
-
-Example:
-
-POST /api/orders/
-GET /api/orders/{id}/
-GET /api/products/
-
-## Step 4: Design Data Model
-
-Define:
-- Entities
-- Relationships
-- Primary keys
-- Unique constraints
-- Indexes
-
-## Step 5: Draw High-Level Architecture
-
-Client
-  |
-Load Balancer
-  |
-Application
-  |
-  +---- Database
-  +---- Cache
-  +---- Queue
-  +---- Object Storage
-
-## Step 6: Explain Main Data Flow
-
-একটি write request ও একটি read request step-by-step explain করো।
-
-## Step 7: Identify Bottlenecks
-
-Potential bottlenecks:
-- Database
-- Cache
-- Network
-- Third-party APIs
-- Worker queue
-- CPU
-- Storage
-
-## Step 8: Scale the System
-
-Potential solutions:
-- Indexing
-- Caching
-- Read replicas
-- Horizontal scaling
-- Queue-based processing
-- Partitioning
-- CDN
-
-## Step 9: Discuss Failure Modes
-
-Ask:
-- Database unavailable হলে?
-- Queue consumer fail করলে?
-- Duplicate request এলে?
-- Cache stale হলে?
-- Third-party payment timeout হলে?
-
-## Step 10: Discuss Trade-offs
-
-প্রতিটি decision-এর benefits, costs এবং alternatives ব্যাখ্যা করো।
-
----
-
-# 43. COMMON SYSTEM DESIGN INTERVIEW QUESTIONS
-
-## Q1. What is System Design?
-
-System components, data flow, interactions এবং operational requirements-এর architecture পরিকল্পনা।
-
-## Q2. What is scalability?
-
-Workload বাড়লে system-এর capacity বাড়ানোর ক্ষমতা।
-
-## Q3. Vertical vs horizontal scaling?
-
-Vertical: একটি machine-এর resources বাড়ানো।
-
-Horizontal: আরও instances যোগ করা।
-
-## Q4. What is caching?
-
-Frequently accessed data faster storage-এ রেখে latency ও backend load কমানো।
-
-## Q5. What is a CDN?
-
-Distributed edge network থেকে content deliver করার infrastructure।
-
-## Q6. What is a load balancer?
-
-Traffic একাধিক backend instance-এ distribute করে।
-
-## Q7. What is replication?
-
-একাধিক nodes-এ data copies রাখা।
-
-## Q8. What is sharding?
-
-Data-কে partitions-এ ভাগ করে আলাদা nodes-এ রাখা।
-
-## Q9. What is a database index?
-
-Query-তে matching records দ্রুত locate করার data structure।
-
-## Q10. What is a message queue?
-
-Producer ও consumer-এর মধ্যে asynchronous messages রাখার mechanism।
-
-## Q11. What is eventual consistency?
-
-Updates চলা বন্ধ হলে replicas eventually converge করতে পারে।
-
-## Q12. What is CAP Theorem?
-
-Distributed data system-এ network partition ঘটলে consistency ও availability behavior-এর trade-off নিয়ে theorem।
-
-## Q13. What is a microservice?
-
-একটি bounded business capability-এর জন্য independently deployable service।
-
-## Q14. What is idempotency?
-
-একই operation repeat করলেও intended final effect একই থাকা।
-
-## Q15. What is rate limiting?
-
-নির্দিষ্ট সময়ে request-এর সংখ্যা সীমিত করা।
-
-## Q16. What is a circuit breaker?
-
-Repeated failures-এর সময় remote dependency-তে requests সাময়িকভাবে বন্ধ রাখা।
-
-## Q17. What is a cache stampede?
-
-একটি cache entry expire হলে অনেক requests একসঙ্গে backend-এ চলে যাওয়া।
-
-## Q18. What is a database connection pool?
-
-Database connections reuse করার mechanism, যা connection overhead ও resource use নিয়ন্ত্রণ করে।
-
-## Q19. What is a hot key?
-
-একটি key-তে disproportionate traffic জমা হওয়া।
-
-## Q20. What is backpressure?
-
-Downstream system overload হলে upstream workload control বা slow down করা।
-
-## Q21. What is a dead-letter queue?
-
-Repeatedly unprocessable messages আলাদা করে রাখা queue।
-
-## Q22. What is observability?
-
-Logs, metrics, traces এবং related signals থেকে system behavior বোঝার ক্ষমতা।
-
-## Q23. What is a single point of failure?
-
-একটি component fail করলেই critical system functionality unavailable হয়ে যায়।
-
-## Q24. What is a distributed transaction?
-
-একাধিক resource বা service-এর state পরিবর্তনের transaction; implementation ও guarantee technology অনুযায়ী ভিন্ন হয়।
-
-## Q25. What is the Saga pattern?
-
-Distributed business transaction-কে local transactions ও compensating actions-এর sequence হিসেবে পরিচালনা করা।
-
-## Q26. What is the transactional outbox pattern?
-
-Business data ও event record একই database transaction-এ write করে reliable event publication-এর সুবিধা দেওয়া।
-
-## Q27. What is p99 latency?
-
-99% requests যে latency-এর মধ্যে complete হয়, সেই percentile value।
-
-## Q28. What is graceful degradation?
-
-Optional functionality fail হলেও core functionality চালু রাখা।
-
-## Q29. What is RPO?
-
-Recovery Point Objective: কতটা data loss গ্রহণযোগ্য।
-
-## Q30. What is RTO?
-
-Recovery Time Objective: কত সময়ের মধ্যে recovery করতে হবে।
-
----
-
-# 44. COMMON SYSTEM DESIGN MISTAKES
-
-1. Requirements না বুঝেই architecture শুরু করা।
-2. Traffic estimate না করা।
-3. অপ্রয়োজনীয় microservices তৈরি করা।
-4. সব data Redis-এ রাখার চেষ্টা করা।
-5. Database indexing উপেক্ষা করা।
-6. Cache invalidation strategy না রাখা।
-7. Timeout ও retry না দেওয়া।
-8. Retry loop-এর limit না রাখা।
-9. Idempotency উপেক্ষা করা।
-10. Authentication ও authorization গুলিয়ে ফেলা।
-11. Single point of failure তৈরি করা।
-12. Backup restore test না করা।
-13. Monitoring ছাড়া production চালানো।
-14. Queue consumer failure উপেক্ষা করা।
-15. Payment flow-এ duplicate operation ঠেকানোর ব্যবস্থা না রাখা।
-16. শুধু average latency দেখা।
-17. Data consistency requirements define না করা।
-18. Trade-offs explain না করা।
-19. Cost বিবেচনা না করা।
-20. Measurement ছাড়া premature optimization করা।
-
----
-
-# 45. PYTHON AND DJANGO PRACTICAL EXAMPLES
-
-## 45.1 Simple Django Model
-
-```python
-from django.db import models
-
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-    )
-    stock = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-```
-
-## 45.2 Indexing
-
-```python
-class Meta:
-    indexes = [
-        models.Index(fields=["created_at"]),
-    ]
-```
-
-এটি model class-এর ভেতরে রাখতে হবে। Migration তৈরি ও apply করতে হবে।
-
-## 45.3 Pagination
-
-```python
-from rest_framework.pagination import PageNumberPagination
-
-class ProductPagination(PageNumberPagination):
-    page_size = 20
-    page_size_query_param = "page_size"
-    max_page_size = 100
-```
-
-## 45.4 Query Optimization
-
-```python
-products = Product.objects.all().only(
-    "id",
-    "name",
-    "price",
-)
-```
-
-`only()` ব্যবহার করলে পরে deferred fields access করে অতিরিক্ত queries তৈরি হচ্ছে কি না দেখো।
-
-## 45.5 Atomic Database Operation
-
-```python
-from django.db import transaction
-
-with transaction.atomic():
-    # Related database writes go here.
-    pass
-```
-
-## 45.6 Background Task
-
-```python
-from celery import shared_task
-
-@shared_task
-def generate_report(report_id):
-    # Load report data and generate the report.
-    pass
-```
-
-## 45.7 Security Checklist
-
-- Environment variables for secrets
-- `DEBUG=False` in production
-- HTTPS
-- CSRF protection
-- Proper permission checks
-- Database constraints
-- Input validation
-- Rate limiting
-- Audit logs
-- Backup and restore tests
-
----
-
-# 46. BEGINNER-TO-ADVANCED PROJECT ROADMAP
-
-## Project 1: URL Shortener
-
-Learn:
-- REST API
-- PostgreSQL
-- Unique constraints
-- Redis cache
-- Redirects
-- Rate limiting
-
-## Project 2: Blog API
-
-Learn:
-- User authentication
-- Permissions
-- Database relationships
-- Pagination
-- Query optimization
-
-## Project 3: File Upload Service
-
-Learn:
-- Object storage
-- Pre-signed URLs
-- File metadata
-- Access control
-- Background processing
-
-## Project 4: Notification Service
-
-Learn:
-- Celery
-- Redis or RabbitMQ
-- Retries
-- Dead-letter queue
-- Idempotency
-
-## Project 5: E-commerce Backend
-
-Learn:
-- Product catalog
-- Cart
-- Orders
-- Inventory
-- Payment state machine
-- Database transactions
-
-## Project 6: Real-Time Chat
-
-Learn:
-- WebSockets
-- Message persistence
-- Online presence
-- Delivery status
-- Queues
-
-## Project 7: News Feed
-
-Learn:
-- Feed generation
-- Fan-out
-- Caching
-- Ranking
-- Pagination
-
-## Project 8: Video Platform
-
-Learn:
-- Object storage
-- Transcoding workers
-- CDN
-- Streaming protocols
-- Background processing
-
----
-
-# 47. COMPLETE 12-WEEK STUDY PLAN
-
-## Week 1: Foundations
-
-- System Design introduction
-- HLD vs LLD
-- Requirements
-- Client-server
-- HTTP and REST
-
-Practice:
-Draw a simple Django API architecture.
-
-## Week 2: Networking and Estimation
-
-- DNS
-- TCP/UDP
-- TLS
-- Latency
-- Throughput
-- RPS
-- Capacity estimation
-
-Practice:
-Estimate traffic for a blog with 100,000 daily users.
-
-## Week 3: Databases
-
-- SQL vs NoSQL
-- Schema design
-- Relationships
-- Normalization
-- Constraints
-- ACID
-
-Practice:
-Design an order database.
-
-## Week 4: Performance
-
-- Indexes
-- Query optimization
-- N+1 queries
-- Connection pooling
-- Redis
-- Cache invalidation
-
-Practice:
-Optimize a slow Django endpoint.
-
-## Week 5: Scaling
-
-- Vertical and horizontal scaling
-- Load balancers
-- Stateless services
-- Replication
-- Sharding
-
-Practice:
-Scale a product API for increased read traffic.
-
-## Week 6: Asynchronous Processing
-
-- Message queues
-- Celery
-- Background workers
-- Retry strategies
-- Idempotency
-- Dead-letter queues
-
-Practice:
-Build a notification worker.
-
-## Week 7: Distributed Systems
-
-- CAP
-- Consistency
-- Network failures
-- Timeouts
-- Circuit breakers
-- Backpressure
-
-Practice:
-Design a resilient order processing workflow.
-
-## Week 8: Reliability and Security
-
-- High availability
-- Fault tolerance
-- Backups
-- RPO and RTO
-- Authentication
-- Authorization
-- Rate limiting
-
-Practice:
-Threat-model a Django REST API.
-
-## Week 9: Architecture Patterns
-
-- Monolith
-- Modular monolith
-- Microservices
-- Event-driven systems
-- API gateway
-- Transactional outbox
-
-Practice:
-Draw an e-commerce architecture.
-
-## Week 10: Core Case Studies
-
-- URL Shortener
-- File Upload
 - Notification Service
-- Chat Application
 
-Practice:
-Explain every design in 30 minutes.
+### Order Flow
 
-## Week 11: Advanced Case Studies
+```text
+Customer
+   |
+   v
+Checkout API
+   |
+   v
+Validate Inventory
+   |
+   v
+Create Pending Order
+   |
+   v
+Payment Provider
+   |
+   v
+Confirm Payment Status
+   |
+   v
+Confirm Order
+   |
+   v
+Send Notification
+```
 
-- News Feed
-- Video Streaming
-- Ride-Sharing
-- Ticket Booking
+### Challenges
 
-Practice:
-Estimate capacity and explain failure handling.
+- Overselling প্রতিরোধ।
+- Duplicate orders ঠেকানো।
+- Payment timeout handle করা।
+- Webhook verification।
+- Inventory reservation।
+- Payment reconciliation।
+- Order status consistency।
 
-## Week 12: Interview Preparation
+## 15.4 Rate Limiter
 
-- Requirement clarification
-- Capacity estimation
-- API design
-- Data modeling
-- Architecture diagrams
-- Bottlenecks
-- Trade-offs
-- Mock interviews
+### Requirements
 
-Practice:
-Complete two timed system design interviews.
+- Per-user বা per-IP request limit।
+- Configurable time window।
+- Limit exceed করলে request reject করা।
+
+### Algorithms
+
+- Fixed Window Counter
+- Sliding Window Log
+- Sliding Window Counter
+- Token Bucket
+- Leaky Bucket
+
+## 15.5 Notification System
+
+### Requirements
+
+- Email, SMS এবং push notifications।
+- Retry handling।
+- Delivery status।
+- Duplicate prevention।
+
+### Architecture
+
+```text
+Application
+    |
+    v
+Message Queue
+    |
+    +----> Email Worker
+    +----> SMS Worker
+    +----> Push Worker
+```
 
 ---
 
-# 48. FINAL SYSTEM DESIGN CHECKLIST
+# 16. Study Roadmap
 
-Before finalizing any design, check:
+| Week | Topics | Practice |
+|---|---|---|
+| 1 | Fundamentals, HTTP, APIs, SQL | Django REST API |
+| 2 | Database design, indexing, transactions | Order management |
+| 3 | HLD, caching, load balancing | URL Shortener |
+| 4 | Queues, asynchronous jobs, reliability | Notification System |
+| 5 | Distributed systems, security, observability | API improvement |
+| 6 | OOP, SOLID, design patterns | Parking Lot LLD |
+| 7 | Chat, rate limiter, e-commerce | Mock interviews |
 
-## Requirements
-- [ ] Functional requirements
-- [ ] Non-functional requirements
-- [ ] Expected scale
-- [ ] Constraints
+প্রতিদিন ১–২ ঘণ্টা অনুশীলন দিয়ে শুরু করতে পারো। নিজের বর্তমান দক্ষতা অনুযায়ী সময় বাড়ানো বা কমানো যাবে।
 
-## APIs
-- [ ] Endpoints
-- [ ] Authentication
-- [ ] Authorization
-- [ ] Pagination
-- [ ] Error responses
-- [ ] Rate limiting
+---
 
-## Data
-- [ ] Database selection
-- [ ] Schema
-- [ ] Indexes
-- [ ] Constraints
-- [ ] Transactions
-- [ ] Retention policy
+# 17. Interview Revision Questions
 
-## Performance
-- [ ] Caching
-- [ ] Query optimization
-- [ ] Load balancing
-- [ ] CDN where appropriate
-- [ ] Background jobs
+## Fundamentals
+
+1. What is System Design?
+2. What is the difference between HLD and LLD?
+3. What are functional and non-functional requirements?
+4. What is client-server architecture?
+5. What is the difference between monolith and microservices?
 
 ## Scalability
-- [ ] Horizontal scaling
-- [ ] Database scaling
-- [ ] Queue capacity
-- [ ] Hot keys
-- [ ] Bottlenecks
 
-## Reliability
-- [ ] Timeouts
-- [ ] Retries
-- [ ] Idempotency
-- [ ] Failover
-- [ ] Backups
-- [ ] Restore tests
+6. What is vertical scaling?
+7. What is horizontal scaling?
+8. What is load balancing?
+9. What is caching?
+10. What is a CDN?
+11. What is rate limiting?
+12. What is the difference between latency and throughput?
 
-## Security
-- [ ] HTTPS
-- [ ] Secret management
-- [ ] Permissions
-- [ ] Input validation
-- [ ] Audit logs
-- [ ] Data protection
+## Database
 
-## Operations
-- [ ] Logs
-- [ ] Metrics
-- [ ] Traces
-- [ ] Alerts
-- [ ] Deployment strategy
-- [ ] Disaster recovery
+13. What is database indexing?
+14. What is normalization?
+15. What are ACID properties?
+16. What is database replication?
+17. What is database sharding?
+18. How do you solve the N+1 query problem?
 
-## Trade-offs
-- [ ] Alternatives
-- [ ] Cost
-- [ ] Complexity
-- [ ] Performance
-- [ ] Consistency
-- [ ] Maintainability
+## Distributed Systems
 
----
+19. What is CAP theorem?
+20. What is eventual consistency?
+21. What is a message queue?
+22. What is idempotency?
+23. What is a circuit breaker?
+24. What is the transactional outbox pattern?
 
-# 49. GLOSSARY
+## LLD
 
-API: Application Programming Interface
-ACID: Atomicity, Consistency, Isolation, Durability
-CDN: Content Delivery Network
-CAP: Consistency, Availability, Partition Tolerance
-CRUD: Create, Read, Update, Delete
-DNS: Domain Name System
-HLD: High-Level Design
-HTTP: Hypertext Transfer Protocol
-HTTPS: HTTP over TLS
-LLD: Low-Level Design
-MTTR: Mean Time to Recovery
-NoSQL: Non-relational database category
-RPO: Recovery Point Objective
-RPS: Requests Per Second
-RTO: Recovery Time Objective
-SQL: Structured Query Language
-SLA: Service Level Agreement
-SLO: Service Level Objective
-SLI: Service Level Indicator
-TCP: Transmission Control Protocol
-TLS: Transport Layer Security
-UDP: User Datagram Protocol
-WAL: Write-Ahead Log
+25. What are the four pillars of OOP?
+26. What are SOLID principles?
+27. What is composition versus inheritance?
+28. What is the Strategy pattern?
+29. What is the Factory pattern?
+30. What is the Observer pattern?
+
+## Practical Problems
+
+31. Design a URL Shortener.
+32. Design a Chat Application.
+33. Design a Rate Limiter.
+34. Design an E-commerce Backend.
+35. Design a Notification System.
+36. Design a Parking Lot.
 
 ---
 
-# 50. LEARNING RESOURCES
+# Final Advice
 
-## Books
-
-1. Designing Data-Intensive Applications — Martin Kleppmann
-2. System Design Interview — Alex Xu, Volumes 1 and 2
-3. Fundamentals of Software Architecture — Mark Richards and Neal Ford
-
-## Official Documentation
-
-- Django: https://docs.djangoproject.com/
-- Django REST Framework: https://www.django-rest-framework.org/
-- PostgreSQL: https://www.postgresql.org/docs/
-- Redis: https://redis.io/docs/
-- Celery: https://docs.celeryq.dev/
-- Docker: https://docs.docker.com/
-- Kubernetes: https://kubernetes.io/docs/
-- OpenTelemetry: https://opentelemetry.io/docs/
-
-## How to Study
+System Design শেখার সময় শুধু definition মুখস্থ করবে না।
 
 প্রতিটি topic-এর জন্য:
-1. Concept বোঝো।
-2. নিজের ভাষায় definition লেখো।
-3. Diagram আঁকো।
-4. Python/Django example implement করো।
-5. Failure scenario চিন্তা করো।
-6. Alternative design compare করো।
-7. Interview question practice করো।
-8. Project-এ apply করো।
 
----
+1. Definition নিজের ভাষায় লিখবে।
+2. Architecture diagram আঁকবে।
+3. একটি real-world example ব্যাখ্যা করবে।
+4. Python বা Django দিয়ে ছোট implementation করবে।
+5. Design-এর trade-offs বুঝবে।
+6. Interview প্রশ্নের উত্তর practice করবে।
 
-# FINAL ADVICE
+**Recommended order for a Python/Django Backend Developer:**
 
-System Design মুখস্থ করার বিষয় নয়। এটি requirements, constraints এবং trade-offs বুঝে architecture তৈরি করার skill।
-
-Beginner হিসেবে:
-- HTTP
-- REST API
-- PostgreSQL
-- Database indexing
-- Redis
-- Load balancing
-- Background jobs
-
-এই fundamentals ভালোভাবে শিখে তারপর distributed systems ও advanced architecture-এ যাও।
-
-Python/Django backend developer হিসেবে প্রথমে একটি well-structured Django application তৈরি করো। এরপর Redis, Celery, PostgreSQL optimization, object storage, monitoring এবং deployment যোগ করো।
-
-সবশেষে প্রতিটি project-এর জন্য নিজেকে প্রশ্ন করো:
-
-1. Traffic 10 গুণ হলে কী হবে?
-2. Database unavailable হলে কী হবে?
-3. একই request দুইবার এলে কী হবে?
-4. Cache stale হলে কী হবে?
-5. Third-party API timeout হলে কী হবে?
-6. Data backup ও recovery কীভাবে হবে?
-7. কোন component bottleneck তৈরি করবে?
-8. আরও simple এবং কম খরচের design সম্ভব কি?
-
-এই প্রশ্নগুলোর উত্তর দিতে পারলে তোমার System Design skill ধাপে ধাপে Beginner থেকে Advanced পর্যায়ে উন্নত হবে।
+`HTTP & APIs → Database Design → HLD → Caching → Queues → Distributed Systems → LLD → Design Patterns → Mock Interviews`
