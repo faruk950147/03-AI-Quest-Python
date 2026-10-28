@@ -23,7 +23,7 @@ from home.models import Student, Department
 | `order          | 
 
   
-"""all example
+"""
 
 class RegistrationForm(forms.Form):
 
