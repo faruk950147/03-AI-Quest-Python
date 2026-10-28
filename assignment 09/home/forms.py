@@ -1,15 +1,7 @@
 
 from django import forms
 from django.core.validators import RegexValidator
-from .models import Department
-
-
-# Custom validator
-def validate_email_domain(value):
-    if not value.endswith("@gmail.com"):
-        raise forms.ValidationError(
-            "Only Gmail addresses are allowed."
-        )
+from home.models import Department
 
 
 class RegistrationForm(forms.Form):
@@ -93,9 +85,7 @@ class RegistrationForm(forms.Form):
     )
 
     # 14. validators
-    custom_email = forms.EmailField(
-        validators=[validate_email_domain]
-    )
+    custom_email = forms.EmailField()
 
     # 15. auto_id
     # auto_id belongs to the Form constructor,
