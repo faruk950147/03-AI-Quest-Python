@@ -1,7 +1,7 @@
 
 from django import forms
 from django.core.validators import RegexValidator
-from home.models import Department
+from home.models import Student, Department
 
 
 class RegistrationForm(forms.Form):
