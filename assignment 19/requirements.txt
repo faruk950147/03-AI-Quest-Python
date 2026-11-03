@@ -3,3 +3,4 @@ celery
 redis
 django-redis
 flower
+django-environ
