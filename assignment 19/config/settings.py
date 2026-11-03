@@ -77,15 +77,32 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+import os
 
-# Celery Configuration Options
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+# ================= Redis Configuration =================
+REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
-# Redis Configuration Options
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+# ================= Celery Configuration =================
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL",
+    f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+)
 
-REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
+)
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "Asia/Dhaka"
+CELERY_ENABLE_UTC = True
+
+CELERY_RESULT_EXPIRES = 3600
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
