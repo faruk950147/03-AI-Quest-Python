@@ -30,5 +30,6 @@ def send_welcome_email(email):
     )
     return "Email sent successfully"
 
+
 def hello(message):
     print(f"Hello from tasks.py: {message}")
