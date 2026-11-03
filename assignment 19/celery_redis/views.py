@@ -9,6 +9,6 @@ from celery_redis.tasks import (
 class HomeView(View):
     def get(self, request):
         debug_task.delay()
-        # send_welcome_email.delay("kosiye9891@macsnipe.com")
-        send_welcome_email1("kosiye9891@macsnipe.com")
+        # send_welcome_email.delay("ferow74188@macsnipe.com")
+        # send_welcome_email1("ferow74188@macsnipe.com")
         return HttpResponse("Hello, this is the Home View!") 

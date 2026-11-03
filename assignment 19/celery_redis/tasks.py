@@ -4,10 +4,11 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 
-@shared_task
+@shared_task(bind=True)
 def debug_task(self):
-    print(f'Request: {self.request}')
+    print(f"Request: {self.request}")
 
+    return "Debug task executed successfully!"
 
 @shared_task(
     autoretry_for=(Exception,),
