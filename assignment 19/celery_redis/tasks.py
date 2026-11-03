@@ -4,14 +4,9 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 
-@shared_task(bind=True)
+@shared_task
 def debug_task(self):
     print(f'Request: {self.request}')
-
-
-@shared_task
-def add_numbers(a, b):
-    return a + b
 
 
 @shared_task(
@@ -31,5 +26,12 @@ def send_welcome_email(email):
     return "Email sent successfully"
 
 
-def hello(message):
-    print(f"Hello from tasks.py: {message}")
+def send_welcome_email1(email):
+    send_mail(
+        subject="Welcome!",
+        message="Welcome to our platform.",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        fail_silently=False,
+    )
+    return "Email sent successfully"
