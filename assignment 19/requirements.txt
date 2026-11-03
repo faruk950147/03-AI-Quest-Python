@@ -4,3 +4,4 @@ redis
 django-redis
 flower
 python-decouple
+packaging
