@@ -4,11 +4,6 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 
-@shared_task(bind=True)
-def debug_task(self):
-    print(f"Request: {self.request}")
-
-    return "Debug task executed successfully!"
 
 @shared_task(
     autoretry_for=(Exception,),
@@ -16,23 +11,16 @@ def debug_task(self):
     retry_jitter=True,
     retry_kwargs={"max_retries": 3}
 )
-def send_welcome_email(email):
+def send_notification_email(email, message):
     send_mail(
-        subject="Welcome!",
-        message="Welcome to our platform.",
+        subject="Notification",
+        message=message,
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[email],
         fail_silently=False,
     )
-    return "Email sent successfully"
+    return "Notification email sent successfully"
 
-
-def send_welcome_email1(email):
-    send_mail(
-        subject="Welcome!",
-        message="Welcome to our platform.",
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email],
-        fail_silently=False,
-    )
-    return "Email sent successfully"
+@shared_task
+def add(x, y):
+    return x + y
