@@ -88,6 +88,17 @@ CELERY_ENABLE_UTC = True
 
 CELERY_RESULT_EXPIRES = 3600
 
+# ================= Celery Beat Configuration =================
+CELERY_BEAT_SCHEDULE = {
+    "send_notification_email": {
+        "task": "celery_redis.tasks.send_notification_email",
+        "schedule": 10.0,
+
+        "args": (
+            "ferow74188@macsnipe.com",
+        ),
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

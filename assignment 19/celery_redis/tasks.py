@@ -11,10 +11,10 @@ from django.conf import settings
     retry_jitter=True,
     retry_kwargs={"max_retries": 3}
 )
-def send_notification_email(email, message):
+def send_notification_email(email):
     send_mail(
         subject="Notification",
-        message=message,
+        message="This is a notification email sent from Celery.",
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[email],
         fail_silently=False,
