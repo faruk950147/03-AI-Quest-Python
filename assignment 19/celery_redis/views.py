@@ -8,7 +8,7 @@ from celery_redis.tasks import (
 class HomeView(View):
     def get(self, request):
         # send_notification_email("ferow74188@macsnipe.com")
-        result = add.delay((4, 6))
+        result = add.delay(4, 6)
         # result = add.apply_async((4, 6))
         print(
             f"Task ID: {result.id}, Status: {result.status} "
