@@ -31,13 +31,15 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'celery_redis.apps.CeleryRedisConfig',
+    'chart.apps.ChartConfig',
 ]
 
 MIDDLEWARE = [
@@ -68,8 +70,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-
+# WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = "config.asgi.application"
 # ================= Redis Configuration =================
 REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
 REDIS_PORT = int(config("REDIS_PORT", default="6379"))
@@ -93,12 +95,22 @@ CELERY_TASK_SEND_SENT_EVENT = True
 # ================= Celery Beat Configuration =================
 CELERY_BEAT_SCHEDULE = {
     "send_notification_email": {
-        "task": "celery_redis.tasks.send_notification_email",
+        "task": "chart.tasks.send_notification_email",
         "schedule": 10.0,
 
         "args": (
             "ferow74188@macsnipe.com",
         ),
+    },
+}
+# channels settings
+
+channel_layers = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
     },
 }
 

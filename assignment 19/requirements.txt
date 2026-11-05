@@ -5,3 +5,5 @@ django-redis
 flower
 python-decouple
 packaging
+daphne
+channels

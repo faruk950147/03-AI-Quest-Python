@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.views import View
-from celery_redis.tasks import (
+from chart.tasks import (
     send_notification_email,
     add
 )
