@@ -87,6 +87,9 @@ CELERY_ENABLE_UTC = True
 
 CELERY_RESULT_EXPIRES = 3600
 
+CELERY_WORKER_SEND_TASK_EVENTS = True
+CELERY_TASK_SEND_SENT_EVENT = True
+
 # ================= Celery Beat Configuration =================
 CELERY_BEAT_SCHEDULE = {
     "send_notification_email": {
