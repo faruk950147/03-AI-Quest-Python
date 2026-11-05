@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 from decouple import config 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -72,8 +71,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ================= Redis Configuration =================
-REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
+REDIS_PORT = int(config("REDIS_PORT", default="6379"))
 
 # ================= Celery Configuration =================
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
