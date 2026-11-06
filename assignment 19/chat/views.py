@@ -12,7 +12,7 @@ class HomeView(View):
 
 class EmailSendView(View):
     def get(self, request):
-        # send_notification_email("ferow74188@macsnipe.com")
+        # send_notification_email("rebir41949@javafs.com")
         result = add.delay(4, 6)
         # result = add.apply_async([10, 20], countdown=10)
         print(
