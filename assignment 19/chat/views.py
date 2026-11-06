@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.views import View
-from chart.tasks import (
+from chat.tasks import (
     send_notification_email,
     add
 )
