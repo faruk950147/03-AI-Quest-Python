@@ -1,7 +1,7 @@
 
 var websocket = new WebSocket("ws://127.0.0.1:8000/ws/chat/");
 
-websocket.onopen = function (event) {
+/* websocket.onopen = function (event) {
     console.log("WebSocket connection established:" + event);
 
     websocket.send("Hello Django Channels!");
@@ -18,3 +18,23 @@ websocket.onclose = function (event) {
 websocket.onerror = function (error) {
     console.error("WebSocket error:", error);
 };
+ */
+
+websocket.addEventListener('open', function (event) {
+    console.log("WebSocket connection established:" + event);
+
+    websocket.send("Hello Django Channels!");
+});
+
+websocket.addEventListener('message', function (event) {
+    console.log("Message received from server: " + event.data);
+});
+
+websocket.addEventListener('close', function (event) {
+    console.log("WebSocket connection closed.");
+});
+
+websocket.addEventListener('error', function (error) {
+    console.error("WebSocket error:", error);
+});
+
