@@ -1,7 +1,8 @@
 
-var websocket = new WebSocket("ws://127.0.0.1:8000/ws/chat/");
+var websocket = new WebSocket("ws://localhost:8000/ws/chat/");
 
-/* websocket.onopen = function (event) {
+/* 
+websocket.onopen = function (event) {
     console.log("WebSocket connection established:" + event);
 
     websocket.send("Hello Django Channels!");
@@ -9,6 +10,7 @@ var websocket = new WebSocket("ws://127.0.0.1:8000/ws/chat/");
 
 websocket.onmessage = function (event) {
     console.log("Message received from server: " + event.data);
+    document.getElementById("display").innerHTML += event.data;
 };
 
 websocket.onclose = function (event) {
@@ -18,7 +20,8 @@ websocket.onclose = function (event) {
 websocket.onerror = function (error) {
     console.error("WebSocket error:", error);
 };
- */
+ 
+*/
 
 websocket.addEventListener('open', function (event) {
     console.log("WebSocket connection established:" + event);
@@ -28,6 +31,7 @@ websocket.addEventListener('open', function (event) {
 
 websocket.addEventListener('message', function (event) {
     console.log("Message received from server: " + event.data);
+    document.getElementById("display").innerHTML += event.data;
 });
 
 websocket.addEventListener('close', function (event) {
@@ -37,4 +41,8 @@ websocket.addEventListener('close', function (event) {
 websocket.addEventListener('error', function (error) {
     console.error("WebSocket error:", error);
 });
+
+
+
+
 
