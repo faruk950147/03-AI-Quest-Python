@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from chat.forms import EmailForm
 from chat.tasks import (
@@ -21,5 +21,5 @@ class EmailSendView(View):
         if form.is_valid():
             email = form.cleaned_data['email']
             send_notification_email.delay(email)
-            return HttpResponse("Email sent successfully!")
+            return redirect('send-email')
         return render(request, "chat/send-email.html", {"form": form})  
