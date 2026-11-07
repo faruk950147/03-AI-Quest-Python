@@ -1,4 +1,5 @@
 from channels.consumer import AsyncConsumer, SyncConsumer
+import asyncio
 
 
 class ChatConsumer1(AsyncConsumer):
@@ -11,11 +12,13 @@ class ChatConsumer1(AsyncConsumer):
 
     async def websocket_receive(self, event):
         print("Message received from WebSocket", event)
-
-        await self.send({
-            "type": "websocket.send", 
-            "text": event.get("text")
-        })
+        for i in range(5):
+            await self.send({
+                "type": "websocket.send", 
+                # "text": event.get("text")
+                "text": str(i),
+            })
+            await asyncio.sleep(1)
 
     async def websocket_disconnect(self, event):
         print("WebSocket disconnected", event)
