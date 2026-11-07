@@ -5,12 +5,17 @@ class ChatConsumer1(AsyncConsumer):
     async def websocket_connect(self, event):
         print("WebSocket connected", event)
 
-        await self.send({"type": "websocket.accept"})
+        await self.send({
+            "type": "websocket.accept"
+        })
 
     async def websocket_receive(self, event):
         print("Message received from WebSocket", event)
 
-        await self.send({"type": "websocket.send", "text": event.get("text")})
+        await self.send({
+            "type": "websocket.send", 
+            "text": event.get("text")
+        })
 
     async def websocket_disconnect(self, event):
         print("WebSocket disconnected", event)
