@@ -87,7 +87,7 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 10.0,
 
         "args": (
-            "rebir41949@javafs.com",
+            "Your email address",
         ),
     },
 }

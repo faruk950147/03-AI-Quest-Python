@@ -1,26 +1,25 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.views import View
+from chat.forms import EmailForm
 from chat.tasks import (
     send_notification_email,
     add
 )
 class HomeView(View):
     def get(self, request):
-        return HttpResponse("Hello, this is the Home View!")
+        return render(request, "chat/home.html")
     
 
 
 class EmailSendView(View):
     def get(self, request):
-        # send_notification_email("rebir41949@javafs.com")
-        result = add.delay(4, 6)
-        # result = add.apply_async([10, 20], countdown=10)
-        print(
-            f"Task ID: {result.id}, Status: {result.status} "
-            f"Result: {result.get()} Ready: {result.ready()}"
-        )
-        return HttpResponse(
-            f"Hello, this is the Email Send View! Task ID: {result.id}, "
-            f"Status: {result.status}, Result: {result.get()}, "
-            f"Ready: {result.ready()}"
-        ) 
+        form = EmailForm()
+        return render(request, "chat/send-email.html", {"form": form})
+    def post(self, request):
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            send_notification_email.delay(email)
+            return HttpResponse("Email sent successfully!")
+        return render(request, "chat/send-email.html", {"form": form})  
