@@ -57,7 +57,7 @@ class ChatConsumer1(AsyncConsumer):
         for i in range(5):
             await self.send({
                 "type": "websocket.send", 
-                "text": str(i),
+                "text": "From server " + str(i),
             })
             await asyncio.sleep(1)
 
