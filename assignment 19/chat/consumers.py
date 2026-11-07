@@ -59,6 +59,7 @@ class ChatConsumer1(AsyncConsumer):
                 "type": "websocket.send", 
                 "text": str(i),
             })
+            await asyncio.sleep(1)
 
     async def websocket_disconnect(self, event):
         print("WebSocket disconnected", event)
