@@ -10,7 +10,7 @@ websocket.onopen = function (event) {
 
 websocket.onmessage = function (event) {
     console.log("Message received from server: " + event.data);
-    document.getElementById("display").innerHTML += event.data;
+    document.getElementById("display").innerHTML += " " + event.data;
 };
 
 websocket.onclose = function (event) {
@@ -31,7 +31,7 @@ websocket.addEventListener('open', function (event) {
 
 websocket.addEventListener('message', function (event) {
     console.log("Message received from server: " + event.data);
-    document.getElementById("display").innerHTML += event.data;
+    document.getElementById("display").innerHTML += " " + event.data;
 });
 
 websocket.addEventListener('close', function (event) {
