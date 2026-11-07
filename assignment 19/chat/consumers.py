@@ -18,7 +18,7 @@ class ChatConsumer1(AsyncConsumer):
             await self.send({
                 "type": "websocket.send", 
                 # "text": event.get("text")
-                "text": str(i),
+                "text": "From server " + str(i),
             })
             await asyncio.sleep(1)
 
@@ -54,12 +54,15 @@ class ChatConsumer1(AsyncConsumer):
 
     async def websocket_receive(self, event):
         print("Message received from WebSocket", event)
-        for i in range(5):
-            await self.send({
-                "type": "websocket.send", 
-                "text": "From server " + str(i),
-            })
-            await asyncio.sleep(1)
+        print('Scope:', self.scope)
+        print('Channel Layer:', self.channel_layer)
+        print('Channel Name:', self.channel_name)
+        print('User:', self.scope.get('user'))
+        print('Path:', self.scope.get('path'))
+        await self.send({
+            "type": "websocket.send",
+            "text": "From server"
+        })
 
     async def websocket_disconnect(self, event):
         print("WebSocket disconnected", event)
