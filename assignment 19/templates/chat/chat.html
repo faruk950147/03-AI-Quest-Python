@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Chat Room{% endblock title %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+            <h4>Chat Room</h4>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Messages -->
+            <div id="chat-messages"
+                 style="height: 400px; overflow-y: auto; padding: 15px;">
+            </div>
+
+            <!-- Message Input -->
+            <div class="input-group mt-3">
+                <input
+                    type="text"
+                    id="message-input"
+                    class="form-control"
+                    placeholder="Type your message..."
+                >
+
+                <button
+                    class="btn btn-success"
+                    id="send-button">
+                    Send
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

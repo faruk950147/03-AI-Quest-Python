@@ -23,3 +23,7 @@ class EmailSendView(View):
             send_notification_email.delay(email)
             return redirect('send-email')
         return render(request, "chat/send-email.html", {"form": form})  
+
+class chatView(View):
+    def get(self, request):
+        return render(request, "chat/chat.html")

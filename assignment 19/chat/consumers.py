@@ -47,6 +47,7 @@ class ChatConsumer2(SyncConsumer):
 class ChatConsumer1(AsyncConsumer):
     async def websocket_connect(self, event):
         print("WebSocket connected", event)
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
 
         await self.send({
             "type": "websocket.accept"
