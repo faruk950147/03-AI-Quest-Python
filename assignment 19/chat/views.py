@@ -2,10 +2,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from chat.forms import EmailForm
+
 from chat.tasks import (
-    send_notification_email,
-    add
+    send_notification_email
 )
+
 class HomeView(View):
     def get(self, request):
         return render(request, "chat/home.html")
