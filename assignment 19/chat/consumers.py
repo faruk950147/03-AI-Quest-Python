@@ -1,6 +1,8 @@
 from channels.consumer import AsyncConsumer, SyncConsumer
 import asyncio
 import json
+
+
 '''
 class ChatConsumer1(AsyncConsumer):
     async def websocket_connect(self, event):
@@ -44,44 +46,32 @@ class ChatConsumer2(SyncConsumer):
         print("WebSocket disconnected", event)
 '''
 
+
 class ChatConsumer1(AsyncConsumer):
+    # WebSocket Connection
     async def websocket_connect(self, event):
-        print("WebSocket connected", event)
+        print("WebSocket connected:", event)
+
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
 
         await self.send({
             "type": "websocket.accept"
         })
 
+    # Receive message from client
     async def websocket_receive(self, event):
-        print("Message received from WebSocket", event)
-        print('Scope:', self.scope)
-        print('Channel Layer:', self.channel_layer)
-        print('Channel Name:', self.channel_name)
-        print('User:', self.scope.get('user'))
-        print('Path:', self.scope.get('path'))
-        await self.send({
-            "type": "websocket.send",
-            "text": "From server"
-        })
+        print("Message received:", event)
+        try:
+            data = json.loads(event["text"])
+            message = data.get("message", "")
 
+            await self.send({
+                "type": "websocket.send", 
+                "text": json.dumps({"message": message})
+            })
+        except json.JSONDecodeError:
+            print("Invalid JSON received:", event["text"])
+
+    # Disconnect WebSocket
     async def websocket_disconnect(self, event):
-        print("WebSocket disconnected", event)
-
-class ChatConsumer2(SyncConsumer):
-    def websocket_connect(self, event):
-        print("WebSocket connected", event)
-        self.send({
-            "type": "websocket.accept"
-        })
-
-    def websocket_receive(self, event):
-        print("Message received from WebSocket", event)
-        data = json.loads(event.get("text"))
-        self.send({
-            "type": "websocket.send",
-            "text": json.dumps(data)
-        })
-
-    def websocket_disconnect(self, event):
-        print("WebSocket disconnected", event)
+        print("WebSocket disconnected:", event)
