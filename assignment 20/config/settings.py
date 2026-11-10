@@ -101,10 +101,11 @@ CELERY_BEAT_SCHEDULE = {
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [f"{REDIS_URL}/0"],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {
+        #     "hosts": [f"{REDIS_URL}/0"],
+        # },
     },
 }
 
