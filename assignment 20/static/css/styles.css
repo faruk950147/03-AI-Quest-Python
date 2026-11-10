@@ -16,21 +16,31 @@ body {
     height: 100vh;
     display: flex;
     background: #111827;
+    overflow: hidden;
 }
 
-/* Sidebar */
+/* Sidebar - Full Scroll */
 .sidebar {
     width: 350px;
     min-width: 300px;
+    height: 100vh;
     border-right: 1px solid #263247;
     background: #111827;
     display: flex;
     flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
 }
 
+/* Sidebar Header */
 .sidebar-header {
     padding: 22px;
     border-bottom: 1px solid #263247;
+    flex-shrink: 0;
 }
 
 .brand {
@@ -60,8 +70,8 @@ body {
 
 /* Contact List */
 .contact-list {
-    overflow-y: auto;
-    flex: 1;
+    flex: none;
+    overflow: visible;
 }
 
 .contact {
@@ -140,15 +150,31 @@ body {
     right: 0;
 }
 
+/* Sidebar Scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 /* Chat Area */
 .chat-area {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 
-/* Header */
+/* Chat Header */
 .chat-header {
     height: 78px;
     min-height: 78px;
@@ -158,15 +184,21 @@ body {
     justify-content: space-between;
     border-bottom: 1px solid #263247;
     background: #111827;
+    flex-shrink: 0;
 }
 
 /* Messages */
 .messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 30px;
     background:
         radial-gradient(circle at center, #142137 0%, #0b1220 75%);
+
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
 }
 
 .message {
@@ -205,7 +237,7 @@ body {
     margin-top: 5px;
 }
 
-/* Footer */
+/* Chat Footer */
 .chat-footer {
     padding: 18px 25px;
     background: #111827;
@@ -213,6 +245,7 @@ body {
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .message-input {
@@ -263,16 +296,18 @@ body {
     background: #0369a1;
 }
 
-/* Scrollbar */
-.messages::-webkit-scrollbar,
-.contact-list::-webkit-scrollbar {
+/* Messages Scrollbar */
+.messages::-webkit-scrollbar {
     width: 5px;
 }
 
-.messages::-webkit-scrollbar-thumb,
-.contact-list::-webkit-scrollbar-thumb {
+.messages::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 10px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 /* Mobile Responsive */
@@ -281,6 +316,7 @@ body {
     .sidebar {
         width: 100%;
         min-width: 100%;
+        height: 100vh;
     }
 
     .chat-area {
