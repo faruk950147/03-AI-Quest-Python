@@ -1,39 +1,228 @@
 {% extends "base.html" %}
+
 {% block title %}Chat Room{% endblock title %}
 
 {% block content %}
 
-<div class="container mt-4">
-    <div class="card shadow">
+<div class="chat-app" id="chat-app">
 
-        <div class="card-header bg-success text-white">
-            <h4>Chat Room</h4>
-        </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
 
-        <div class="card-body">
+        <div class="sidebar-header">
 
-            <!-- Messages -->
-            <div id="chat-messages"
-                 style="height: 400px; overflow-y: auto; padding: 15px;">
-            </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <!-- Message Input -->
-            <div class="input-group mt-3">
-                <input
-                    type="text"
-                    id="message-input"
-                    class="form-control"
-                    placeholder="Type your message..."
-                >
+                <div class="brand">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    Chat Room
+                </div>
 
-                <button
-                    class="btn btn-success"
-                    id="send-button">
-                    Send
+                <button class="icon-btn">
+                    <i class="bi bi-three-dots-vertical"></i>
                 </button>
+
+            </div>
+
+            <input
+                type="text"
+                class="form-control search-box"
+                id="search"
+                placeholder="Search conversations..."
+            >
+
+        </div>
+
+        <!-- Contact List -->
+        <div class="contact-list" id="contact-list">
+
+            <div class="contact active"
+                 data-name="Sarah Ahmed"
+                 data-status="Online">
+
+                <div class="avatar">
+                    SA
+                    <div class="online"></div>
+                </div>
+
+                <div class="contact-info">
+                    <div class="contact-name">Sarah Ahmed</div>
+                    <div class="last-message">Hey! How are you?</div>
+                </div>
+
+                <small>10:30</small>
+
+            </div>
+
+
+            <div class="contact"
+                 data-name="John Smith"
+                 data-status="Offline">
+
+                <div class="avatar purple">JS</div>
+
+                <div class="contact-info">
+                    <div class="contact-name">John Smith</div>
+                    <div class="last-message">See you tomorrow!</div>
+                </div>
+
+                <small>09:45</small>
+
+            </div>
+
+
+            <div class="contact"
+                 data-name="Emma Wilson"
+                 data-status="Online">
+
+                <div class="avatar pink">
+                    EW
+                    <div class="online"></div>
+                </div>
+
+                <div class="contact-info">
+                    <div class="contact-name">Emma Wilson</div>
+                    <div class="last-message">Thanks for your help.</div>
+                </div>
+
+                <small>Yesterday</small>
+
+            </div>
+
+
+            <div class="contact"
+                 data-name="David Miller"
+                 data-status="Offline">
+
+                <div class="avatar yellow">DM</div>
+
+                <div class="contact-info">
+                    <div class="contact-name">David Miller</div>
+                    <div class="last-message">Let's build something!</div>
+                </div>
+
+                <small>Yesterday</small>
+
             </div>
 
         </div>
+
     </div>
+
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <button class="icon-btn d-md-none" id="backBtn">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+
+                <div class="avatar" id="headerAvatar">
+                    SA
+                    <div class="online"></div>
+                </div>
+
+                <div>
+                    <div class="fw-bold" id="chatName">
+                        Sarah Ahmed
+                    </div>
+
+                    <small class="text-success" id="chatStatus">
+                        Online
+                    </small>
+                </div>
+
+            </div>
+
+
+            <div class="d-flex gap-3">
+
+                <button class="icon-btn">
+                    <i class="bi bi-telephone"></i>
+                </button>
+
+                <button class="icon-btn">
+                    <i class="bi bi-camera-video"></i>
+                </button>
+
+                <button class="icon-btn">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Messages -->
+        <div class="messages" id="messages">
+
+            <div class="message received">
+                <div class="bubble">
+                    Hello! How are you doing?
+                    <span class="time">10:25 AM</span>
+                </div>
+            </div>
+
+
+            <div class="message sent">
+                <div class="bubble">
+                    I'm doing great! How about you?
+                    <span class="time">10:27 AM ✓✓</span>
+                </div>
+            </div>
+
+
+            <div class="message received">
+                <div class="bubble">
+                    I'm good too. What are you working on?
+                    <span class="time">10:29 AM</span>
+                </div>
+            </div>
+
+
+            <div class="message sent">
+                <div class="bubble">
+                    I'm building a chat application using Bootstrap.
+                    <span class="time">10:30 AM ✓✓</span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Message Footer -->
+        <div class="chat-footer">
+
+            <button class="icon-btn">
+                <i class="bi bi-paperclip"></i>
+            </button>
+
+            <button class="icon-btn">
+                <i class="bi bi-emoji-smile"></i>
+            </button>
+
+            <input
+                type="text"
+                class="message-input"
+                id="messageInput"
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+
+            <button class="send-btn" id="sendBtn">
+                <i class="bi bi-send-fill"></i>
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
+
 {% endblock content %}
