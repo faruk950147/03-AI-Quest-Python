@@ -60,13 +60,20 @@ TEMPLATES = [
 
 # WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = "config.asgi.application"
+
+
 # ================= Redis Configuration =================
+
 REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
-REDIS_PORT = int(config("REDIS_PORT", default="6379"))
+REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
+
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
 # ================= Celery Configuration =================
-CELERY_BROKER_URL = config("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"{REDIS_URL}/1")
+
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default=f"{REDIS_URL}/2")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -81,32 +88,26 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 
 # ================= Celery Beat Configuration =================
+
 CELERY_BEAT_SCHEDULE = {
     "send_notification_email": {
         "task": "chat.tasks.send_notification_email",
         "schedule": 10.0,
-
-        "args": (
-            "Your email address",
-        ),
+        "args": ("Your email address",),
     },
 }
-# channels settings
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [(REDIS_HOST, REDIS_PORT)],
-#         },
-#     },
-# }
+# ================= Django Channels =================
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"{REDIS_URL}/0"],
+        },
     },
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
