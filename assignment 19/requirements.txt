@@ -4,3 +4,4 @@ celery
 redis
 django-redis
 python-decouple
+flower
