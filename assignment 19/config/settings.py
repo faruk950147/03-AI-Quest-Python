@@ -151,14 +151,17 @@ MEDIA_ROOT = BASE_DIR / "media"
 MAILERS = {
     "default": {
         "BACKEND": config("EMAIL_BACKEND"),
-        "USE_TLS": config("EMAIL_USE_TLS", cast=bool),
-        "HOST": config("EMAIL_HOST"),
-        "HOST_USER": config("EMAIL_HOST_USER"),
-        "HOST_PASSWORD": config("EMAIL_HOST_PASSWORD"),
-        "PORT": config("EMAIL_PORT", cast=int),
+        "OPTIONS": {
+            "host": config("EMAIL_HOST"),
+            "port": config("EMAIL_PORT", cast=int),
+            "username": config("EMAIL_HOST_USER"),
+            "password": config("EMAIL_HOST_PASSWORD"),
+            "use_tls": config("EMAIL_USE_TLS", cast=bool),
+            "use_ssl": False,
+            "timeout": 30,
+        },
     }
 }
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
