@@ -68,13 +68,13 @@ body {
     border-color: #38bdf8;
 }
 
-/* Contact List */
-.contact-list {
+/* Friend List */
+.friend-list {
     flex: none;
     overflow: visible;
 }
 
-.contact {
+.friend {
     padding: 15px 20px;
     display: flex;
     align-items: center;
@@ -84,22 +84,22 @@ body {
     transition: .2s;
 }
 
-.contact:hover,
-.contact.active {
+.friend:hover,
+.friend.active {
     background: #1e293b;
 }
 
-.contact small {
+.friend small {
     color: #94a3b8;
     white-space: nowrap;
 }
 
-.contact-info {
+.friend-info {
     flex: 1;
     min-width: 0;
 }
 
-.contact-name {
+.friend-name {
     font-weight: 600;
     margin-bottom: 4px;
 }
