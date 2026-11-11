@@ -8,7 +8,9 @@ class ChatConsumer(AsyncConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(
+            self.room_group_name, self.channel_name
+        )
 
         await self.send({"type": "websocket.accept"})
 
@@ -20,12 +22,12 @@ class ChatConsumer(AsyncConsumer):
             data = json.loads(event["text"])
             message = data.get("message", "")
 
-            if not message.strip():
-                return
-
             # Send message to all users in the group
             await self.channel_layer.group_send(
-                self.room_group_name, {"type": "chat_message", "message": message}
+                self.room_group_name, {
+                    "type": "chat_message", 
+                    "message": message
+                }
             )
 
         except json.JSONDecodeError:
@@ -34,15 +36,15 @@ class ChatConsumer(AsyncConsumer):
     # Receive group message
     async def chat_message(self, event):
 
-        await self.send(
-            {
+        await self.send({
                 "type": "websocket.send",
                 "text": json.dumps({"message": event["message"]}),
-            }
-        )
+            })
 
     async def websocket_disconnect(self, event):
 
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_discard(
+            self.room_group_name, self.channel_name
+        )
 
         print("WebSocket Disconnected")
