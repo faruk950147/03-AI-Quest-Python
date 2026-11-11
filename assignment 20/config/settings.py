@@ -88,12 +88,11 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 
 # ================= Celery Beat Configuration =================
-
 CELERY_BEAT_SCHEDULE = {
     "send_notification_email": {
-        "task": "chat.tasks.send_notification_email",
+        "task": "chat.tasks.additon",
         "schedule": 10.0,
-        "args": ("Your email address",),
+        "args": (12, 8),
     },
 }
 
@@ -161,15 +160,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Email configuration
-EMAIL_BACKEND = config("EMAIL_BACKEND")
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
-EMAIL_HOST = config("EMAIL_HOST")
-EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = config("EMAIL_PORT", cast=int)
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
