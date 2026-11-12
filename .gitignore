@@ -3,3 +3,6 @@ env
 venv
 .venv
 logs
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
