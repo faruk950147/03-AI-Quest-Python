@@ -89,7 +89,7 @@ CELERY_TASK_SEND_SENT_EVENT = True
 
 # ================= Celery Beat Configuration =================
 CELERY_BEAT_SCHEDULE = {
-    "send_notification_email": {
+    "send_notification": {
         "task": "chat.tasks.additon",
         "schedule": 10.0,
         "args": (12, 8),
