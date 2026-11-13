@@ -10,5 +10,5 @@ class HomeView(View):
         meta = yf.Ticker("META")
         print(meta.info)
         
-        return render(request, 'app/home.html')
+        return render(request, 'app/home.html',)
 
