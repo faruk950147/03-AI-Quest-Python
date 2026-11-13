@@ -4,11 +4,20 @@ from django.views import View
 
 import yfinance as yf
 
+import yfinance as yf
+
+from django.shortcuts import render
+from django.views import View
+
+
 class HomeView(View):
-    template_name = "app/home.html"
     def get(self, request):
+
         meta = yf.Ticker("META")
-        print(meta.info)
-        
-        return render(request, 'app/home.html',)
+
+        stock_data = meta.info
+
+        context = {"stock": stock_data}
+
+        return render(request, "app/home.html", context)
 
