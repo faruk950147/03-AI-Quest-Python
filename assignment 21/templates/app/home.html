@@ -17,8 +17,11 @@
                 <h2 class="stock-title text-center mb-4">
                     Stock Market Dashboard
                 </h2>
->
-
+                {% for key, value in stock.items %}
+                    <p>
+                        <strong>{{ key }}:</strong> {{ value }}
+                    </p>
+                {% endfor %}
             </div>
 
         </div>
