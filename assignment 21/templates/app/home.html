@@ -1,50 +1,429 @@
+
 {% extends "base.html" %}
 
 {% block title %}Real-Time Stock Market{% endblock title %}
 
 {% block content %}
 
-<div class="container">
-    <div class="row justify-content-center align-content-center">
-        <div class="col-8 text-center">
-            <h2>Stock Market Data</h2>
-<!--
-            <table class="table table-bordered text-center" id="data-table">
-                <thead>
-                    <tr>
-                        <th>SL</th>
-                        <th>Stock Symbol</th>
-                    </tr>
-                </thead>
+<div class="stock-container">
 
-                <tbody>
-                    {% for stock in stock_picker %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ stock }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="2">No stock data available.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
--->
+    <div class="container">
 
-        {% if error %}
-            <p style="color: red;">{{ error }}</p>
-        {% else %}
-            <ul>
-                {% for stock in stock_picker %}
-                    <li>{{ stock }}</li>
-                {% empty %}
-                    <li>No stocks found.</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        <div class="row justify-content-center">
+
+            <div class="col-lg-11">
+
+                <!-- Title -->
+                <h2 class="stock-title text-center mb-4">
+                    📈 Stock Market Dashboard
+                </h2>
+
+                <!-- Search Card -->
+                <div class="card stock-card mb-4">
+
+                    <div class="card-body">
+
+                        <div class="input-group">
+
+                            <input
+                                type="text"
+                                id="symbol"
+                                class="form-control stock-input"
+                                value="{{ symbol|default:'AAPL' }}"
+                                placeholder="Enter Stock Symbol"
+                            >
+
+                            <button
+                                class="btn btn-primary"
+                                type="button"
+                                onclick="getStockData()"
+                            >
+                                Search
+                            </button>
+
+                        </div>
+
+                        <p id="error-message"
+                           class="text-danger mt-3 mb-0">
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Latest Price Card -->
+                <div class="card stock-card mb-4">
+
+                    <div class="card-body text-center">
+
+                        <h5 id="stock-symbol">AAPL</h5>
+
+                        <h2 id="latest-price" class="price-same">
+                            --
+                        </h2>
+
+                        <h6 id="price-change" class="price-same">
+                            --
+                        </h6>
+
+                        <p class="update-status mt-3">
+                            Last updated:
+                            <span id="last-updated">--</span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Stock Information -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-6 col-md-3">
+
+                        <div class="card stock-card text-center h-100">
+
+                            <div class="card-body">
+
+                                <p class="text-secondary">Open</p>
+
+                                <h5 id="open">--</h5>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-md-3">
+
+                        <div class="card stock-card text-center h-100">
+
+                            <div class="card-body">
+
+                                <p class="text-secondary">High</p>
+
+                                <h5 id="high">--</h5>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-md-3">
+
+                        <div class="card stock-card text-center h-100">
+
+                            <div class="card-body">
+
+                                <p class="text-secondary">Low</p>
+
+                                <h5 id="low">--</h5>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-md-3">
+
+                        <div class="card stock-card text-center h-100">
+
+                            <div class="card-body">
+
+                                <p class="text-secondary">Volume</p>
+
+                                <h5 id="volume">--</h5>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Stock Table -->
+                <div class="card stock-card">
+
+                    <div class="card-body">
+
+                        <h5 class="stock-title mb-3">
+                            Intraday Stock History
+                        </h5>
+
+                        <div class="table-responsive">
+
+                            <table class="table stock-table text-center">
+
+                                <thead>
+
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Date</th>
+                                        <th>Open</th>
+                                        <th>High</th>
+                                        <th>Low</th>
+                                        <th>Close</th>
+                                        <th>Volume</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="stock-data">
+
+                                    <tr>
+                                        <td colspan="7">Loading...</td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <p class="update-status text-end mt-3 mb-0">
+                            Auto refresh: 60 seconds
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
     </div>
+
 </div>
 
+<script>
+
+    const stockDataUrl = "{% url 'home' %}";
+
+    let isLoading = false;
+    let currentSymbol = "{{ symbol|default:'AAPL' }}";
+
+
+    function formatNumber(value) {
+
+        return Number(value).toLocaleString("en-US", {
+            maximumFractionDigits: 2
+        });
+
+    }
+
+
+    function updatePriceColor(element, value) {
+
+        element.classList.remove(
+            "price-up",
+            "price-down",
+            "price-same"
+        );
+
+        if (value > 0) {
+
+            element.classList.add("price-up");
+
+        } else if (value < 0) {
+
+            element.classList.add("price-down");
+
+        } else {
+
+            element.classList.add("price-same");
+
+        }
+
+    }
+
+
+    async function getStockData() {
+
+        if (isLoading) return;
+
+        const symbol = document.getElementById("symbol")
+            .value.trim().toUpperCase();
+
+        const tbody = document.getElementById("stock-data");
+
+        const error = document.getElementById("error-message");
+
+        if (!/^[A-Z0-9.^=-]{1,20}$/.test(symbol)) {
+
+            error.textContent = "Please enter a valid stock symbol.";
+
+            return;
+
+        }
+
+        isLoading = true;
+
+        currentSymbol = symbol;
+
+        error.textContent = "";
+
+        try {
+
+            const response = await fetch(
+                `${stockDataUrl}?symbol=${encodeURIComponent(symbol)}`,
+                {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+
+                throw new Error(data.error || "Unable to fetch data.");
+
+            }
+
+            const latest = data.latest;
+
+            // Latest price
+            document.getElementById("stock-symbol").textContent =
+                data.symbol;
+
+            document.getElementById("latest-price").textContent =
+                formatNumber(latest.close);
+
+            // Price change
+            const priceChange = document.getElementById("price-change");
+
+            if (data.previous_close === null) {
+
+                priceChange.textContent = "Previous close unavailable";
+
+                updatePriceColor(priceChange, 0);
+
+            } else {
+
+                const sign = data.change > 0 ? "+" : "";
+
+                priceChange.textContent =
+                    `${sign}${formatNumber(data.change)} (${sign}${formatNumber(data.change_percent)}%)`;
+
+                updatePriceColor(priceChange, data.change);
+
+            }
+
+            // Latest price color
+            updatePriceColor(
+                document.getElementById("latest-price"),
+                data.previous_close === null ? 0 : data.change
+            );
+
+            // Stock information
+            document.getElementById("open").textContent =
+                formatNumber(latest.open);
+
+            document.getElementById("high").textContent =
+                formatNumber(latest.high);
+
+            document.getElementById("low").textContent =
+                formatNumber(latest.low);
+
+            document.getElementById("volume").textContent =
+                formatNumber(latest.volume);
+
+
+            // Stock table
+            tbody.innerHTML = "";
+
+            data.history.slice().reverse().forEach(item => {
+
+                const row = document.createElement("tr");
+
+                const values = [
+                    data.symbol,
+                    item.date,
+                    formatNumber(item.open),
+                    formatNumber(item.high),
+                    formatNumber(item.low),
+                    formatNumber(item.close),
+                    formatNumber(item.volume)
+                ];
+
+                values.forEach(value => {
+
+                    const td = document.createElement("td");
+
+                    td.textContent = value;
+
+                    row.appendChild(td);
+
+                });
+
+                tbody.appendChild(row);
+
+            });
+
+
+            document.getElementById("last-updated").textContent =
+                new Date().toLocaleTimeString();
+
+        }
+
+        catch (err) {
+
+            error.textContent = err.message;
+
+        }
+
+        finally {
+
+            isLoading = false;
+
+        }
+
+    }
+
+
+    // Enter key search
+    document.getElementById("symbol").addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                getStockData();
+
+            }
+
+        }
+    );
+
+
+    // Initial load
+    getStockData();
+
+
+    // Auto refresh
+    setInterval(() => {
+
+        if (!document.hidden && !isLoading) {
+
+            getStockData();
+
+        }
+
+    }, 60000);
+
+</script>
+
 {% endblock content %}
+
+
