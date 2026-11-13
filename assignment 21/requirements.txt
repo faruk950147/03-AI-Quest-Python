@@ -77,3 +77,5 @@ websockets==10.4
 yfinance==0.2.58
 zipp==4.1.2
 zope.interface==8.7
+django-celery-beat
+django-celery-result
