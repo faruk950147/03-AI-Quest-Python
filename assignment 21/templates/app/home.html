@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<div class="stock-container">
+<div class="stock-container py-5">
 
     <div class="container">
 
@@ -13,15 +13,28 @@
 
             <div class="col-lg-11">
 
-                <!-- Title -->
                 <h2 class="stock-title text-center mb-4">
                     Stock Market Dashboard
                 </h2>
-                {% for key, value in stock.items %}
-                    <p>
-                        <strong>{{ key }}:</strong> {{ value }}
-                    </p>
-                {% endfor %}
+
+                <div class="card shadow border-0">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">META Historical Stock Data</h5>
+                    </div>
+
+                    <div class="card-body table-responsive">
+
+                        {% if data %}
+                            {{ data|safe }}
+                        {% else %}
+                            <p class="text-danger">
+                                No stock data available.
+                            </p>
+                        {% endif %}
+
+                    </div>
+                </div>
+
             </div>
 
         </div>
