@@ -62,7 +62,6 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = "config.asgi.application"
 
-
 # ================= Redis Configuration =================
 
 REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
@@ -70,11 +69,13 @@ REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
+
 # ================= Celery Configuration =================
 
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"{REDIS_URL}/1")
 
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default=f"{REDIS_URL}/2")
+# Store task results in Django Database
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="django-db")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -87,12 +88,14 @@ CELERY_RESULT_EXPIRES = 3600
 
 CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
-CELERY_BEAT_SCHEDULER = "django_celery_beaut.schedulers:DatabaseScheduler"
+
 
 # ================= Celery Beat Configuration =================
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     "send_notification": {
-        "task": "chat.tasks.additon",
+        "task": "app.tasks.additon",
         "schedule": 10.0,
         "args": (12, 8),
     },
