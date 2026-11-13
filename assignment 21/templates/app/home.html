@@ -9,191 +9,189 @@
 
     <div class="container">
 
-        <div class="row justify-content-center">
+        <h2 class="stock-title text-center">
+            📈 Stock Market Dashboard
+        </h2>
 
-            <div class="col-lg-11">
 
-                <!-- Title -->
-                <h2 class="stock-title text-center mb-4">
-                    📈 Stock Market Dashboard
-                </h2>
+        <!-- Search Card -->
+        <div class="card stock-card mb-4">
 
-                <!-- Search Card -->
-                <div class="card stock-card mb-4">
+            <div class="card-body">
+
+                <label class="form-label fw-semibold">
+                    Stock Symbols
+                </label>
+
+                <div class="input-group">
+
+                    <input
+                        type="text"
+                        id="symbols"
+                        class="form-control stock-input"
+                        value="{{ symbols|join:',' }}"
+                        placeholder="RELIANCE.NS,WIPRO.NS,TCS.NS"
+                    >
+
+                    <button
+                        class="btn btn-primary px-4"
+                        type="button"
+                        onclick="searchStocks()"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+                <small class="text-muted">
+                    Enter multiple symbols separated by commas.
+                </small>
+
+                <p
+                    id="error-message"
+                    class="text-danger mt-3 mb-0"
+                ></p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Market Overview -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-6 col-md-4">
+
+                <div class="card stock-card text-center">
 
                     <div class="card-body">
 
-                        <div class="input-group">
-
-                            <input
-                                type="text"
-                                id="symbol"
-                                class="form-control stock-input"
-                                value="{{ symbol|default:'AAPL' }}"
-                                placeholder="Enter Stock Symbol"
-                            >
-
-                            <button
-                                class="btn btn-primary"
-                                type="button"
-                                onclick="getStockData()"
-                            >
-                                Search
-                            </button>
-
-                        </div>
-
-                        <p id="error-message"
-                           class="text-danger mt-3 mb-0">
+                        <p class="text-secondary mb-1">
+                            Total Stocks
                         </p>
 
-                    </div>
-
-                </div>
-
-
-                <!-- Latest Price Card -->
-                <div class="card stock-card mb-4">
-
-                    <div class="card-body text-center">
-
-                        <h5 id="stock-symbol">AAPL</h5>
-
-                        <h2 id="latest-price" class="price-same">
-                            --
-                        </h2>
-
-                        <h6 id="price-change" class="price-same">
-                            --
-                        </h6>
-
-                        <p class="update-status mt-3">
-                            Last updated:
-                            <span id="last-updated">--</span>
-                        </p>
+                        <h4 id="total-stocks">0</h4>
 
                     </div>
 
                 </div>
 
-
-                <!-- Stock Information -->
-                <div class="row g-3 mb-4">
-
-                    <div class="col-6 col-md-3">
-
-                        <div class="card stock-card text-center h-100">
-
-                            <div class="card-body">
-
-                                <p class="text-secondary">Open</p>
-
-                                <h5 id="open">--</h5>
-
-                            </div>
-
-                        </div>
-
-                    </div>
+            </div>
 
 
-                    <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
 
-                        <div class="card stock-card text-center h-100">
-
-                            <div class="card-body">
-
-                                <p class="text-secondary">High</p>
-
-                                <h5 id="high">--</h5>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-6 col-md-3">
-
-                        <div class="card stock-card text-center h-100">
-
-                            <div class="card-body">
-
-                                <p class="text-secondary">Low</p>
-
-                                <h5 id="low">--</h5>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-6 col-md-3">
-
-                        <div class="card stock-card text-center h-100">
-
-                            <div class="card-body">
-
-                                <p class="text-secondary">Volume</p>
-
-                                <h5 id="volume">--</h5>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Stock Table -->
-                <div class="card stock-card">
+                <div class="card stock-card text-center">
 
                     <div class="card-body">
 
-                        <h5 class="stock-title mb-3">
-                            Intraday Stock History
-                        </h5>
-
-                        <div class="table-responsive">
-
-                            <table class="table stock-table text-center">
-
-                                <thead>
-
-                                    <tr>
-                                        <th>Symbol</th>
-                                        <th>Date</th>
-                                        <th>Open</th>
-                                        <th>High</th>
-                                        <th>Low</th>
-                                        <th>Close</th>
-                                        <th>Volume</th>
-                                    </tr>
-
-                                </thead>
-
-                                <tbody id="stock-data">
-
-                                    <tr>
-                                        <td colspan="7">Loading...</td>
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                        <p class="update-status text-end mt-3 mb-0">
-                            Auto refresh: 60 seconds
+                        <p class="text-secondary mb-1">
+                            Gaining Stocks
                         </p>
 
+                        <h4 id="gaining-stocks" class="price-up">
+                            0
+                        </h4>
+
                     </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-4">
+
+                <div class="card stock-card text-center">
+
+                    <div class="card-body">
+
+                        <p class="text-secondary mb-1">
+                            Losing Stocks
+                        </p>
+
+                        <h4 id="losing-stocks" class="price-down">
+                            0
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Stock Table -->
+        <div class="card stock-card">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between
+                            align-items-center flex-wrap gap-2 mb-3">
+
+                    <h5 class="mb-0 fw-bold">
+                        Stock Market Live Data
+                    </h5>
+
+                    <span class="market-status">
+                        ● AUTO REFRESH ON
+                    </span>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table stock-table text-center">
+
+                        <thead>
+
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Stock</th>
+                                <th>Price</th>
+                                <th>Previous Close</th>
+                                <th>Open</th>
+                                <th>Change</th>
+                                <th>Market Cap</th>
+                                <th>Volume</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="stock-data">
+
+                            <tr>
+                                <td colspan="8">
+                                    Loading stock data...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="d-flex justify-content-between
+                            align-items-center flex-wrap gap-2 mt-3">
+
+                    <p class="update-status mb-0">
+
+                        Last updated:
+                        <strong id="last-updated">--</strong>
+
+                    </p>
+
+                    <p class="update-status mb-0">
+
+                        Auto refresh: 1 second
+
+                    </p>
 
                 </div>
 
@@ -205,173 +203,240 @@
 
 </div>
 
+
 <script>
 
     const stockDataUrl = "{% url 'home' %}";
 
     let isLoading = false;
-    let currentSymbol = "{{ symbol|default:'AAPL' }}";
+
+    let currentSymbols = [
+        {% for symbol in symbols %}
+            "{{ symbol|escapejs }}",
+        {% endfor %}
+    ];
 
 
+    // Format numbers
     function formatNumber(value) {
 
+        if (value === null || value === undefined) {
+            return "--";
+        }
+
         return Number(value).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
 
     }
 
 
-    function updatePriceColor(element, value) {
+    // Format market cap
+    function formatMarketCap(value) {
 
-        element.classList.remove(
-            "price-up",
-            "price-down",
-            "price-same"
-        );
-
-        if (value > 0) {
-
-            element.classList.add("price-up");
-
-        } else if (value < 0) {
-
-            element.classList.add("price-down");
-
-        } else {
-
-            element.classList.add("price-same");
-
+        if (value === null || value === undefined) {
+            return "--";
         }
+
+        const number = Number(value);
+
+        if (number >= 1e12) {
+            return (number / 1e12).toFixed(2) + "T";
+        }
+
+        if (number >= 1e9) {
+            return (number / 1e9).toFixed(2) + "B";
+        }
+
+        if (number >= 1e6) {
+            return (number / 1e6).toFixed(2) + "M";
+        }
+
+        return number.toLocaleString("en-US");
 
     }
 
 
-    async function getStockData() {
+    // Price color
+    function getPriceClass(value) {
 
-        if (isLoading) return;
+        if (value > 0) {
+            return "price-up";
+        }
 
-        const symbol = document.getElementById("symbol")
-            .value.trim().toUpperCase();
+        if (value < 0) {
+            return "price-down";
+        }
+
+        return "price-same";
+
+    }
+
+
+    // Create table cell safely
+    function createCell(row, value, className = "") {
+
+        const td = document.createElement("td");
+
+        td.textContent = value;
+
+        if (className) {
+            td.className = className;
+        }
+
+        row.appendChild(td);
+
+    }
+
+
+    // Display stock table
+    function renderStocks(stocks) {
 
         const tbody = document.getElementById("stock-data");
 
-        const error = document.getElementById("error-message");
+        tbody.innerHTML = "";
 
-        if (!/^[A-Z0-9.^=-]{1,20}$/.test(symbol)) {
+        let gaining = 0;
+        let losing = 0;
 
-            error.textContent = "Please enter a valid stock symbol.";
+        stocks.forEach((stock, index) => {
 
+            const row = document.createElement("tr");
+
+            if (stock.error) {
+
+                createCell(row, index + 1);
+                createCell(row, stock.symbol);
+                createCell(row, stock.error, "text-danger");
+
+                const empty = document.createElement("td");
+                empty.colSpan = 5;
+                row.appendChild(empty);
+
+                tbody.appendChild(row);
+
+                return;
+
+            }
+
+            if (stock.change > 0) {
+                gaining++;
+            }
+
+            else if (stock.change < 0) {
+                losing++;
+            }
+
+            const changeText =
+                (stock.change > 0 ? "+" : "") +
+                formatNumber(stock.change) +
+                " (" +
+                (stock.change_percent > 0 ? "+" : "") +
+                formatNumber(stock.change_percent) +
+                "%)";
+
+            createCell(row, index + 1);
+
+            createCell(
+                row,
+                stock.symbol,
+                "fw-semibold"
+            );
+
+            createCell(
+                row,
+                formatNumber(stock.price),
+                getPriceClass(stock.change)
+            );
+
+            createCell(
+                row,
+                formatNumber(stock.previous_close)
+            );
+
+            createCell(
+                row,
+                formatNumber(stock.open)
+            );
+
+            createCell(
+                row,
+                changeText,
+                getPriceClass(stock.change)
+            );
+
+            createCell(
+                row,
+                formatMarketCap(stock.market_cap)
+            );
+
+            createCell(
+                row,
+                Number(stock.volume).toLocaleString("en-US")
+            );
+
+            tbody.appendChild(row);
+
+        });
+
+
+        // Market overview
+        document.getElementById("total-stocks").textContent =
+            stocks.filter(stock => !stock.error).length;
+
+        document.getElementById("gaining-stocks").textContent =
+            gaining;
+
+        document.getElementById("losing-stocks").textContent =
+            losing;
+
+    }
+
+
+    // Fetch stock data
+    async function getStockData() {
+
+        if (isLoading || document.hidden) {
             return;
+        }
 
+        if (!currentSymbols.length) {
+            return;
         }
 
         isLoading = true;
 
-        currentSymbol = symbol;
-
-        error.textContent = "";
+        const error = document.getElementById("error-message");
 
         try {
 
             const response = await fetch(
-                `${stockDataUrl}?symbol=${encodeURIComponent(symbol)}`,
+                `${stockDataUrl}?symbols=${encodeURIComponent(
+                    currentSymbols.join(",")
+                )}`,
                 {
                     headers: {
                         "X-Requested-With": "XMLHttpRequest"
-                    }
+                    },
+                    cache: "no-store"
                 }
             );
 
             const data = await response.json();
 
             if (!response.ok || data.error) {
-
-                throw new Error(data.error || "Unable to fetch data.");
-
+                throw new Error(
+                    data.error || "Unable to fetch stock data."
+                );
             }
 
-            const latest = data.latest;
+            // Update table
+            renderStocks(data.stocks);
 
-            // Latest price
-            document.getElementById("stock-symbol").textContent =
-                data.symbol;
+            error.textContent = "";
 
-            document.getElementById("latest-price").textContent =
-                formatNumber(latest.close);
-
-            // Price change
-            const priceChange = document.getElementById("price-change");
-
-            if (data.previous_close === null) {
-
-                priceChange.textContent = "Previous close unavailable";
-
-                updatePriceColor(priceChange, 0);
-
-            } else {
-
-                const sign = data.change > 0 ? "+" : "";
-
-                priceChange.textContent =
-                    `${sign}${formatNumber(data.change)} (${sign}${formatNumber(data.change_percent)}%)`;
-
-                updatePriceColor(priceChange, data.change);
-
-            }
-
-            // Latest price color
-            updatePriceColor(
-                document.getElementById("latest-price"),
-                data.previous_close === null ? 0 : data.change
-            );
-
-            // Stock information
-            document.getElementById("open").textContent =
-                formatNumber(latest.open);
-
-            document.getElementById("high").textContent =
-                formatNumber(latest.high);
-
-            document.getElementById("low").textContent =
-                formatNumber(latest.low);
-
-            document.getElementById("volume").textContent =
-                formatNumber(latest.volume);
-
-
-            // Stock table
-            tbody.innerHTML = "";
-
-            data.history.slice().reverse().forEach(item => {
-
-                const row = document.createElement("tr");
-
-                const values = [
-                    data.symbol,
-                    item.date,
-                    formatNumber(item.open),
-                    formatNumber(item.high),
-                    formatNumber(item.low),
-                    formatNumber(item.close),
-                    formatNumber(item.volume)
-                ];
-
-                values.forEach(value => {
-
-                    const td = document.createElement("td");
-
-                    td.textContent = value;
-
-                    row.appendChild(td);
-
-                });
-
-                tbody.appendChild(row);
-
-            });
-
-
+            // Last updated
             document.getElementById("last-updated").textContent =
                 new Date().toLocaleTimeString();
 
@@ -392,14 +457,52 @@
     }
 
 
+    // Search stocks
+    function searchStocks() {
+
+        const input = document.getElementById("symbols");
+
+        const symbols = input.value
+            .split(",")
+            .map(symbol => symbol.trim().toUpperCase())
+            .filter(Boolean);
+
+        if (!symbols.length) {
+
+            document.getElementById("error-message").textContent =
+                "Please enter at least one stock symbol.";
+
+            return;
+
+        }
+
+        if (
+            symbols.length > 20 ||
+            symbols.some(symbol => !/^[A-Z0-9.^=-]{1,20}$/.test(symbol))
+        ) {
+
+            document.getElementById("error-message").textContent =
+                "Invalid symbols. Maximum 20 symbols allowed.";
+
+            return;
+
+        }
+
+        currentSymbols = [...new Set(symbols)];
+
+        getStockData();
+
+    }
+
+
     // Enter key search
-    document.getElementById("symbol").addEventListener(
+    document.getElementById("symbols").addEventListener(
         "keydown",
         function(event) {
 
             if (event.key === "Enter") {
 
-                getStockData();
+                searchStocks();
 
             }
 
@@ -411,7 +514,7 @@
     getStockData();
 
 
-    // Auto refresh
+    // Auto refresh every second
     setInterval(() => {
 
         if (!document.hidden && !isLoading) {
@@ -420,10 +523,8 @@
 
         }
 
-    }, 60000);
+    }, 1000);
 
 </script>
 
 {% endblock content %}
-
-
