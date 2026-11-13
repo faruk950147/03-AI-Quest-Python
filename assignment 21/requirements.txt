@@ -1,3 +1,4 @@
+
 amqp==5.4.2
 appdirs==1.4.4
 asgiref==3.13.0
@@ -67,6 +68,6 @@ vine==5.1.0
 w3lib==2.6.0
 wcwidth==0.9.4
 websockets==10.4
-yahoo-fin==0.8.9.1
+yfinance
 zipp==4.1.2
 zope.interface==8.7
