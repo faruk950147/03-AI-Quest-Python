@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Real-Time Stock Market{% endblock title %}
@@ -6,43 +5,198 @@
 {% block content %}
 
 <div class="stock-container py-5">
-
     <div class="container">
-
         <div class="row justify-content-center">
-
             <div class="col-lg-11">
 
+                <!-- Title -->
                 <h2 class="stock-title text-center mb-4">
                     Stock Market Dashboard
                 </h2>
 
-                <div class="card shadow border-0">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">META Historical Stock Data</h5>
+                <!-- Search Card -->
+                <div class="card stock-card mb-4">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="symbol"
+                                class="form-control stock-input"
+                                value="{{ symbol|default:'AAPL, MSFT, GOOGL, TSLA, AMZN' }}"
+                                placeholder="Enter Stock Symbols (e.g. AAPL, MSFT, TSLA)"
+                            >
+                            <button
+                                class="btn btn-primary"
+                                type="button"
+                                onclick="getStockData()"
+                            >
+                                Search
+                            </button>
+                        </div>
+                        <p id="error-message" class="text-danger mt-3 mb-0"></p>
                     </div>
+                </div>
 
-                    <div class="card-body table-responsive">
+                <!-- Latest Price Card -->
+                <div class="card stock-card mb-4">
+                    <div class="card-body text-center">
+                        <h5 id="stock-symbol">--</h5>
+                        <h2 id="latest-price" class="price-same">--</h2>
+                        <h6 id="price-change" class="price-same">--</h6>
+                        <p class="update-status mt-3">
+                            Last updated: <span id="last-updated">--</span>
+                        </p>
+                    </div>
+                </div>
 
-                        {% if data %}
-                            {{ data|safe }}
-                        {% else %}
-                            <p class="text-danger">
-                                No stock data available.
-                            </p>
-                        {% endif %}
+                <!-- Stock Information Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card stock-card text-center h-100">
+                            <div class="card-body">
+                                <p class="text-secondary">Open</p>
+                                <h5 id="open">--</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stock-card text-center h-100">
+                            <div class="card-body">
+                                <p class="text-secondary">High</p>
+                                <h5 id="high">--</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stock-card text-center h-100">
+                            <div class="card-body">
+                                <p class="text-secondary">Low</p>
+                                <h5 id="low">--</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card stock-card text-center h-100">
+                            <div class="card-body">
+                                <p class="text-secondary">Volume</p>
+                                <h5 id="volume">--</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Stock Table -->
+                <div class="card stock-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="stock-title mb-0">Stock Watchlist</h5>
+                            <small class="text-secondary">Click any row to view details above</small>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover stock-table text-center">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Symbol</th>
+                                        <th>Open</th>
+                                        <th>High</th>
+                                        <th>Low</th>
+                                        <th>Close</th>
+                                        <th>Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stock-data">
+                                    <tr>
+                                        <td colspan="7">Loading stock data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="update-status text-end mt-3 mb-0">
+                            Auto refresh: every 60 seconds
+                        </p>
                     </div>
                 </div>
 
             </div>
-
         </div>
-
     </div>
-
 </div>
 
+<script>
+    const DEFAULT_SYMBOLS = "AAPL, MSFT, GOOGL, TSLA, AMZN";
+
+    function updateSummaryCard(stock) {
+        document.getElementById("stock-symbol").textContent = stock.symbol;
+        document.getElementById("latest-price").textContent = stock.close.toFixed(2);
+        
+        const isPositive = stock.change >= 0;
+        const changeEl = document.getElementById("price-change");
+        changeEl.className = isPositive ? "text-success fw-bold" : "text-danger fw-bold";
+        changeEl.textContent = `${isPositive ? "+" : ""}${stock.change.toFixed(2)} (${stock.change_pct}%)`;
+
+        document.getElementById("open").textContent = stock.open.toFixed(2);
+        document.getElementById("high").textContent = stock.high.toFixed(2);
+        document.getElementById("low").textContent = stock.low.toFixed(2);
+        document.getElementById("volume").textContent = stock.volume ? stock.volume.toLocaleString() : "N/A";
+    }
+
+    function getStockData() {
+        const inputEl = document.getElementById("symbol");
+        const symbolInput = inputEl.value.trim() || DEFAULT_SYMBOLS;
+        const errorMsg = document.getElementById("error-message");
+        errorMsg.textContent = "";
+
+        fetch(`/?symbols=${encodeURIComponent(symbolInput)}`, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById("stock-data");
+            tbody.innerHTML = "";
+
+            if (!data.stocks || data.stocks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7">No stock data available for "${symbolInput}".</td></tr>`;
+                return;
+            }
+
+            // Update main summary card with the first stock
+            updateSummaryCard(data.stocks[0]);
+
+            // Update Timestamp
+            document.getElementById("last-updated").textContent = new Date().toLocaleTimeString();
+
+            // Populate Table with all stocks
+            data.stocks.forEach((stock, index) => {
+                const stockPositive = stock.change >= 0;
+                const changeClass = stockPositive ? "text-success" : "text-danger";
+                const formattedChange = (stockPositive ? "+" : "") + stock.change.toFixed(2) + ` (${stock.change_pct}%)`;
+
+                const tr = document.createElement("tr");
+                tr.style.cursor = "pointer";
+                tr.onclick = () => updateSummaryCard(stock);
+                tr.innerHTML = `
+                    <td><strong>${stock.id || index + 1}</strong></td>
+                    <td class="text-start fw-bold">${stock.symbol}</td>
+                    <td>${stock.open.toFixed(2)}</td>
+                    <td>${stock.high.toFixed(2)}</td>
+                    <td>${stock.low.toFixed(2)}</td>
+                    <td>${stock.close.toFixed(2)}</td>
+                    <td class="${changeClass} fw-bold">${formattedChange}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading stocks:", error);
+            document.getElementById("error-message").textContent = "Failed to fetch stock data.";
+        });
+    }
+
+    window.onload = function() {
+        getStockData();
+        setInterval(getStockData, 60000); // Auto-refresh every 60s
+    };
+</script>
+
 {% endblock content %}
-
-
