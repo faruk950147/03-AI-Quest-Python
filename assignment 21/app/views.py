@@ -31,51 +31,52 @@ class HomeView(View):
 
         return symbols[:20]
 
-    def fetch_stock(self, symbol, stock_id):
-        try:
-            ticker = yf.Ticker(symbol)
-            df = ticker.history(period="5d")
+    def get_stock_data(self, symbols):
 
-            if df.empty:
-                return None
+        stock_list = []
 
-            current = df.iloc[-1]
+        for symbol in symbols:
+            try:
+                ticker = yf.Ticker(symbol)
+                df = ticker.history(period="5d")
 
-            current_price = float(current["Close"])
+                if df.empty:
+                    continue
 
-            previous_close = float(df["Close"].iloc[-2]) if len(df) > 1 else None
+                current = df.iloc[-1]
 
-            change = current_price - previous_close if previous_close else 0
+                current_price = float(current["Close"])
 
-            change_pct = (change / previous_close) * 100 if previous_close else 0
+                previous_close = float(df["Close"].iloc[-2]) if len(df) > 1 else None
 
-            return {
-                "id": stock_id,
-                "symbol": symbol,
-                "open": round(float(current["Open"]), 4),
-                "high": round(float(current["High"]), 4),
-                "low": round(float(current["Low"]), 4),
-                "close": round(current_price, 4),
-                "change": round(change, 4),
-                "change_pct": round(change_pct, 2),
-                "volume": int(current["Volume"]),  # <--- Volume ekhane add kora holo
-            }
+                change = current_price - previous_close if previous_close else 0
 
-        except Exception:
-            logger.exception("Error fetching stock: %s", symbol)
-            return None
+                change_pct = (change / previous_close) * 100 if previous_close else 0
+
+                stock_list.append(
+                    {
+                        "id": len(stock_list) + 1,
+                        "symbol": symbol,
+                        "open": round(float(current["Open"]), 4),
+                        "high": round(float(current["High"]), 4),
+                        "low": round(float(current["Low"]), 4),
+                        "close": round(current_price, 4),
+                        "change": round(change, 4),
+                        "change_pct": round(change_pct, 2),
+                        "volume": int(current["Volume"]),
+                    }
+                )
+
+            except Exception:
+                logger.exception("Error fetching stock: %s", symbol)
+
+        return stock_list
 
     def get(self, request):
 
         symbols = self.get_symbols(request)
 
-        stock_list = []
-
-        for symbol in symbols:
-            stock = self.fetch_stock(symbol, len(stock_list) + 1)
-
-            if stock:
-                stock_list.append(stock)
+        stock_list = self.get_stock_data(symbols)
 
         is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
 

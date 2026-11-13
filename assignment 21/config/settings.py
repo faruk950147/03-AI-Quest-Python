@@ -95,7 +95,7 @@ CELERY_TASK_SEND_SENT_EVENT = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     "send_notification": {
-        "task": "app.tasks.additon",
+        "task": "app.tasks.real_data_updated",
         "schedule": 10.0,
         "args": (12, 8),
     },
