@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 
 from celery_redis.forms import EmailForm
-from celery_redis.tasks import send_email_task
+from celery_redis.tasks import send_notification_email
 
 
 class HomeView(View):
@@ -13,5 +13,5 @@ class HomeView(View):
     def post(self, request):
         form = EmailForm(request.POST)
         if form.is_valid():
-            send_email_task(form.cleaned_data["email"])
+            send_notification_email(form.cleaned_data["email"])
         return render(request, "celery_redis/home.html", {"form": form})

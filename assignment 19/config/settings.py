@@ -71,10 +71,11 @@ REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
 # ================= Celery Configuration =================
 
+# Redis Database 1: Celery Broker
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"{REDIS_URL}/1")
 
-# Store task results in Django Database
-CELERY_RESULT_BACKEND = config("", default="django-db")
+# Django Database: Celery Task Results
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="django-db")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -88,16 +89,33 @@ CELERY_RESULT_EXPIRES = 3600
 CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 
+
 # ================= Celery Beat Configuration =================
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
 CELERY_BEAT_SCHEDULE = {
     "send_notification_email": {
-        "task": "chat.tasks.send_notification_email",
+        "task": "celery_redis.tasks.send_notification_email",
         "schedule": 10.0,
         "args": ("Your email address",),
     },
 }
+
+
+# ================= Django Channels Configuration =================
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                f"{REDIS_URL}/2",
+            ],
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
