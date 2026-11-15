@@ -71,11 +71,11 @@ REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
 # ================= Celery Configuration =================
 
-# Redis Database 1: Celery Broker
+# Redis DB 1: Celery Broker
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"{REDIS_URL}/1")
 
-# Django Database: Celery Task Results
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="django-db")
+# Redis DB 2: Celery Result Backend
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default=f"{REDIS_URL}/2")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -110,12 +110,11 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [
-                f"{REDIS_URL}/2",
+                f"{REDIS_URL}/3",
             ],
         },
     },
 }
-
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
