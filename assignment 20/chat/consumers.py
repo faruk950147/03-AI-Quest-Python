@@ -1,23 +1,29 @@
+from sqlite3 import connect
+
 from channels.consumer import AsyncConsumer
 import json
 
 
 class ChatConsumer(AsyncConsumer):
+    # connect to websocket
     async def websocket_connect(self, event):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
-
+        
+        # Join room group
         await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
 
         await self.send({"type": "websocket.accept"})
 
+    # Receive message from WebSocket
     async def websocket_receive(self, event):
         try:
             data = json.loads(event.get("text", "{}"))
             message = data.get("message")
-
+            
+            # Send message to room group
             await self.channel_layer.group_send(self.room_group_name, {
                 "type": "chat_message", 
                 "message": message
@@ -29,13 +35,17 @@ class ChatConsumer(AsyncConsumer):
                 "text": json.dumps({"error": "Invalid JSON format"}),
             })
 
+    # Receive message from room group
     async def chat_message(self, event):
+        # Send message to WebSocket
         await self.send({
             "type": "websocket.send",
             "text": json.dumps({"message": event["message"]}),
         })
-
+        
+    # disconnect to websocket
     async def websocket_disconnect(self, event):
+        # Leave room group
         await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
