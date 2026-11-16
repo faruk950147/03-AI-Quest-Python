@@ -1,35 +1,41 @@
 from channels.consumer import AsyncConsumer
+import json
 
 
 class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self, event):
-        print("WebSocket Connected")
-
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
-        # Join the channel group
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(
+            self.room_group_name, self.channel_name
+        )
 
-        # Accept WebSocket connection
         await self.send({"type": "websocket.accept"})
 
     async def websocket_receive(self, event):
-        message = event.get("text")
+        try:
+            data = json.loads(event.get("text", "{}"))
+            message = data.get("message")
 
-        print("Received:", message)
+            await self.channel_layer.group_send(self.room_group_name, {
+                "type": "chat_message", 
+                "message": message
+            })
 
-        # Send message to everyone in the room
-        await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat_message", "message": message}
-        )
+        except json.JSONDecodeError:
+            await self.send({
+                "type": "websocket.send",
+                "text": json.dumps({"error": "Invalid JSON format"}),
+            })
 
     async def chat_message(self, event):
-        # Send group message to WebSocket
-        await self.send({"type": "websocket.send", "text": event["message"]})
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps({"message": event["message"]}),
+        })
 
     async def websocket_disconnect(self, event):
-        print("WebSocket Disconnected")
-
-        # Leave the channel group
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_discard(
+            self.room_group_name, self.channel_name
+        )
