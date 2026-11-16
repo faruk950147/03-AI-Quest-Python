@@ -8,7 +8,7 @@ class ChatConsumer(AsyncConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
-        # Join Redis channel group
+        # Join the channel group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         # Accept WebSocket connection
@@ -31,5 +31,5 @@ class ChatConsumer(AsyncConsumer):
     async def websocket_disconnect(self, event):
         print("WebSocket Disconnected")
 
-        # Leave Redis channel group
+        # Leave the channel group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
