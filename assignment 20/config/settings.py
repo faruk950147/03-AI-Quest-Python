@@ -71,7 +71,6 @@ REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
-
 # ================= Django Cache Configuration =================
 
 # Redis DB 0: Django Cache
@@ -87,33 +86,33 @@ CACHES = {
     }
 }
 
-
 # ================= Celery Configuration =================
 
 # Redis DB 1: Celery Broker
 
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"{REDIS_URL}/1")
+CELERY_BROKER_URL = config(
+    "CELERY_BROKER_URL",
+    default=f"{REDIS_URL}/1",
+)
 
 # Redis DB 2: Celery Result Backend
 
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default=f"{REDIS_URL}/2")
+CELERY_RESULT_BACKEND = config(
+    "CELERY_RESULT_BACKEND",
+    default=f"{REDIS_URL}/2",
+)
 
 CELERY_ACCEPT_CONTENT = ["json"]
-
 CELERY_TASK_SERIALIZER = "json"
-
 CELERY_RESULT_SERIALIZER = "json"
 
 CELERY_TIMEZONE = "Asia/Dhaka"
-
 CELERY_ENABLE_UTC = True
 
 CELERY_RESULT_EXPIRES = 3600
 
 CELERY_WORKER_SEND_TASK_EVENTS = True
-
 CELERY_TASK_SEND_SENT_EVENT = True
-
 
 # ================= Celery Beat Configuration =================
 
@@ -127,11 +126,9 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-
-# ================= Django Channels Configuration =================
-
 # Redis DB 3: Django Channels
-
+# ================= Django Channels Configuration =================
+"""
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -143,6 +140,12 @@ CHANNEL_LAYERS = {
     },
 }
 
+"""
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
