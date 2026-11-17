@@ -19,26 +19,40 @@ class ChatConsumer(AsyncConsumer):
         print("Channel Layer:", self.channel_layer)
         print("Channel Name:", self.channel_name)
         print("Channel Layer Alias:", self.channel_layer_alias)
-
+        
         user = self.scope["user"]
 
+        # Check authentication
         if not user.is_authenticated:
-            await self.send({"type": "websocket.close"})
+            await self.send(
+                {
+                    "type": "websocket.close",
+                }
+            )
             return
 
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
+        # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
-        await self.send({"type": "websocket.accept"})
+        # Accept connection
+        await self.send(
+            {
+                "type": "websocket.accept",
+            }
+        )
 
+        # Get chat history
         history = await self.get_chat_history()
 
-        await self.send({
-            "type": "websocket.send",
-            "text": json.dumps({"type": "chat_history", "messages": history}),
-        })
+        await self.send(
+            {
+                "type": "websocket.send",
+                "text": json.dumps({"type": "chat_history", "messages": history}),
+            }
+        )
 
     # Receive WebSocket message
     async def websocket_receive(self, event):
@@ -46,15 +60,20 @@ class ChatConsumer(AsyncConsumer):
         try:
             user = self.scope["user"]
 
-            data = json.loads(event.get("text", "{}"))
+            data = json.loads(event.get("text") or "{}")
+
             message = data.get("message", "")
 
             if not isinstance(message, str) or not message.strip():
                 await self.send_error("Message cannot be empty")
                 return
 
-            saved_message = await self.save_message(user.id, message.strip())
+            message = message.strip()
 
+            # Save message
+            saved_message = await self.save_message(user.id, self.room_name, message)
+
+            # Send message to room group
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "chat.message", "message": saved_message}
             )
@@ -65,18 +84,20 @@ class ChatConsumer(AsyncConsumer):
     # Receive group message
     async def chat_message(self, event):
 
-        await self.send({
-            "type": "websocket.send",
-            "text": json.dumps(
-                {"type": "chat_message", "message": event["message"]}
-            ),
-        })
+        await self.send(
+            {
+                "type": "websocket.send",
+                "text": json.dumps(
+                    {"type": "chat_message", "message": event["message"]}
+                ),
+            }
+        )
 
     # Get chat history
     @database_sync_to_async
     def get_chat_history(self):
 
-        messages = Messages.objects.select_related("user").order_by("-id")[:5]
+        messages = Messages.last_5_messages(self.room_name)
 
         return [
             {
@@ -91,13 +112,16 @@ class ChatConsumer(AsyncConsumer):
 
     # Save message
     @database_sync_to_async
-    def save_message(self, user_id, content):
+    def save_message(self, user_id, room_name, content):
 
-        message = Messages.objects.create(user_id=user_id, content=content)
+        message = Messages.objects.create(
+            user_id=user_id, room_name=room_name, content=content
+        )
 
         return {
             "id": message.id,
             "username": message.user.username,
+            "room_name": message.room_name,
             "content": message.content,
             "created_at": message.created_at.isoformat(),
         }
@@ -105,10 +129,12 @@ class ChatConsumer(AsyncConsumer):
     # Send error
     async def send_error(self, error):
 
-        await self.send({
-            "type": "websocket.send",
-            "text": json.dumps({"type": "error", "error": error}),
-        })
+        await self.send(
+            {
+                "type": "websocket.send",
+                "text": json.dumps({"type": "error", "error": error}),
+            }
+        )
 
     # Disconnect WebSocket
     async def websocket_disconnect(self, event):

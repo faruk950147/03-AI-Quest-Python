@@ -16,8 +16,13 @@ class Messages(models.Model):
         verbose_name_plural = "messages"
         ordering = ["-id"]
 
-    def last_5_messages(self):
-        return Messages.objects.order_by("-id")[:5]
+    @classmethod
+    def last_5_messages(cls, room_name):
+        return (
+            cls.objects.filter(room_name=room_name)
+            .select_related("user")
+            .order_by("-id")[:5]
+        )
 
     def __str__(self):
         return self.user.username
