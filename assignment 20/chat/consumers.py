@@ -1,6 +1,6 @@
 from channels.consumer import AsyncConsumer
 import json
-
+from chat.models import Messages
 
 class ChatConsumer(AsyncConsumer):
     # connect to websocket
