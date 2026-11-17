@@ -10,5 +10,13 @@ class Messages(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = "chat_messages"
+        verbose_name_plural = "messages"
+        ordering = ["-id"]
+
+    def last_5_messages(self):
+        return Messages.objects.order_by("-id")[:5]
+
     def __str__(self):
         return self.user.username
