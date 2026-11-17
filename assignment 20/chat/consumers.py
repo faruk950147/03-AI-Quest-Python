@@ -5,16 +5,16 @@ import json
 class ChatConsumer(AsyncConsumer):
     # connect to websocket
     async def websocket_connect(self, event):
-        print("Type:", self.scope["type"])
-        print("Path:", self.scope["path"])
-        print("Headers:", self.scope["headers"])
-        print("User:", self.scope["user"])
-        print("URL Route:", self.scope["url_route"])
-        print("Session:", self.scope["session"])
+        print("Type:", self.scope.get("type"))
+        print("Path:", self.scope.get("path"))
+        print("Headers:", self.scope.get("headers"))
+        print("User:", self.scope.get("user"))
+        print("URL Route:", self.scope.get("url_route"))
+        print("Session:", self.scope.get("session"))
+
         print("Channel Layer:", self.channel_layer)
         print("Channel Name:", self.channel_name)
         print("Channel Layer Alias:", self.channel_layer_alias)
-        print("Channel Layer Class:", type(self.channel_layer))
         
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
