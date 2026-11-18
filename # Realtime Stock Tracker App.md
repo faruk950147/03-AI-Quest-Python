@@ -1,557 +1,521 @@
-# Realtime Stock Tracker – Complete Django Project Documentation
+# Realtime Stock Market – Complete Django Project Documentation
+Correct WebSocket URLs
+Purpose	URL
+BTC/USDT trades	wss://stream.binance.com:9443/ws/btcusdt@trade
+BTC/USDT ticker	wss://stream.binance.com:9443/ws/btcusdt@ticker
+BTC/USDT order book	wss://stream.binance.com:9443/ws/btcusdt@depth
+ETH/USDT trades	wss://stream.binance.com:9443/ws/ethusdt@trade
 
+ws://127.0.0.1:8000/ws/chat/
+## 1. Project Overview
+
+**Project Name:** Realtime Stock Market  
 **Project Type:** Advanced Python Django Backend Project  
-**Project Name:** Realtime Stock Tracker  
-**Backend:** Python, Django, Django REST Framework  
+**Backend:** Python, Django, Django REST Framework (DRF)  
 **External API:** Finnhub Stock Market API  
 **Realtime Communication:** Django Channels + WebSocket  
 **Background Processing:** Celery + Celery Beat  
-**Message Broker:** Redis  
-**Database:** PostgreSQL / SQLite (Development)  
-**Frontend:** HTML, CSS, Bootstrap 5, JavaScript  
-**Charts:** Chart.js  
-**HTTP Client:** HTTPX  
+**Message Broker / Cache:** Redis  
+**Database:** PostgreSQL (Production), SQLite (Development)  
+**Frontend:** HTML, CSS, Bootstrap 5, JavaScript, Chart.js  
+**Authentication:** Django Authentication + JWT  
+**API Documentation:** drf-spectacular / Swagger UI  
+
+### Project Description
+
+Realtime Stock Market is a web-based application that allows users to monitor stock prices, track market movements, manage personal watchlists, manage investment portfolios, view historical stock data, and receive price alerts.
+
+The application retrieves stock market data from the Finnhub API. Django REST Framework provides REST APIs, Django Channels handles WebSocket communication, and Celery performs background tasks such as fetching stock prices, updating historical data, and checking price alerts.
+
+The application uses PostgreSQL for persistent data storage and Redis for background task processing and realtime communication.
+
+### Main Goals
+
+- Display current stock prices.
+- Provide realtime price updates through WebSockets.
+- Search for stocks using their symbols.
+- Create and manage personal watchlists.
+- Track stock investments through a portfolio.
+- Display historical stock prices.
+- Show stock market news.
+- Create price alerts.
+- Send notifications when stock prices reach target values.
+- Provide secure REST APIs.
+- Perform background tasks automatically.
 
 ---
 
-# Table of Contents
+# 2. Project Features
 
-1. Project Overview
-2. Project Objectives
-3. Main Features
-4. Technology Stack
-5. Project Architecture
-6. Complete Project Structure
-7. Development Environment Setup
-8. Dependencies
-9. Environment Variables
-10. Django Project Configuration
-11. Database Configuration
-12. Database Models
-13. User Authentication
-14. Finnhub API Integration
-15. Stock Serializers
-16. Stock REST API
-17. Portfolio Management
-18. Watchlist Management
-19. Historical Stock Data
-20. Market News
-21. Celery Configuration
-22. Celery Background Tasks
-23. Redis Configuration
-24. Django Channels Configuration
-25. WebSocket Consumer
-26. Price Alert System
-27. Frontend Dashboard
-28. JavaScript WebSocket Client
-29. API Endpoints
-30. HTTP Status Codes
-31. Security Implementation
-32. Error Handling
-33. Database Migrations
-34. Running the Project
-35. Testing Strategy
-36. Common Problems and Solutions
-37. Performance Optimization
-38. Production Deployment
-39. Git and GitHub
-40. Development Roadmap
-41. Interview Questions and Answers
-42. Important Backend Concepts
-43. Final Project Checklist
-44. Official Documentation
+## 2.1 User Authentication
+
+Users can:
+
+- Register an account.
+- Log in and log out.
+- Obtain JWT access and refresh tokens.
+- View their profile.
+- Update their profile.
+- Change their password.
+- Access protected APIs.
+
+**Authentication Technology:**
+
+- Django Authentication System
+- Django REST Framework
+- Simple JWT
+
+## 2.2 Stock Market Dashboard
+
+The dashboard displays:
+
+- Stock symbol.
+- Company name.
+- Current price.
+- Previous closing price.
+- Price change.
+- Percentage change.
+- Day's high and low.
+- Trading volume.
+- Last updated time.
+
+Example:
+
+| Symbol | Company | Price | Change |
+|---|---|---:|---:|
+| AAPL | Apple Inc. | $230.50 | +1.25% |
+| MSFT | Microsoft | $420.30 | +0.85% |
+| GOOGL | Alphabet | $175.20 | -0.45% |
+| AMZN | Amazon | $195.80 | +2.10% |
+
+*These values are illustrative, not live market data.*
+
+## 2.3 Stock Search
+
+Users can search stocks using:
+
+- Stock symbol.
+- Company name.
+- Exchange.
+- Stock category.
+
+Example:
+
+```text
+AAPL
+MSFT
+GOOGL
+AMZN
+TSLA
+NVDA
+```
+
+The backend retrieves stock information from the database or external market data provider.
+
+## 2.4 Realtime Stock Price Updates
+
+The application uses Django Channels and WebSockets to broadcast price updates to connected clients.
+
+Features:
+
+- Live price updates.
+- Automatic dashboard updates.
+- Multiple client connections.
+- Stock-specific WebSocket groups.
+- Connection and disconnection handling.
+
+**Important:** Django Channels provides realtime communication between the backend and frontend. The backend still needs a data source, such as Finnhub WebSocket or a scheduled REST API polling task, to obtain market prices.
+
+## 2.5 Watchlist Management
+
+Users can:
+
+- Add stocks to a watchlist.
+- View watchlisted stocks.
+- Remove stocks.
+- View current prices.
+- Track price movements.
+
+Each user has their own watchlist.
+
+## 2.6 Portfolio Management
+
+Users can manage their investments.
+
+Features:
+
+- Add purchased stocks.
+- Update holdings.
+- Remove holdings.
+- Track quantity.
+- Store purchase price.
+- Calculate current investment value.
+- Calculate profit and loss.
+
+Example:
+
+| Symbol | Quantity | Average Buy Price | Current Price |
+|---|---:|---:|---:|
+| AAPL | 10 | $180 | $230 |
+| MSFT | 5 | $350 | $420 |
+
+### Portfolio Calculations
+
+Current Value:
+
+```python
+current_value = quantity * current_price
+```
+
+Invested Amount:
+
+```python
+invested_amount = quantity * average_buy_price
+```
+
+Profit or Loss:
+
+```python
+profit_loss = current_value - invested_amount
+```
+
+Profit or Loss Percentage:
+
+```python
+profit_loss_percentage = (
+    (profit_loss / invested_amount) * 100
+    if invested_amount > 0
+    else 0
+)
+```
+
+For multiple purchases of the same stock, calculate the weighted average purchase price rather than simply averaging the transaction prices.
+
+## 2.7 Historical Stock Data
+
+Users can view historical stock prices.
+
+Supported intervals may include:
+
+- 1 minute.
+- 5 minutes.
+- 15 minutes.
+- 30 minutes.
+- 1 hour.
+- 1 day.
+- 1 week.
+
+Historical data can be displayed using Chart.js.
+
+Typical chart data:
+
+- Open price.
+- High price.
+- Low price.
+- Close price.
+- Volume.
+
+## 2.8 Stock Market News
+
+Users can view:
+
+- Latest market news.
+- Company-specific news.
+- News headlines.
+- News summaries.
+- Published dates.
+- Source URLs.
+
+News data can be retrieved from Finnhub or another supported news provider.
+
+## 2.9 Price Alerts
+
+Users can create price alerts.
+
+Example:
+
+```text
+Stock: AAPL
+Condition: Greater than
+Target Price: 250
+```
+
+When the stock price reaches or exceeds the target, the system creates a notification.
+
+Supported conditions:
+
+- Greater than.
+- Less than.
+- Greater than or equal to.
+- Less than or equal to.
+
+Notification delivery can be implemented through:
+
+- In-app notifications.
+- Email.
+- WebSocket events.
 
 ---
 
-# 1. Project Overview
-
-Realtime Stock Tracker is a Django-based web application that allows users to monitor stock market information through a dynamic dashboard.
-
-Users can search for stocks, add stocks to their personal portfolio or watchlist, view current prices, analyze historical price charts, read market news, and configure price alerts.
-
-The application uses Finnhub API to retrieve stock market information.
-
-Celery periodically retrieves stock quotes in the background. Django Channels and WebSocket distribute updated prices to connected browsers without requiring a full page reload.
-
-**Important:** When prices are fetched periodically through Finnhub REST API, the system provides near-real-time updates, not guaranteed exchange-level tick-by-tick streaming.
-
-## Project Workflow
-
-1. A user registers and logs in.
-2. The user opens the stock dashboard.
-3. The dashboard loads stock information through Django REST Framework.
-4. The user adds stocks to a portfolio or watchlist.
-5. Celery periodically fetches stock prices from Finnhub.
-6. Updated prices are stored in the database.
-7. Redis and Django Channels distribute updates through WebSocket.
-8. JavaScript receives the updates.
-9. The dashboard displays the latest available prices.
-10. Price alerts are checked in the background.
-
----
-
-# 2. Project Objectives
-
-The main objectives are:
-
-- Build a complete Django backend application.
-- Understand Django ORM and database relationships.
-- Integrate an external financial API.
-- Develop RESTful APIs using Django REST Framework.
-- Implement secure user authentication.
-- Understand asynchronous background processing.
-- Implement WebSocket communication.
-- Use Redis as a message broker and channel layer.
-- Create scheduled tasks using Celery Beat.
-- Build a dynamic JavaScript dashboard.
-- Store historical stock prices.
-- Implement user-specific portfolios and watchlists.
-- Create a price alert notification system.
-- Learn production-level backend architecture.
-
----
-
-# 3. Main Features
-
-## A. User Management
-
-- User registration
-- User login
-- User logout
-- Password validation
-- Session authentication
-- User-specific data access
-
-## B. Stock Management
-
-- Stock listing
-- Stock search
-- Stock details
-- Add stock to portfolio
-- Remove stock from portfolio
-- View current stock price
-- View price changes
-- Refresh stock information
-
-## C. Market Information
-
-- Current stock quotes
-- Opening price
-- Highest price
-- Lowest price
-- Previous closing price
-- Price change
-- Percentage change
-- Historical stock data
-- Market news
-- Company information
-
-## D. Realtime Features
-
-- WebSocket connection
-- Live dashboard updates
-- Automatic reconnection
-- Connection status
-- Background price updates
-
-## E. Watchlist
-
-- Add stock to watchlist
-- Remove stock from watchlist
-- View personal watchlist
-- Prevent duplicate watchlist entries
-
-## F. Price Alerts
-
-- Set target price
-- Alert when price goes above target
-- Alert when price goes below target
-- Trigger alert once
-- Store alert history
-- In-app or email notification
-
-## G. Security
-
-- Authentication
-- Authorization
-- CSRF protection
-- API key protection
-- Rate limiting
-- Input validation
-- WebSocket origin validation
-- User-specific database queries
-
----
-
-# 4. Technology Stack
+# 3. Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| Python | Backend programming language |
-| Django | Web framework |
+| Python | Main programming language |
+| Django | Backend framework |
 | Django REST Framework | REST API development |
-| Finnhub API | Stock market data |
-| HTTPX | External HTTP requests |
-| Django Channels | WebSocket communication |
-| ASGI | Asynchronous server interface |
-| Celery | Background task processing |
-| Celery Beat | Scheduled task execution |
-| Redis | Celery broker and Channels layer |
 | PostgreSQL | Production database |
-| SQLite | Development database |
-| HTML | Page structure |
-| CSS | Page styling |
-| Bootstrap 5 | Responsive UI |
-| JavaScript | Frontend logic |
-| Fetch API | HTTP communication |
-| Chart.js | Historical price charts |
+| SQLite | Local development database |
+| Finnhub API | External stock market data |
+| Django Channels | WebSocket communication |
+| Redis | Celery broker and Channels layer |
+| Celery | Background task processing |
+| Celery Beat | Scheduled tasks |
+| Simple JWT | Token-based authentication |
+| Bootstrap 5 | Frontend styling |
+| JavaScript | Frontend interactions |
+| Chart.js | Stock charts |
+| Git & GitHub | Version control |
+| Docker | Application containerization |
+| Swagger / OpenAPI | API documentation |
 
 ---
 
-# 5. Project Architecture
-
-## High-Level Architecture
+# 4. System Architecture
 
 ```text
-                         USER
-                           |
-                           v
-                       BROWSER
-                           |
-                 ---------------------
-                 |                   |
-                 v                   v
-             HTTP / REST         WebSocket
-                 |                   |
-                 v                   v
-             DJANGO + DRF       DJANGO CHANNELS
-                 |                   ^
-                 |                   |
-          ----------------           |
-          |              |           |
-          v              v           |
-      PostgreSQL      Finnhub API    |
-                         ^           |
-                         |           |
-                       CELERY        |
-                         |           |
-                         v           |
-                       REDIS --------
-                         |
-                         v
-                    CELERY BEAT
+                    USER / BROWSER
+                          |
+             HTML + Bootstrap + JavaScript
+                          |
+             REST API / WebSocket Connection
+                          |
+              DJANGO APPLICATION SERVER
+                          |
+        +-----------------+-----------------+
+        |                 |                 |
+       DRF             Channels          Services
+        |                 |                 |
+   REST APIs          WebSocket       Business Logic
+        |                 |                 |
+        +-----------------+-----------------+
+                          |
+             +------------+------------+
+             |                         |
+        PostgreSQL                   Redis
+             |                         |
+       Persistent Data          Channels Layer
+                                       |
+                                  Celery Broker
+                                       |
+                              Celery Workers
+                                       |
+                                  Celery Beat
+                                       |
+                              Finnhub API
 ```
 
-## Detailed Data Flow
+### Architecture Explanation
 
-### Stock Price Update
+1. The frontend sends HTTP requests to Django REST APIs.
+2. Django REST Framework validates requests and returns JSON responses.
+3. Django services handle business logic.
+4. PostgreSQL stores users, stocks, portfolios, watchlists, historical prices, and alerts.
+5. Celery workers perform background operations.
+6. Celery Beat schedules recurring tasks.
+7. Redis acts as the Celery message broker and Channels communication layer.
+8. Django Channels broadcasts stock updates to connected WebSocket clients.
+9. Finnhub provides external stock market information.
 
-```text
-Celery Beat
-    |
-    v
-Celery Worker
-    |
-    v
-Finnhub REST API
-    |
-    v
-Stock Quote Response
-    |
-    v
-Django Service Layer
-    |
-    v
-PostgreSQL
-    |
-    v
-Redis Channel Layer
-    |
-    v
-Django Channels
-    |
-    v
-WebSocket
-    |
-    v
-JavaScript Dashboard
-```
-
-### Important Responsibilities
-
-**Django:**
-- Handles HTTP requests.
-- Manages authentication.
-- Provides application logic.
-- Interacts with the database.
-
-**DRF:**
-- Provides REST APIs.
-- Serializes model data.
-- Handles API validation.
-- Controls API permissions.
-
-**Celery:**
-- Executes background tasks.
-- Fetches external stock data.
-- Checks price alerts.
-- Synchronizes market news.
-
-**Celery Beat:**
-- Schedules recurring tasks.
-
-**Redis:**
-- Acts as Celery message broker.
-- Stores Celery task results when configured.
-- Provides Channels message transport.
-- Can also be used for caching.
-
-**Django Channels:**
-- Manages WebSocket connections.
-- Broadcasts stock updates.
-
-**Finnhub:**
-- Supplies external market data.
+**Important distinction:** Redis does not automatically fetch stock prices. Celery tasks or a Finnhub streaming client must retrieve market data before the application can broadcast it.
 
 ---
 
-# 6. Complete Project Structure
+# 5. Project Folder Structure
+
+Recommended structure:
 
 ```text
-realtime_stock_tracker/
-│
-├── manage.py
+realtime-stock-market/
 │
 ├── config/
 │   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
 │   ├── asgi.py
 │   ├── wsgi.py
+│   ├── urls.py
+│   ├── settings.py
 │   └── celery.py
 │
 ├── apps/
-│   ├── __init__.py
-│   │
 │   ├── accounts/
-│   │   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── apps.py
-│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── serializers.py
 │   │   ├── views.py
-│   │   └── urls.py
+│   │   ├── urls.py
+│   │   └── tests.py
 │   │
 │   ├── stocks/
-│   │   ├── migrations/
-│   │   ├── management/
-│   │   │   ├── __init__.py
-│   │   │   └── commands/
-│   │   │       ├── __init__.py
-│   │   │       └── seed_stocks.py
-│   │   ├── __init__.py
-│   │   ├── apps.py
-│   │   ├── admin.py
 │   │   ├── models.py
 │   │   ├── serializers.py
 │   │   ├── views.py
 │   │   ├── urls.py
 │   │   ├── services.py
 │   │   ├── tasks.py
-│   │   ├── consumers.py
-│   │   └── routing.py
+│   │   └── tests.py
 │   │
-│   ├── portfolio/
-│   │   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── apps.py
+│   ├── watchlists/
 │   │   ├── models.py
 │   │   ├── serializers.py
 │   │   ├── views.py
-│   │   └── urls.py
+│   │   ├── urls.py
+│   │   └── tests.py
 │   │
-│   ├── watchlist/
-│   │   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── apps.py
+│   ├── portfolios/
 │   │   ├── models.py
 │   │   ├── serializers.py
 │   │   ├── views.py
-│   │   └── urls.py
+│   │   ├── urls.py
+│   │   └── tests.py
 │   │
-│   └── notifications/
-│       ├── migrations/
-│       ├── __init__.py
-│       ├── apps.py
+│   ├── alerts/
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   ├── tasks.py
+│   │   └── tests.py
+│   │
+│   ├── notifications/
+│   │   ├── models.py
+│   │   ├── services.py
+│   │   └── tasks.py
+│   │
+│   └── market_news/
 │       ├── models.py
-│       ├── tasks.py
-│       ├── services.py
 │       ├── serializers.py
 │       ├── views.py
-│       └── urls.py
+│       └── services.py
 │
 ├── templates/
-│   ├── base.html
-│   ├── dashboard.html
-│   ├── login.html
-│   └── register.html
-│
 ├── static/
-│   ├── css/
-│   │   └── dashboard.css
-│   └── js/
-│       └── dashboard.js
-│
+├── media/
+├── requirements.txt
 ├── .env
 ├── .env.example
 ├── .gitignore
-├── requirements.txt
-└── README.md
+├── Dockerfile
+├── docker-compose.yml
+└── manage.py
 ```
 
 ### App Responsibilities
 
 | App | Responsibility |
 |---|---|
-| accounts | User registration and authentication |
-| stocks | Stock models, API, Finnhub and realtime updates |
-| portfolio | User-specific stock portfolio |
-| watchlist | Personal watchlist |
-| notifications | Price alerts and notifications |
+| accounts | Registration, login, profile, authentication |
+| stocks | Stock information, quotes, historical prices |
+| watchlists | User-specific stock watchlists |
+| portfolios | Investment and holding management |
+| alerts | Price alert rules and checking |
+| notifications | Notification storage and delivery |
+| market_news | Market news management |
 
 ---
 
-# 7. Development Environment Setup
+# 6. Environment Setup
 
-## Step 1: Create Project Folder
+## 6.1 Create Project Directory
 
 ```bash
-mkdir realtime_stock_tracker
-cd realtime_stock_tracker
+mkdir realtime-stock-market
+cd realtime-stock-market
 ```
 
-## Step 2: Create Virtual Environment
+## 6.2 Create Virtual Environment
 
 Windows:
 
-```powershell
-py -3.12 -m venv .venv
+```bash
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-Activate:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-If PowerShell blocks activation, use:
-
-```cmd
-.venv\Scripts\activate.bat
-```
-
-## Step 3: Install Dependencies
-
-Create `requirements.txt`:
-
-```txt
-Django>=5.2,<5.3
-djangorestframework>=3.16,<3.17
-channels[daphne]>=4.3,<5
-channels-redis>=4.2,<5
-celery[redis]>=5.5,<6
-redis>=6,<7
-httpx>=0.28,<1
-psycopg[binary]>=3.2,<4
-python-dotenv>=1,<2
-django-ratelimit>=4,<5
-```
-
-Install:
+Linux / macOS:
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-Save installed versions:
+## 6.3 Install Packages
 
 ```bash
-pip freeze > requirements-lock.txt
+pip install django
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+pip install channels
+pip install channels-redis
+pip install celery
+pip install redis
+pip install django-environ
+pip install psycopg[binary]
+pip install requests
+pip install drf-spectacular
+pip install gunicorn
+pip install uvicorn
 ```
 
-## Step 4: Create Django Project
+Save dependencies:
+
+```bash
+pip freeze > requirements.txt
+```
+
+## 6.4 Create Django Project
 
 ```bash
 django-admin startproject config .
 ```
 
-Create app package:
+Create apps:
 
 ```bash
-mkdir apps
+python manage.py startapp accounts
+python manage.py startapp stocks
+python manage.py startapp watchlists
+python manage.py startapp portfolios
+python manage.py startapp alerts
+python manage.py startapp notifications
+python manage.py startapp market_news
 ```
 
-Create Python package file:
+Move the apps into the `apps/` directory and update their `AppConfig` paths.
+
+## 6.5 Install and Run Redis
+
+Redis must be available before running Celery or the Redis-backed Channels layer.
+
+You can run Redis locally or through Docker:
+
+```bash
+docker run --name stock-redis -p 6379:6379 -d redis:7
+```
+
+Check Redis:
+
+```bash
+redis-cli ping
+```
+
+Expected response:
 
 ```text
-apps/__init__.py
+PONG
 ```
-
-Create applications:
-
-```bash
-python manage.py startapp accounts apps/accounts
-python manage.py startapp stocks apps/stocks
-python manage.py startapp portfolio apps/portfolio
-python manage.py startapp watchlist apps/watchlist
-python manage.py startapp notifications apps/notifications
-```
-
-Ensure every application directory contains its `__init__.py` file.
 
 ---
 
-# 8. Finnhub API Setup
-
-Website:
-
-https://finnhub.io/
-
-## Setup Process
-
-1. Create a Finnhub account.
-2. Open the Finnhub dashboard.
-3. Generate an API token.
-4. Copy the token.
-5. Store it in the `.env` file.
-6. Never expose the token in frontend JavaScript.
-7. Never upload the actual token to GitHub.
-
-## Important Finnhub Endpoints
-
-| Endpoint | Purpose |
-|---|---|
-| `/quote` | Current stock quote |
-| `/stock/candle` | Historical stock prices |
-| `/news` | Market news |
-| `/stock/profile2` | Company profile |
-| `/search` | Stock symbol search |
-
-## Quote Response Fields
-
-| Field | Meaning |
-|---|---|
-| c | Current price |
-| d | Price change |
-| dp | Percentage change |
-| h | High price |
-| l | Low price |
-| o | Open price |
-| pc | Previous close |
-| t | Unix timestamp |
-
----
-
-# 9. Environment Variables
+# 7. Environment Variables
 
 Create `.env`:
 
@@ -560,87 +524,57 @@ SECRET_KEY=your-secret-key
 DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
 
-FINNHUB_API_KEY=your_finnhub_api_key
+DATABASE_URL=sqlite:///db.sqlite3
+
+FINNHUB_API_KEY=your-finnhub-api-key
 
 REDIS_URL=redis://127.0.0.1:6379/0
 
-DB_NAME=stock_tracker
-DB_USER=postgres
-DB_PASSWORD=your_database_password
-DB_HOST=127.0.0.1
-DB_PORT=5432
-
-STOCK_POLL_SECONDS=60
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@example.com
+EMAIL_HOST_PASSWORD=your-email-app-password
+EMAIL_USE_TLS=True
 ```
 
-Create `.env.example`:
+For production, use PostgreSQL:
 
 ```env
-SECRET_KEY=
+DATABASE_URL=postgresql://postgres:password@localhost:5432/stock_market_db
 DEBUG=False
-ALLOWED_HOSTS=
-
-FINNHUB_API_KEY=
-
-REDIS_URL=
-
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
-DB_HOST=
-DB_PORT=
 ```
 
-## .gitignore
+Never commit `.env` or real API keys to GitHub.
 
-```gitignore
-.env
-.venv/
-__pycache__/
-*.py[cod]
-db.sqlite3
-staticfiles/
-media/
-.pytest_cache/
-.coverage
-```
+Create `.env.example` containing placeholder values only.
 
 ---
 
-# 10. Django Project Configuration
+# 8. Django Settings Configuration
 
-## config/settings.py
+In `config/settings.py`:
 
 ```python
-import os
 from pathlib import Path
-from dotenv import load_dotenv
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
-
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "development-only-secret-key"
+env = environ.Env(
+    DEBUG=(bool, False)
 )
 
-DEBUG = os.getenv(
-    "DEBUG", "False"
-).lower() == "true"
+environ.Env.read_env(BASE_DIR / ".env")
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
-    ).split(",")
-    if host.strip()
-]
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env.bool("DEBUG", default=False)
+
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=["localhost", "127.0.0.1"]
+)
 
 INSTALLED_APPS = [
-    "daphne",
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -649,18 +583,24 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
     "channels",
+    "drf_spectacular",
 
     "apps.accounts",
     "apps.stocks",
-    "apps.portfolio",
-    "apps.watchlist",
+    "apps.watchlists",
+    "apps.portfolios",
+    "apps.alerts",
     "apps.notifications",
+    "apps.market_news",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -670,160 +610,112 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# Development database: SQLite
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": env.db(
+        "DATABASE_URL",
+        default="sqlite:///db.sqlite3"
+    )
 }
 
-# Production PostgreSQL example:
-#
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME"),
-#         "USER": os.getenv("DB_USER"),
-#         "PASSWORD": os.getenv("DB_PASSWORD"),
-#         "HOST": os.getenv("DB_HOST"),
-#         "PORT": os.getenv("DB_PORT", "5432"),
-#     }
-# }
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
+    "PAGE_SIZE": 20,
+}
 
-REDIS_URL = os.getenv(
-    "REDIS_URL",
-    "redis://127.0.0.1:6379/0"
-)
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": 15 * 60,
+    "REFRESH_TOKEN_LIFETIME": 7 * 24 * 60 * 60,
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [REDIS_URL],
+            "hosts": [env("REDIS_URL")],
         },
     },
 }
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-}
-
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
-
-STOCK_POLL_SECONDS = int(
-    os.getenv("STOCK_POLL_SECONDS", "60")
+CELERY_BROKER_URL = env(
+    "REDIS_URL",
+    default="redis://127.0.0.1:6379/0"
 )
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/login/"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Celery
-
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_RESULT_BACKEND = env(
+    "REDIS_URL",
+    default="redis://127.0.0.1:6379/0"
+)
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
 
-CELERY_TIMEZONE = "Asia/Dhaka"
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-CELERY_BEAT_SCHEDULE = {
-    "refresh-stock-prices": {
-        "task": "apps.stocks.tasks.refresh_stock_quotes",
-        "schedule": STOCK_POLL_SECONDS,
-    },
-    "check-price-alerts": {
-        "task": "apps.notifications.tasks.check_price_alerts",
-        "schedule": 60.0,
-    },
-    "sync-market-news": {
-        "task": "apps.stocks.tasks.sync_market_news_task",
-        "schedule": 300.0,
-    },
-}
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
+LOGIN_URL = "/accounts/login/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 ```
 
-**Note:** Production-এর জন্য PostgreSQL configuration সক্রিয় করতে হবে। REST Framework-এর default permission এখানে authenticated রাখা হয়েছে। যেসব stock/news endpoint public করতে চাও, সেগুলোতে আলাদাভাবে `AllowAny` ব্যবহার করবে।
+For production, configure HTTPS, secure cookies, trusted origins, allowed hosts, database credentials, CORS, and secret management properly. Do not use permissive CORS settings without a specific reason.
 
 ---
 
-# 11. Database Models
+# 9. Database Design
 
-এই project-এ প্রধানত পাঁচটি database entity ব্যবহার করা হবে:
+## 9.1 Stock Model
 
-1. Stock
-2. StockPrice
-3. Portfolio
-4. WatchlistItem
-5. PriceAlert
+The Stock model stores company and stock-symbol information.
 
-MarketNews-এর জন্য আরেকটি model থাকবে।
-
-## A. Stock Model
-
-File: `apps/stocks/models.py`
+`apps/stocks/models.py`:
 
 ```python
 from django.db import models
 
 
 class Stock(models.Model):
-
     symbol = models.CharField(
         max_length=20,
-        unique=True
+        unique=True,
+        db_index=True
     )
 
-    name = models.CharField(
-        max_length=150
-    )
+    company_name = models.CharField(max_length=255)
 
     exchange = models.CharField(
         max_length=100,
         blank=True
     )
 
-    is_active = models.BooleanField(
-        default=True
+    industry = models.CharField(
+        max_length=150,
+        blank=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["symbol"]
@@ -832,711 +724,117 @@ class Stock(models.Model):
         return self.symbol
 ```
 
-### Explanation
+## 9.2 Stock Price Model
 
-- `symbol`: Stock ticker, such as AAPL.
-- `name`: Company name.
-- `exchange`: Stock exchange.
-- `is_active`: Determines whether the stock is available.
-- `created_at`: Record creation time.
-
-## B. StockPrice Model
+Stores price snapshots.
 
 ```python
-class StockPrice(models.Model):
+from django.db import models
 
+
+class StockPrice(models.Model):
     stock = models.ForeignKey(
-        Stock,
+        "stocks.Stock",
         on_delete=models.CASCADE,
-        related_name="prices"
+        related_name="price_snapshots"
     )
 
     current_price = models.DecimalField(
         max_digits=18,
-        decimal_places=4
+        decimal_places=6
     )
 
     change = models.DecimalField(
         max_digits=18,
-        decimal_places=4,
-        default=0
+        decimal_places=6,
+        null=True,
+        blank=True
     )
 
     percent_change = models.DecimalField(
         max_digits=10,
         decimal_places=4,
-        default=0
+        null=True,
+        blank=True
     )
 
     high_price = models.DecimalField(
         max_digits=18,
-        decimal_places=4,
+        decimal_places=6,
         null=True,
         blank=True
     )
 
     low_price = models.DecimalField(
         max_digits=18,
-        decimal_places=4,
+        decimal_places=6,
         null=True,
         blank=True
     )
 
     open_price = models.DecimalField(
         max_digits=18,
-        decimal_places=4,
+        decimal_places=6,
         null=True,
         blank=True
     )
 
     previous_close = models.DecimalField(
         max_digits=18,
-        decimal_places=4,
+        decimal_places=6,
         null=True,
         blank=True
     )
 
-    market_timestamp = models.DateTimeField(
+    volume = models.BigIntegerField(
         null=True,
         blank=True
     )
 
-    updated_at = models.DateTimeField(
-        auto_now_add=True
+    provider_timestamp = models.DateTimeField(
+        null=True,
+        blank=True
     )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-updated_at"]
-
+        ordering = ["-created_at"]
         indexes = [
-            models.Index(
-                fields=["stock", "-updated_at"]
-            ),
+            models.Index(fields=["stock", "-created_at"]),
         ]
 
     def __str__(self):
-        return f"{self.stock.symbol}: {self.current_price}"
+        return f"{self.stock.symbol} - {self.current_price}"
 ```
 
-### Why ForeignKey?
+**Design note:** This model represents append-only price snapshots. Use `created_at` to record when the snapshot was stored. If you instead maintain one mutable latest-price record per stock, use a separate model with a unique stock relationship and `updated_at = models.DateTimeField(auto_now=True)`.
 
-One stock can have many historical price records.
+## 9.3 Watchlist Model
 
-For example:
-
-```text
-AAPL
- |
- |--- 225.50
- |--- 226.10
- |--- 224.80
- |--- 227.20
-```
-
-The `ForeignKey` establishes a one-to-many relationship.
-
-Each row represents a price snapshot, not necessarily every exchange trade.
-
-## C. MarketNews Model
-
-```python
-class MarketNews(models.Model):
-
-    external_id = models.CharField(
-        max_length=255,
-        unique=True
-    )
-
-    headline = models.CharField(
-        max_length=500
-    )
-
-    summary = models.TextField(
-        blank=True
-    )
-
-    source = models.CharField(
-        max_length=150,
-        blank=True
-    )
-
-    url = models.URLField(
-        max_length=1000
-    )
-
-    image = models.URLField(
-        max_length=1000,
-        blank=True
-    )
-
-    category = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    published_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ["-published_at"]
-
-    def __str__(self):
-        return self.headline
-```
-
----
-
-# 12. User Authentication
-
-Django provides built-in authentication.
-
-We will use:
-
-- User model
-- UserCreationForm
-- LoginView
-- LogoutView
-- login_required
-- IsAuthenticated
-
-## accounts/forms.py
-
-```python
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-
-
-class UserRegistrationForm(UserCreationForm):
-
-    email = forms.EmailField(
-        required=True
-    )
-
-    class Meta:
-        model = User
-
-        fields = [
-            "username",
-            "email",
-            "password1",
-            "password2",
-        ]
-
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError(
-                "This email is already registered."
-            )
-
-        return email
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-
-        user.email = self.cleaned_data["email"]
-
-        if commit:
-            user.save()
-
-        return user
-```
-
-## accounts/views.py
-
-```python
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from .forms import UserRegistrationForm
-
-
-def register(request):
-
-    if request.method == "POST":
-
-        form = UserRegistrationForm(request.POST)
-
-        if form.is_valid():
-
-            user = form.save()
-
-            login(request, user)
-
-            return redirect("dashboard")
-
-    else:
-
-        form = UserRegistrationForm()
-
-    return render(
-        request,
-        "register.html",
-        {"form": form}
-    )
-```
-
-## Authentication URLs
-
-`accounts/urls.py`
-
-```python
-from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-
-from . import views
-
-urlpatterns = [
-
-    path(
-        "register/",
-        views.register,
-        name="register"
-    ),
-
-    path(
-        "login/",
-        LoginView.as_view(
-            template_name="login.html"
-        ),
-        name="login"
-    ),
-
-    path(
-        "logout/",
-        LogoutView.as_view(),
-        name="logout"
-    ),
-]
-```
-
-Logout should be submitted through POST with CSRF protection.
-
----
-
-# 13. Finnhub API Integration
-
-The service layer handles external API communication.
-
-It separates API logic from Django views and Celery tasks.
-
-## apps/stocks/services.py
-
-```python
-import httpx
-
-from django.conf import settings
-
-
-class FinnhubError(Exception):
-    pass
-
-
-class FinnhubClient:
-
-    BASE_URL = "https://finnhub.io/api/v1"
-
-    def __init__(self):
-
-        self.token = settings.FINNHUB_API_KEY
-
-        if not self.token:
-            raise FinnhubError(
-                "Finnhub API key is missing."
-            )
-
-    def get(self, endpoint, params=None):
-
-        request_params = dict(params or {})
-
-        request_params["token"] = self.token
-
-        try:
-
-            response = httpx.get(
-                f"{self.BASE_URL}/{endpoint}",
-                params=request_params,
-                timeout=15
-            )
-
-            if response.status_code == 429:
-                raise FinnhubError(
-                    "Finnhub API rate limit exceeded."
-                )
-
-            response.raise_for_status()
-
-            data = response.json()
-
-            if isinstance(data, dict) and data.get("error"):
-                raise FinnhubError(data["error"])
-
-            return data
-
-        except httpx.HTTPStatusError as exc:
-
-            raise FinnhubError(
-                f"Finnhub HTTP error: {exc.response.status_code}"
-            ) from exc
-
-        except httpx.TimeoutException as exc:
-
-            raise FinnhubError(
-                "Finnhub API request timed out."
-            ) from exc
-
-        except httpx.RequestError as exc:
-
-            raise FinnhubError(
-                "Finnhub network connection error."
-            ) from exc
-
-        except ValueError as exc:
-
-            raise FinnhubError(
-                "Invalid JSON response."
-            ) from exc
-
-    def quote(self, symbol):
-
-        symbol = symbol.strip().upper()
-
-        data = self.get(
-            "quote",
-            {"symbol": symbol}
-        )
-
-        if not isinstance(data, dict):
-            raise FinnhubError(
-                "Invalid quote response."
-            )
-
-        if not data.get("c") or data["c"] <= 0:
-            raise FinnhubError(
-                f"No valid quote found for {symbol}."
-            )
-
-        return data
-
-    def market_news(self, category="general"):
-
-        return self.get(
-            "news",
-            {"category": category}
-        )
-
-    def candles(
-        self,
-        symbol,
-        resolution,
-        start,
-        end
-    ):
-
-        data = self.get(
-            "stock/candle",
-            {
-                "symbol": symbol,
-                "resolution": resolution,
-                "from": start,
-                "to": end,
-            }
-        )
-
-        if data.get("s") != "ok":
-            raise FinnhubError(
-                f"No historical data found for {symbol}."
-            )
-
-        return data
-
-    def company_profile(self, symbol):
-
-        return self.get(
-            "stock/profile2",
-            {"symbol": symbol}
-        )
-```
-
-### Service Layer Benefits
-
-1. Reusable API functions.
-2. Easier error handling.
-3. Cleaner views.
-4. Easier unit testing.
-5. Separation of business logic.
-
-**Important:** Finnhub API limits depend on the account and subscription. Polling many symbols every 60 seconds may exceed the available quota. The actual schedule must be designed around the provider's current limits.
-
----
-
-# 14. Stock Serializers
-
-File: `apps/stocks/serializers.py`
-
-```python
-from rest_framework import serializers
-
-from .models import Stock, StockPrice, MarketNews
-
-
-class StockPriceSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = StockPrice
-
-        fields = [
-            "current_price",
-            "change",
-            "percent_change",
-            "high_price",
-            "low_price",
-            "open_price",
-            "previous_close",
-            "market_timestamp",
-            "updated_at",
-        ]
-
-
-class StockSerializer(serializers.ModelSerializer):
-
-    latest_price = serializers.SerializerMethodField()
-
-    class Meta:
-
-        model = Stock
-
-        fields = [
-            "id",
-            "symbol",
-            "name",
-            "exchange",
-            "latest_price",
-        ]
-
-    def get_latest_price(self, obj):
-
-        price = obj.prices.first()
-
-        if price:
-            return StockPriceSerializer(price).data
-
-        return None
-
-
-class MarketNewsSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = MarketNews
-
-        fields = "__all__"
-```
-
-### What is a Serializer?
-
-A serializer converts complex Python objects, such as Django model instances, into JSON-compatible data.
-
-It can also validate incoming data.
-
----
-
-# 15. Stock REST API
-
-File: `apps/stocks/views.py`
-
-```python
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-
-from .models import Stock, MarketNews
-from .serializers import StockSerializer, MarketNewsSerializer
-from .services import FinnhubClient, FinnhubError
-
-
-class StockListAPIView(generics.ListAPIView):
-
-    queryset = Stock.objects.filter(
-        is_active=True
-    )
-
-    serializer_class = StockSerializer
-
-    permission_classes = [AllowAny]
-
-
-class StockDetailAPIView(generics.RetrieveAPIView):
-
-    queryset = Stock.objects.filter(
-        is_active=True
-    )
-
-    serializer_class = StockSerializer
-
-    lookup_field = "symbol"
-
-    permission_classes = [AllowAny]
-
-
-class NewsListAPIView(generics.ListAPIView):
-
-    queryset = MarketNews.objects.all()
-
-    serializer_class = MarketNewsSerializer
-
-    permission_classes = [AllowAny]
-
-
-class RefreshStockAPIView(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, symbol):
-
-        try:
-
-            stock = Stock.objects.get(
-                symbol=symbol.upper(),
-                is_active=True
-            )
-
-            quote = FinnhubClient().quote(
-                stock.symbol
-            )
-
-            return Response({
-                "symbol": stock.symbol,
-                "quote": quote,
-            })
-
-        except Stock.DoesNotExist:
-
-            return Response(
-                {"error": "Stock not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        except FinnhubError as exc:
-
-            return Response(
-                {"error": str(exc)},
-                status=status.HTTP_502_BAD_GATEWAY
-            )
-```
-
-**Important:** This manual refresh example returns the quote but does not save it. The scheduled Celery task handles persistence. If manual refresh must update the database, reuse a shared quote-saving service rather than duplicating persistence logic.
-
----
-
-# 16. Portfolio Management
-
-A portfolio belongs to a user and can contain multiple stocks.
-
-## apps/portfolio/models.py
+`apps/watchlists/models.py`:
 
 ```python
 from django.conf import settings
 from django.db import models
 
-from apps.stocks.models import Stock
 
-
-class Portfolio(models.Model):
-
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="portfolio"
-    )
-
-    stocks = models.ManyToManyField(
-        Stock,
-        blank=True,
-        related_name="portfolios"
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    def __str__(self):
-        return f"{self.user.username}'s Portfolio"
-```
-
-### Relationship
-
-```text
-User
- |
- | OneToOne
- |
-Portfolio
- |
- | ManyToMany
- |
-Stock
-```
-
-### Why ManyToManyField?
-
-One portfolio can contain many stocks.
-
-The same stock can belong to many users' portfolios.
-
-## Portfolio API Logic
-
-Every portfolio query must use the authenticated user.
-
-Example:
-
-```python
-portfolio, created = Portfolio.objects.get_or_create(
-    user=request.user
-)
-```
-
-Never use an unrestricted portfolio query for private user data.
-
----
-
-# 17. Watchlist Management
-
-A watchlist allows a user to monitor stocks without necessarily treating them as owned portfolio assets.
-
-## apps/watchlist/models.py
-
-```python
-from django.conf import settings
-from django.db import models
-
-from apps.stocks.models import Stock
-
-
-class WatchlistItem(models.Model):
-
+class Watchlist(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="watchlists"
+    )
+
+    stock = models.ForeignKey(
+        "stocks.Stock",
         on_delete=models.CASCADE,
         related_name="watchlist_items"
     )
 
-    stock = models.ForeignKey(
-        Stock,
-        on_delete=models.CASCADE
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-
         constraints = [
             models.UniqueConstraint(
                 fields=["user", "stock"],
@@ -1548,316 +846,650 @@ class WatchlistItem(models.Model):
         return f"{self.user} - {self.stock.symbol}"
 ```
 
-## Watchlist Serializer
+## 9.4 Portfolio Model
 
-`apps/watchlist/serializers.py`
+```python
+from django.conf import settings
+from django.db import models
+
+
+class PortfolioHolding(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="portfolio_holdings"
+    )
+
+    stock = models.ForeignKey(
+        "stocks.Stock",
+        on_delete=models.CASCADE,
+        related_name="portfolio_holdings"
+    )
+
+    quantity = models.DecimalField(
+        max_digits=18,
+        decimal_places=6
+    )
+
+    average_buy_price = models.DecimalField(
+        max_digits=18,
+        decimal_places=6
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "stock"],
+                name="unique_user_stock_holding"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.stock.symbol}"
+```
+
+For a more accurate investment ledger, use a separate `PortfolioTransaction` model to record every buy and sell transaction. Calculate holdings and average buy price from the transaction history.
+
+## 9.5 Historical Stock Candle Model
+
+Historical market data should store OHLCV information.
+
+```python
+from django.db import models
+
+
+class StockCandle(models.Model):
+    INTERVAL_CHOICES = [
+        ("1m", "1 Minute"),
+        ("5m", "5 Minutes"),
+        ("15m", "15 Minutes"),
+        ("1h", "1 Hour"),
+        ("1d", "1 Day"),
+    ]
+
+    stock = models.ForeignKey(
+        "stocks.Stock",
+        on_delete=models.CASCADE,
+        related_name="candles"
+    )
+
+    interval = models.CharField(
+        max_length=5,
+        choices=INTERVAL_CHOICES
+    )
+
+    timestamp = models.DateTimeField()
+
+    open_price = models.DecimalField(max_digits=18, decimal_places=6)
+    high_price = models.DecimalField(max_digits=18, decimal_places=6)
+    low_price = models.DecimalField(max_digits=18, decimal_places=6)
+    close_price = models.DecimalField(max_digits=18, decimal_places=6)
+
+    volume = models.BigIntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["stock", "interval", "timestamp"],
+                name="unique_stock_candle_interval_timestamp"
+            )
+        ]
+        indexes = [
+            models.Index(fields=["stock", "interval", "timestamp"]),
+        ]
+        ordering = ["timestamp"]
+```
+
+## 9.6 Price Alert Model
+
+`apps/alerts/models.py`:
+
+```python
+from django.conf import settings
+from django.db import models
+
+
+class PriceAlert(models.Model):
+    CONDITION_CHOICES = [
+        ("above", "Above"),
+        ("below", "Below"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="price_alerts"
+    )
+
+    stock = models.ForeignKey(
+        "stocks.Stock",
+        on_delete=models.CASCADE,
+        related_name="price_alerts"
+    )
+
+    target_price = models.DecimalField(
+        max_digits=18,
+        decimal_places=6
+    )
+
+    condition = models.CharField(
+        max_length=10,
+        choices=CONDITION_CHOICES
+    )
+
+    is_active = models.BooleanField(default=True)
+    triggered_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.stock.symbol} - {self.condition} {self.target_price}"
+```
+
+## 9.7 Notification Model
+
+`apps/notifications/models.py`:
+
+```python
+from django.conf import settings
+from django.db import models
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notifications"
+    )
+
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+
+    is_read = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title
+```
+
+## 9.8 Market News Model
+
+```python
+from django.db import models
+
+
+class MarketNews(models.Model):
+    headline = models.CharField(max_length=500)
+
+    summary = models.TextField(blank=True)
+
+    source = models.CharField(max_length=150, blank=True)
+
+    url = models.URLField(max_length=1000, unique=True)
+
+    image_url = models.URLField(
+        max_length=1000,
+        blank=True
+    )
+
+    published_at = models.DateTimeField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return self.headline
+```
+
+---
+
+# 10. Database Migrations
+
+After creating models:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Create admin user:
+
+```bash
+python manage.py createsuperuser
+```
+
+Register models in their respective `admin.py` files.
+
+Example:
+
+```python
+from django.contrib import admin
+from .models import Stock, StockPrice, StockCandle
+
+
+admin.site.register(Stock)
+admin.site.register(StockPrice)
+admin.site.register(StockCandle)
+```
+
+---
+
+# 11. Finnhub API Integration
+
+## 11.1 What is Finnhub?
+
+Finnhub is an external financial market data provider.
+
+It provides APIs for:
+
+- Stock quotes.
+- Company profiles.
+- Company news.
+- Historical candles.
+- Market information.
+- Stock symbols.
+
+Website:
+
+https://finnhub.io/
+
+Create an account and obtain an API key.
+
+## 11.2 Configure API Key
+
+Add the API key to `.env`:
+
+```env
+FINNHUB_API_KEY=your-api-key
+```
+
+## 11.3 Create Stock Service
+
+`apps/stocks/services.py`:
+
+```python
+import requests
+
+from django.conf import settings
+
+
+class FinnhubService:
+    BASE_URL = "https://finnhub.io/api/v1"
+
+    def __init__(self):
+        self.api_key = settings.FINNHUB_API_KEY
+
+    def get_quote(self, symbol):
+        url = f"{self.BASE_URL}/quote"
+
+        response = requests.get(
+            url,
+            params={
+                "symbol": symbol,
+                "token": self.api_key,
+            },
+            timeout=10,
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not data or data.get("c") is None:
+            raise ValueError("No quote data available.")
+
+        return data
+```
+
+Add the following setting:
+
+```python
+FINNHUB_API_KEY = env("FINNHUB_API_KEY")
+```
+
+## 11.4 Understanding Quote Response
+
+A typical Finnhub quote response contains:
+
+```json
+{
+    "c": 230.50,
+    "d": 2.85,
+    "dp": 1.25,
+    "h": 232.00,
+    "l": 226.50,
+    "o": 227.00,
+    "pc": 227.65,
+    "t": 1731931200
+}
+```
+
+| Field | Meaning |
+|---|---|
+| c | Current price |
+| d | Change |
+| dp | Percentage change |
+| h | Day high |
+| l | Day low |
+| o | Open price |
+| pc | Previous close |
+| t | Provider timestamp |
+
+The exact fields and availability depend on the API endpoint and provider response.
+
+---
+
+# 12. Save Stock Prices to the Database
+
+Create a shared service to retrieve and persist quotes.
+
+`apps/stocks/services.py`:
+
+```python
+from datetime import datetime, timezone as datetime_timezone
+
+from django.utils import timezone
+
+from apps.stocks.models import Stock, StockPrice
+
+
+def save_stock_quote(symbol):
+    stock = Stock.objects.get(
+        symbol=symbol.upper(),
+        is_active=True
+    )
+
+    service = FinnhubService()
+    quote = service.get_quote(stock.symbol)
+
+    provider_timestamp = None
+
+    if quote.get("t"):
+        provider_timestamp = datetime.fromtimestamp(
+            quote["t"],
+            tz=datetime_timezone.utc
+        )
+
+    price = StockPrice.objects.create(
+        stock=stock,
+        current_price=quote["c"],
+        change=quote.get("d"),
+        percent_change=quote.get("dp"),
+        high_price=quote.get("h"),
+        low_price=quote.get("l"),
+        open_price=quote.get("o"),
+        previous_close=quote.get("pc"),
+        provider_timestamp=provider_timestamp,
+    )
+
+    return price
+```
+
+This function is reusable by:
+
+- API views.
+- Celery tasks.
+- Management commands.
+- Scheduled background jobs.
+
+Use this shared service rather than implementing different price-saving logic in multiple places.
+
+---
+
+# 13. Django REST Framework APIs
+
+## 13.1 Stock Serializer
+
+`apps/stocks/serializers.py`:
 
 ```python
 from rest_framework import serializers
 
-from .models import WatchlistItem
+from .models import Stock, StockPrice
 
 
-class WatchlistSerializer(serializers.ModelSerializer):
+class StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
+        fields = "__all__"
 
+
+class StockPriceSerializer(serializers.ModelSerializer):
     symbol = serializers.CharField(
         source="stock.symbol",
         read_only=True
     )
 
-    name = serializers.CharField(
-        source="stock.name",
-        read_only=True
-    )
-
     class Meta:
-
-        model = WatchlistItem
-
+        model = StockPrice
         fields = [
             "id",
-            "stock",
             "symbol",
-            "name",
-            "created_at",
-        ]
-
-        read_only_fields = [
-            "id",
+            "current_price",
+            "change",
+            "percent_change",
+            "high_price",
+            "low_price",
+            "open_price",
+            "previous_close",
+            "volume",
+            "provider_timestamp",
             "created_at",
         ]
 ```
 
-## Watchlist Views
+## 13.2 Stock List API
 
-`apps/watchlist/views.py`
+`apps/stocks/views.py`:
 
 ```python
-from rest_framework import generics, serializers
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
-from apps.stocks.models import Stock
-
-from .models import WatchlistItem
-from .serializers import WatchlistSerializer
+from .models import Stock
+from .serializers import StockSerializer
 
 
-class WatchlistListCreateAPIView(
-    generics.ListCreateAPIView
-):
+class StockListAPIView(generics.ListAPIView):
+    queryset = Stock.objects.filter(is_active=True)
+    serializer_class = StockSerializer
+    permission_classes = [AllowAny]
+    search_fields = ["symbol", "company_name"]
+```
 
-    serializer_class = WatchlistSerializer
+## 13.3 Latest Stock Price API
 
-    permission_classes = [IsAuthenticated]
+```python
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
-    def get_queryset(self):
-
-        return WatchlistItem.objects.filter(
-            user=self.request.user
-        ).select_related("stock")
-
-    def perform_create(self, serializer):
-
-        stock_id = self.request.data.get("stock")
-
-        try:
-
-            stock = Stock.objects.get(
-                pk=stock_id,
-                is_active=True
-            )
-
-        except (Stock.DoesNotExist, ValueError, TypeError):
-
-            raise serializers.ValidationError({
-                "stock": "Valid active stock is required."
-            })
-
-        serializer.save(
-            user=self.request.user,
-            stock=stock
-        )
+from .models import StockPrice
+from .serializers import StockPriceSerializer
 
 
-class WatchlistDeleteAPIView(
-    generics.DestroyAPIView
-):
-
-    serializer_class = WatchlistSerializer
-
-    permission_classes = [IsAuthenticated]
+class LatestStockPriceAPIView(generics.ListAPIView):
+    serializer_class = StockPriceSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
+        symbol = self.kwargs["symbol"].upper()
 
-        return WatchlistItem.objects.filter(
-            user=self.request.user
+        return (
+            StockPrice.objects
+            .filter(stock__symbol=symbol)
+            .order_by("-created_at")[:1]
         )
 ```
 
-The unique database constraint protects against duplicate watchlist entries. The API should also handle duplicate-creation validation errors gracefully.
+## 13.4 Manual Stock Refresh API
 
-## Watchlist URLs
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
-`apps/watchlist/urls.py`
+from .services import save_stock_quote
+from .serializers import StockPriceSerializer
+
+
+class RefreshStockAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, symbol):
+        try:
+            price = save_stock_quote(symbol)
+
+            return Response(
+                StockPriceSerializer(price).data,
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+```
+
+For production, catch specific exceptions rather than exposing arbitrary exception messages to clients. Validate symbols and handle provider errors separately.
+
+## 13.5 Stock URL Configuration
+
+`apps/stocks/urls.py`:
 
 ```python
 from django.urls import path
 
 from .views import (
-    WatchlistListCreateAPIView,
-    WatchlistDeleteAPIView,
+    StockListAPIView,
+    LatestStockPriceAPIView,
+    RefreshStockAPIView,
 )
 
 urlpatterns = [
-
+    path("", StockListAPIView.as_view(), name="stock-list"),
     path(
-        "",
-        WatchlistListCreateAPIView.as_view(),
-        name="watchlist-list"
+        "<str:symbol>/latest/",
+        LatestStockPriceAPIView.as_view(),
+        name="stock-latest"
     ),
-
     path(
-        "<int:pk>/",
-        WatchlistDeleteAPIView.as_view(),
-        name="watchlist-delete"
+        "<str:symbol>/refresh/",
+        RefreshStockAPIView.as_view(),
+        name="stock-refresh"
     ),
 ]
 ```
 
 ---
 
-# 18. Historical Stock Data
+# 14. Authentication APIs
 
-Historical data is used to generate price charts.
+Install:
 
-Finnhub endpoint:
-
-```text
-GET /stock/candle
+```bash
+pip install djangorestframework-simplejwt
 ```
 
-## Parameters
+Configure authentication in `settings.py` as described earlier.
 
-| Parameter | Meaning |
-|---|---|
-| symbol | Stock symbol |
-| resolution | Candle interval |
-| from | Start Unix timestamp |
-| to | End Unix timestamp |
-| token | API key |
-
-## Response Fields
-
-| Field | Meaning |
-|---|---|
-| c | Close price |
-| h | High price |
-| l | Low price |
-| o | Open price |
-| t | Timestamp |
-| v | Volume |
-| s | Response status |
-
-## Example Python
+`config/urls.py`:
 
 ```python
-import time
+from django.contrib import admin
+from django.urls import include, path
 
-from datetime import datetime, timezone
-
-from apps.stocks.services import FinnhubClient
-
-
-end = int(time.time())
-
-start = end - (
-    7 * 24 * 60 * 60
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
-client = FinnhubClient()
+urlpatterns = [
+    path("admin/", admin.site.urls),
 
-data = client.candles(
-    symbol="AAPL",
-    resolution="D",
-    start=start,
-    end=end,
-)
+    path(
+        "api/auth/token/",
+        TokenObtainPairView.as_view(),
+        name="token_obtain_pair"
+    ),
 
-for timestamp, close in zip(
-    data["t"],
-    data["c"]
-):
+    path(
+        "api/auth/token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token_refresh"
+    ),
 
-    date = datetime.fromtimestamp(
-        timestamp,
-        tz=timezone.utc
-    )
-
-    print(date, close)
+    path("api/stocks/", include("apps.stocks.urls")),
+]
 ```
 
-## Common Resolutions
+### JWT Login Request
 
-- 1
-- 5
-- 15
-- 30
-- 60
-- D
-- W
-- M
+```http
+POST /api/auth/token/
+Content-Type: application/json
+```
 
-Availability depends on Finnhub's supported endpoint rules and subscription.
+Request:
 
-Historical data should ideally be stored separately from frequent quote snapshots if the application needs efficient long-term chart queries.
+```json
+{
+    "username": "faruk",
+    "password": "your-password"
+}
+```
+
+Example response:
+
+```json
+{
+    "refresh": "refresh-token",
+    "access": "access-token"
+}
+```
+
+Send the access token in protected requests:
+
+```http
+Authorization: Bearer ACCESS_TOKEN
+```
+
+Registration, profile, password change, and account management endpoints should be implemented in the accounts app.
 
 ---
 
-# 19. Market News Integration
+# 15. Celery Background Processing
 
-Finnhub provides market news.
+## 15.1 What is Celery?
 
-Endpoint:
-
-```text
-GET /news?category=general
-```
-
-## News Synchronization Service
-
-Create `apps/stocks/news_services.py` or keep this function in `services.py`.
-
-```python
-from datetime import datetime, timezone
-
-from .models import MarketNews
-from .services import FinnhubClient
-
-
-def sync_market_news():
-
-    client = FinnhubClient()
-
-    articles = client.market_news("general")
-
-    for article in articles:
-
-        external_id = str(
-            article.get("id") or article.get("url") or ""
-        )
-
-        if not external_id:
-            continue
-
-        published = article.get("datetime")
-
-        published_at = (
-            datetime.fromtimestamp(
-                published,
-                tz=timezone.utc
-            )
-            if published else None
-        )
-
-        MarketNews.objects.update_or_create(
-
-            external_id=external_id,
-
-            defaults={
-                "headline": article.get("headline", ""),
-                "summary": article.get("summary", ""),
-                "source": article.get("source", ""),
-                "url": article.get("url", ""),
-                "image": article.get("image", ""),
-                "category": article.get("category", ""),
-                "published_at": published_at,
-            }
-        )
-```
-
-Use a Celery task to execute this function periodically.
-
----
-
-# 20. Celery Configuration
-
-Celery is used for background processing.
+Celery is a distributed task queue used to execute background operations.
 
 Examples:
 
-- Fetch stock quotes.
-- Synchronize market news.
-- Check price alerts.
-- Send notifications.
-- Execute recurring jobs.
+- Fetching stock prices.
+- Updating historical market data.
+- Checking price alerts.
+- Sending notification emails.
+- Processing market news.
 
-## config/celery.py
+## 15.2 Create Celery Configuration
+
+`config/celery.py`:
 
 ```python
 import os
 
 from celery import Celery
-
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
@@ -1874,7 +1506,7 @@ app.config_from_object(
 app.autodiscover_tasks()
 ```
 
-## config/__init__.py
+Update `config/__init__.py`:
 
 ```python
 from .celery import app as celery_app
@@ -1882,265 +1514,145 @@ from .celery import app as celery_app
 __all__ = ("celery_app",)
 ```
 
-## Celery Settings
+## 15.3 Create Stock Update Task
 
-Add to `settings.py`:
+`apps/stocks/tasks.py`:
 
 ```python
-CELERY_BROKER_URL = REDIS_URL
+from celery import shared_task
 
-CELERY_RESULT_BACKEND = REDIS_URL
+from .models import Stock
+from .services import save_stock_quote
 
-CELERY_ACCEPT_CONTENT = ["json"]
 
-CELERY_TASK_SERIALIZER = "json"
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def update_stock_price(symbol):
+    return save_stock_quote(symbol).id
 
-CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_TIMEZONE = "Asia/Dhaka"
+@shared_task
+def update_all_stock_prices():
+    symbols = Stock.objects.filter(
+        is_active=True
+    ).values_list("symbol", flat=True)
 
-CELERY_TASK_TRACK_STARTED = True
+    results = []
 
-CELERY_TASK_TIME_LIMIT = 120
+    for symbol in symbols:
+        try:
+            price = save_stock_quote(symbol)
+            results.append({
+                "symbol": symbol,
+                "price_id": price.id,
+                "status": "success",
+            })
+
+        except Exception as exc:
+            results.append({
+                "symbol": symbol,
+                "status": "failed",
+                "error": str(exc),
+            })
+
+    return results
 ```
 
-## Celery Beat Schedule
+For larger applications, avoid making too many simultaneous provider requests. Consider individual queued tasks, rate limits, bounded concurrency, and provider-specific retry policies.
+
+## 15.4 Celery Beat Configuration
+
+In `config/settings.py`:
 
 ```python
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
-
-    "refresh-stock-prices": {
-
-        "task": "apps.stocks.tasks.refresh_stock_quotes",
-
-        "schedule": STOCK_POLL_SECONDS,
-    },
-
-    "check-price-alerts": {
-
-        "task": "apps.notifications.tasks.check_price_alerts",
-
-        "schedule": 60.0,
-    },
-
-    "sync-market-news": {
-
-        "task": "apps.stocks.tasks.sync_market_news_task",
-
+    "update-stock-prices-every-five-minutes": {
+        "task": "apps.stocks.tasks.update_all_stock_prices",
         "schedule": 300.0,
     },
-
 }
 ```
 
-### Celery Worker vs Celery Beat
+The schedule above is an example. Choose an interval that complies with the Finnhub plan, endpoint limits, market hours, and application requirements.
 
-**Celery Worker:**
-- Executes tasks.
-- Performs background jobs.
-- Processes queued messages.
-
-**Celery Beat:**
-- Schedules recurring tasks.
-- Sends scheduled tasks to the broker.
-- Does not itself execute the task logic.
-
-Run only one Beat scheduler for a given schedule unless using an appropriate distributed scheduler/locking strategy.
-
----
-
-# 21. Celery Background Tasks
-
-File: `apps/stocks/tasks.py`
-
-```python
-from decimal import Decimal
-
-from celery import shared_task
-
-from asgiref.sync import async_to_sync
-
-from channels.layers import get_channel_layer
-
-from django.utils import timezone
-
-from .models import Stock, StockPrice
-
-from .services import FinnhubClient, FinnhubError
-
-
-@shared_task
-def refresh_stock_quotes():
-
-    stocks = Stock.objects.filter(
-        is_active=True
-    )
-
-    client = FinnhubClient()
-
-    channel_layer = get_channel_layer()
-
-    for stock in stocks:
-
-        try:
-
-            quote = client.quote(
-                stock.symbol
-            )
-
-            price = StockPrice.objects.create(
-
-                stock=stock,
-
-                current_price=Decimal(
-                    str(quote["c"])
-                ),
-
-                change=Decimal(
-                    str(quote.get("d") or 0)
-                ),
-
-                percent_change=Decimal(
-                    str(quote.get("dp") or 0)
-                ),
-
-                high_price=Decimal(
-                    str(quote.get("h") or 0)
-                ),
-
-                low_price=Decimal(
-                    str(quote.get("l") or 0)
-                ),
-
-                open_price=Decimal(
-                    str(quote.get("o") or 0)
-                ),
-
-                previous_close=Decimal(
-                    str(quote.get("pc") or 0)
-                ),
-
-                market_timestamp=(
-                    timezone.datetime.fromtimestamp(
-                        quote["t"],
-                        tz=timezone.utc
-                    )
-                    if quote.get("t")
-                    else None
-                ),
-            )
-
-            payload = {
-
-                "symbol": stock.symbol,
-
-                "name": stock.name,
-
-                "current_price": str(
-                    price.current_price
-                ),
-
-                "change": str(
-                    price.change
-                ),
-
-                "percent_change": str(
-                    price.percent_change
-                ),
-
-                "updated_at": price.updated_at.isoformat(),
-            }
-
-            async_to_sync(
-                channel_layer.group_send
-            )(
-                "stock_updates",
-                {
-                    "type": "stock.price",
-                    "data": payload,
-                }
-            )
-
-        except FinnhubError as exc:
-
-            print(
-                f"Finnhub error for {stock.symbol}: {exc}"
-            )
-
-        except Exception as exc:
-
-            print(
-                f"Unexpected error for {stock.symbol}: {exc}"
-            )
-
-
-@shared_task
-def sync_market_news_task():
-
-    from .news_services import sync_market_news
-
-    sync_market_news()
-```
-
-**Implementation note:** Import `timezone` from `datetime` for the timestamp conversion:
-
-```python
-from datetime import timezone
-```
-
-The production implementation should use structured logging rather than `print()`, and should carefully handle API failures, retries, rate limits, and task concurrency.
-
-## Why async_to_sync()?
-
-Celery tasks are synchronous in this implementation, while Channels' channel layer methods are asynchronous.
-
-`async_to_sync()` allows a synchronous task to call an asynchronous function.
-
----
-
-# 22. Redis Configuration
-
-Redis is an in-memory data store.
-
-In this project, Redis serves as:
-
-1. Celery message broker.
-2. Optional Celery result backend.
-3. Django Channels channel layer.
-
-## Run Redis with Docker
+## 15.5 Run Celery Worker
 
 ```bash
-docker run --name stock-redis -p 6379:6379 -d redis:7
+celery -A config worker -l info
 ```
 
-Check Redis:
+Windows development:
 
 ```bash
-docker exec -it stock-redis redis-cli ping
+celery -A config worker -l info --pool=solo
 ```
 
-Expected response:
+## 15.6 Run Celery Beat
 
-```text
-PONG
+In another terminal:
+
+```bash
+celery -A config beat -l info
 ```
 
-## Redis Connection URL
-
-```env
-REDIS_URL=redis://127.0.0.1:6379/0
-```
-
-Redis should not be exposed publicly without proper authentication and network security.
+Celery Beat schedules tasks; Celery workers execute them. Run both processes when using scheduled background tasks.
 
 ---
 
-# 23. Django Channels Configuration
+# 16. Django Channels and WebSockets
 
-Django Channels extends Django to support protocols such as WebSocket.
+## 16.1 What is Django Channels?
 
-## apps/stocks/consumers.py
+Django Channels extends Django to support asynchronous protocols such as WebSockets.
+
+WebSockets allow a persistent, two-way communication channel between the browser and backend.
+
+Unlike repeated HTTP polling, the server can send updates to clients whenever new data is available.
+
+## 16.2 Configure ASGI
+
+`config/asgi.py`:
+
+```python
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "config.settings"
+)
+
+django_asgi_app = get_asgi_application()
+
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+
+from apps.stocks.routing import websocket_urlpatterns
+
+
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
+            URLRouter(websocket_urlpatterns)
+        )
+    ),
+})
+```
+
+For production, use an authentication mechanism appropriate for the WebSocket client, enforce permissions for subscribed stock symbols, and validate allowed origins.
+
+## 16.3 Create Stock Consumer
+
+`apps/stocks/consumers.py`:
 
 ```python
 import json
@@ -2151,14 +1663,11 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class StockConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
+        self.symbol = self.scope["url_route"]["kwargs"][
+            "symbol"
+        ].upper()
 
-        if not self.scope["user"].is_authenticated:
-
-            await self.close(code=4401)
-
-            return
-
-        self.group_name = "stock_updates"
+        self.group_name = f"stock_{self.symbol}"
 
         await self.channel_layer.group_add(
             self.group_name,
@@ -2168,2112 +1677,1246 @@ class StockConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
 
-        if hasattr(self, "group_name"):
-
-            await self.channel_layer.group_discard(
-                self.group_name,
-                self.channel_name
-            )
-
-    async def stock_price(self, event):
-
+    async def stock_update(self, event):
         await self.send(
-            text_data=json.dumps({
-
-                "type": "stock_update",
-
-                "data": event["data"],
-
-            })
+            text_data=json.dumps(event["data"])
         )
 ```
 
-### Consumer Responsibilities
+## 16.4 WebSocket Routing
 
-- Accept WebSocket connections.
-- Reject unauthenticated connections.
-- Join a Channels group.
-- Receive group events.
-- Send stock updates to connected browsers.
-- Leave the group on disconnect.
-
-**Security note:** This example uses session authentication and a global group for public market data. For private portfolio information, create user-specific groups and verify that each user can only join their own authorized group.
-
-## apps/stocks/routing.py
+`apps/stocks/routing.py`:
 
 ```python
-from django.urls import path
+from django.urls import re_path
 
 from .consumers import StockConsumer
 
 
 websocket_urlpatterns = [
-
-    path(
-        "ws/stocks/",
+    re_path(
+        r"ws/stocks/(?P<symbol>[A-Za-z0-9._-]+)/$",
         StockConsumer.as_asgi()
     ),
-
 ]
 ```
 
-## config/asgi.py
+## 16.5 Broadcast Stock Price Updates
+
+Create a helper:
+
+`apps/stocks/websocket.py`:
 
 ```python
-import os
-
-from django.core.asgi import get_asgi_application
-
-from channels.routing import ProtocolTypeRouter, URLRouter
-
-from channels.auth import AuthMiddlewareStack
-
-from channels.security.websocket import (
-    AllowedHostsOriginValidator
-)
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE",
-    "config.settings"
-)
+def broadcast_stock_update(symbol, data):
+    channel_layer = get_channel_layer()
 
-django_asgi_app = get_asgi_application()
-
-from apps.stocks.routing import websocket_urlpatterns
-
-
-application = ProtocolTypeRouter({
-
-    "http": django_asgi_app,
-
-    "websocket": AllowedHostsOriginValidator(
-
-        AuthMiddlewareStack(
-
-            URLRouter(
-                websocket_urlpatterns
-            )
-
-        )
-
-    ),
-
-})
+    async_to_sync(channel_layer.group_send)(
+        f"stock_{symbol.upper()}",
+        {
+            "type": "stock.update",
+            "data": data,
+        }
+    )
 ```
 
-For production, configure allowed hosts carefully. For cross-domain deployments, configure explicit trusted origins and authentication rules.
+Call this function after successfully saving a new stock price.
+
+For example:
+
+```python
+from apps.stocks.websocket import broadcast_stock_update
+
+
+broadcast_stock_update(
+    stock.symbol,
+    {
+        "symbol": stock.symbol,
+        "current_price": str(price.current_price),
+        "created_at": price.created_at.isoformat(),
+    }
+)
+```
+
+For a production system, move the broadcast operation to an appropriate background workflow if it should not block the request or price ingestion process.
+
+## 16.6 Frontend WebSocket Example
+
+```javascript
+const symbol = "AAPL";
+
+const socket = new WebSocket(
+    `ws://127.0.0.1:8000/ws/stocks/${symbol}/`
+);
+
+socket.onopen = function () {
+    console.log("WebSocket connected");
+};
+
+socket.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+
+    console.log("Stock update:", data);
+
+    document.getElementById("stock-price").textContent =
+        data.current_price;
+};
+
+socket.onclose = function () {
+    console.log("WebSocket disconnected");
+};
+
+socket.onerror = function (error) {
+    console.error("WebSocket error:", error);
+};
+```
+
+Use `wss://` instead of `ws://` when the production site uses HTTPS.
 
 ---
 
-# 24. Price Alert System
+# 17. Historical Stock Data API
 
-Users can create price alerts.
+Historical candle data can be retrieved from Finnhub's stock candle endpoint.
 
-Examples:
+Example request:
 
-- Notify when AAPL goes above $250.
-- Notify when TSLA goes below $300.
+```text
+GET https://finnhub.io/api/v1/stock/candle
+```
 
-## apps/notifications/models.py
+Typical parameters:
+
+```text
+symbol=AAPL
+resolution=D
+from=START_UNIX_TIMESTAMP
+to=END_UNIX_TIMESTAMP
+token=YOUR_API_KEY
+```
+
+Example service:
 
 ```python
+import requests
+
 from django.conf import settings
 
-from django.db import models
 
-from apps.stocks.models import Stock
-
-
-class PriceAlert(models.Model):
-
-    ABOVE = "above"
-
-    BELOW = "below"
-
-    CONDITION_CHOICES = [
-
-        (ABOVE, "Above"),
-
-        (BELOW, "Below"),
-
-    ]
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="price_alerts"
-    )
-
-    stock = models.ForeignKey(
-        Stock,
-        on_delete=models.CASCADE
-    )
-
-    target_price = models.DecimalField(
-        max_digits=18,
-        decimal_places=4
-    )
-
-    condition = models.CharField(
-        max_length=10,
-        choices=CONDITION_CHOICES
-    )
-
-    is_triggered = models.BooleanField(
-        default=False
-    )
-
-    triggered_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    def __str__(self):
-
-        return (
-            f"{self.stock.symbol} "
-            f"{self.condition} "
-            f"{self.target_price}"
-        )
-```
-
-## Price Alert Logic
-
-File: `apps/notifications/tasks.py`
-
-```python
-from celery import shared_task
-
-from django.db import transaction
-from django.utils import timezone
-
-from .models import PriceAlert
-
-from apps.stocks.models import StockPrice
-
-
-@shared_task
-def check_price_alerts():
-
-    alerts = PriceAlert.objects.filter(
-        is_triggered=False
-    ).select_related("stock", "user")
-
-    for alert in alerts:
-
-        latest_price = StockPrice.objects.filter(
-            stock=alert.stock
-        ).first()
-
-        if not latest_price:
-            continue
-
-        current = latest_price.current_price
-
-        target = alert.target_price
-
-        triggered = (
-
-            alert.condition == "above"
-            and current >= target
-
-        ) or (
-
-            alert.condition == "below"
-            and current <= target
-
-        )
-
-        if triggered:
-
-            with transaction.atomic():
-
-                updated = PriceAlert.objects.filter(
-                    pk=alert.pk,
-                    is_triggered=False
-                ).update(
-                    is_triggered=True,
-                    triggered_at=timezone.now()
-                )
-
-            if updated:
-
-                # Add notification delivery here.
-                # Example: enqueue an email task.
-
-                pass
-```
-
-The conditional database update helps prevent multiple workers from triggering the same alert simultaneously.
-
-## Notification Types
-
-- In-app notification
-- Email notification
-- Browser notification
-
-Email delivery should run as a separate Celery task.
-
----
-
-# 25. Stock Seeding
-
-Create the following folders:
-
-```text
-apps/stocks/management/
-    __init__.py
-    commands/
-        __init__.py
-        seed_stocks.py
-```
-
-## seed_stocks.py
-
-```python
-from django.core.management.base import BaseCommand
-
-from apps.stocks.models import Stock
-
-
-class Command(BaseCommand):
-
-    help = "Create initial stock symbols"
-
-    def handle(self, *args, **kwargs):
-
-        stocks = [
-
-            ("AAPL", "Apple Inc."),
-
-            ("MSFT", "Microsoft Corporation"),
-
-            ("NVDA", "NVIDIA Corporation"),
-
-            ("TSLA", "Tesla Inc."),
-
-            ("AMZN", "Amazon.com Inc."),
-
-            ("GOOGL", "Alphabet Inc."),
-
-            ("META", "Meta Platforms Inc."),
-
-            ("NFLX", "Netflix Inc."),
-
-        ]
-
-        for symbol, name in stocks:
-
-            Stock.objects.update_or_create(
-
-                symbol=symbol,
-
-                defaults={
-                    "name": name,
-                    "is_active": True,
-                }
-
-            )
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                "Stocks seeded successfully."
-            )
-        )
-```
-
-Run:
-
-```bash
-python manage.py seed_stocks
-```
-
-The seed command creates initial stock records. It does not fetch their prices.
-
----
-
-# 26. Frontend Dashboard
-
-The dashboard uses:
-
-- HTML
-- Bootstrap 5
-- JavaScript
-- Fetch API
-- WebSocket
-- Chart.js
-
-## templates/base.html
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
-
-    <title>{% block title %}Stock Tracker{% endblock %}</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-</head>
-
-<body class="bg-light">
-
-    <nav class="navbar navbar-dark bg-dark">
-
-        <div class="container">
-
-            <a class="navbar-brand" href="/">
-                Stock Tracker
-            </a>
-
-            {% if user.is_authenticated %}
-
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button class="btn btn-outline-light btn-sm">
-                        Logout
-                    </button>
-                </form>
-
-            {% endif %}
-
-        </div>
-
-    </nav>
-
-    <main class="container py-4">
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
-
-    {% block scripts %}
-    {% endblock %}
-
-</body>
-
-</html>
-```
-
-## templates/dashboard.html
-
-```html
-{% extends "base.html" %}
-
-{% load static %}
-
-{% block title %}
-Realtime Stock Tracker
-{% endblock %}
-
-{% block content %}
-
-<h2 class="mb-4">
-    Realtime Stock Dashboard
-</h2>
-
-<div class="mb-3">
-
-    WebSocket Status:
-
-    <span
-        id="connection-status"
-        class="badge text-bg-secondary"
-    >
-        Connecting...
-    </span>
-
-</div>
-
-<div class="card shadow-sm">
-
-    <div class="card-body">
-
-        <h5 class="mb-3">
-            Stock Market
-        </h5>
-
-        <div class="table-responsive">
-
-            <table class="table table-hover">
-
-                <thead>
-
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Company</th>
-                        <th>Price</th>
-                        <th>Change</th>
-                        <th>Updated</th>
-                    </tr>
-
-                </thead>
-
-                <tbody id="stock-table-body">
-
-                    <tr>
-                        <td colspan="5">
-                            Loading stocks...
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-{% endblock %}
-
-{% block scripts %}
-
-<script src="{% static 'js/dashboard.js' %}"></script>
-
-{% endblock %}
-```
-
-## Dashboard View
-
-Add to `apps/stocks/views.py`:
-
-```python
-from django.contrib.auth.decorators import login_required
-
-from django.shortcuts import render
-
-
-@login_required
-def dashboard(request):
-
-    return render(
-        request,
-        "dashboard.html"
-    )
-```
-
----
-
-# 27. JavaScript WebSocket Client
-
-File: `static/js/dashboard.js`
-
-```javascript
-const tableBody = document.getElementById(
-    "stock-table-body"
-);
-
-const statusElement = document.getElementById(
-    "connection-status"
-);
-
-const rows = new Map();
-
-
-function createCell(value) {
-
-    const td = document.createElement("td");
-
-    td.textContent = value ?? "-";
-
-    return td;
-}
-
-
-function renderStock(stock) {
-
-    let row = rows.get(stock.symbol);
-
-    if (!row) {
-
-        row = document.createElement("tr");
-
-        rows.set(stock.symbol, row);
-
-        tableBody.appendChild(row);
-
-    }
-
-    row.replaceChildren(
-
-        createCell(stock.symbol),
-
-        createCell(stock.name),
-
-        createCell(stock.current_price),
-
-        createCell(
-            `${stock.percent_change}%`
-        ),
-
-        createCell(stock.updated_at)
-
-    );
-
-}
-
-
-async function loadStocks() {
-
-    const response = await fetch(
-        "/api/stocks/"
-    );
-
-    if (!response.ok) {
-
-        throw new Error(
-            "Unable to load stocks."
-        );
-
-    }
-
-    const stocks = await response.json();
-
-    rows.clear();
-
-    tableBody.replaceChildren();
-
-    stocks.forEach(stock => {
-
-        const latest = stock.latest_price;
-
-        if (!latest) return;
-
-        renderStock({
-
-            symbol: stock.symbol,
-
-            name: stock.name,
-
-            current_price: latest.current_price,
-
-            percent_change: latest.percent_change,
-
-            updated_at: latest.updated_at,
-
-        });
-
-    });
-
-}
-
-
-let socket = null;
-
-let reconnectTimer = null;
-
-
-function updateStatus(text, className) {
-
-    statusElement.textContent = text;
-
-    statusElement.className = className;
-
-}
-
-
-function connectWebSocket() {
-
-    if (
-        socket &&
-        (
-            socket.readyState === WebSocket.OPEN ||
-            socket.readyState === WebSocket.CONNECTING
-        )
-    ) {
-        return;
-    }
-
-    const protocol = (
-        location.protocol === "https:"
-    ) ? "wss:" : "ws:";
-
-    socket = new WebSocket(
-        `${protocol}//${location.host}/ws/stocks/`
-    );
-
-
-    socket.onopen = () => {
-
-        updateStatus(
-            "Connected",
-            "badge text-bg-success"
-        );
-
-    };
-
-
-    socket.onmessage = event => {
-
-        try {
-
-            const message = JSON.parse(event.data);
-
-            if (
-                message.type === "stock_update"
-            ) {
-
-                renderStock(message.data);
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Invalid WebSocket message:",
-                error
-            );
-
-        }
-
-    };
-
-
-    socket.onclose = () => {
-
-        updateStatus(
-            "Disconnected",
-            "badge text-bg-danger"
-        );
-
-        reconnectTimer = setTimeout(
-            connectWebSocket,
-            3000
-        );
-
-    };
-
-
-    socket.onerror = error => {
-
-        console.error(
-            "WebSocket error:",
-            error
-        );
-
-        socket.close();
-
-    };
-
-}
-
-
-loadStocks().catch(error => {
-
-    console.error(error);
-
-});
-
-connectWebSocket();
-```
-
-### Important JavaScript Concepts
-
-**Fetch API:**
-
-Used to retrieve stock data from Django REST APIs.
-
-**WebSocket:**
-
-Used to receive updates from the server without repeatedly sending HTTP requests.
-
-**DOM Manipulation:**
-
-Used to update stock rows dynamically.
-
-**Map:**
-
-Used to keep track of existing stock table rows.
-
-**textContent:**
-
-Used instead of unsafe HTML insertion to reduce XSS risks.
-
-**Reconnection:**
-
-Attempts to reconnect after the WebSocket connection closes.
-
-For a production client, add exponential backoff, connection cleanup, and duplicate timer prevention.
-
----
-
-# 28. Chart.js Historical Price Chart
-
-Include Chart.js:
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-```
-
-Example HTML:
-
-```html
-<canvas id="stock-chart"></canvas>
-```
-
-Example JavaScript:
-
-```javascript
-const chartContext = document
-    .getElementById("stock-chart")
-    .getContext("2d");
-
-
-const stockChart = new Chart(
-    chartContext,
-    {
-        type: "line",
-
-        data: {
-            labels: [],
-
-            datasets: [
-                {
-                    label: "Stock Price",
-
-                    data: [],
-
-                    tension: 0.3
-                }
-            ]
+def get_historical_candles(symbol, resolution, start_time, end_time):
+    response = requests.get(
+        "https://finnhub.io/api/v1/stock/candle",
+        params={
+            "symbol": symbol,
+            "resolution": resolution,
+            "from": start_time,
+            "to": end_time,
+            "token": settings.FINNHUB_API_KEY,
         },
+        timeout=15,
+    )
 
-        options: {
-            responsive: true,
+    response.raise_for_status()
 
-            maintainAspectRatio: false,
+    return response.json()
+```
 
-            scales: {
-                y: {
-                    beginAtZero: false
-                }
-            }
-        }
-    }
-);
+The response commonly contains arrays for:
 
+- `o`: Open.
+- `h`: High.
+- `l`: Low.
+- `c`: Close.
+- `v`: Volume.
+- `t`: Timestamp.
+- `s`: Response status.
 
-function updateChart(labels, prices) {
+Validate the response status and array lengths before storing candles.
 
-    stockChart.data.labels = labels;
+Use database uniqueness constraints and `update_or_create()` or bulk upserts to avoid duplicate candle records.
 
-    stockChart.data.datasets[0].data = prices;
+---
 
-    stockChart.update();
+# 18. Price Alert System
 
+## 18.1 Alert Checking Logic
+
+Example:
+
+```python
+def is_alert_triggered(alert, current_price):
+    if alert.condition == "above":
+        return current_price >= alert.target_price
+
+    if alert.condition == "below":
+        return current_price <= alert.target_price
+
+    return False
+```
+
+## 18.2 Check Alerts
+
+A background task should:
+
+1. Retrieve active alerts.
+2. Get the latest price for each stock.
+3. Compare the price with the alert target.
+4. Mark matching alerts as triggered.
+5. Create a notification.
+6. Send an email if the user enabled email notifications.
+7. Broadcast an event if the user is connected.
+
+Use database transactions or conditional updates to prevent the same alert from triggering multiple times when multiple workers process it concurrently.
+
+For production, also consider alert re-arming, notification delivery failures, and duplicate event prevention.
+
+---
+
+# 19. Notification System
+
+Notification types:
+
+- Price alert notification.
+- Portfolio update notification.
+- Market news notification.
+- System notification.
+
+Example notification:
+
+```json
+{
+    "title": "Stock Price Alert",
+    "message": "AAPL reached your target price.",
+    "is_read": false
 }
 ```
 
-The historical API endpoint should return properly formatted dates and prices before calling `updateChart()`.
-
----
-
-# 29. URL Configuration
-
-## apps/stocks/urls.py
-
-```python
-from django.urls import path
-
-from .views import (
-    StockListAPIView,
-    StockDetailAPIView,
-    NewsListAPIView,
-    RefreshStockAPIView,
-    dashboard,
-)
-
-
-urlpatterns = [
-
-    path(
-        "",
-        StockListAPIView.as_view(),
-        name="stock-list"
-    ),
-
-    path(
-        "news/",
-        NewsListAPIView.as_view(),
-        name="news-list"
-    ),
-
-    path(
-        "<str:symbol>/refresh/",
-        RefreshStockAPIView.as_view(),
-        name="stock-refresh"
-    ),
-
-    path(
-        "<str:symbol>/",
-        StockDetailAPIView.as_view(),
-        name="stock-detail"
-    ),
-
-]
-```
-
-## config/urls.py
-
-```python
-from django.contrib import admin
-
-from django.urls import path, include
-
-from apps.stocks.views import dashboard
-
-
-urlpatterns = [
-
-    path(
-        "admin/",
-        admin.site.urls
-    ),
-
-    path(
-        "",
-        dashboard,
-        name="dashboard"
-    ),
-
-    path(
-        "accounts/",
-        include("apps.accounts.urls")
-    ),
-
-    path(
-        "api/stocks/",
-        include("apps.stocks.urls")
-    ),
-
-    path(
-        "api/watchlist/",
-        include("apps.watchlist.urls")
-    ),
-
-]
-```
-
-**Important:** The `news/` route is placed before the dynamic `<str:symbol>/` route so that the URL router resolves it correctly.
-
-The accounts URLs are prefixed with `/accounts/`, so the login and logout URLs become `/accounts/login/` and `/accounts/logout/`. Keep the settings redirects consistent with these paths, or configure the account URLs at the root instead.
-
----
-
-# 30. API Endpoints
-
-| Method | Endpoint | Purpose | Access |
-|---|---|---|---|
-| GET | `/` | Dashboard | Authenticated |
-| GET | `/accounts/login/` | Login page | Public |
-| POST | `/accounts/login/` | Login | Public |
-| GET/POST | `/accounts/register/` | Registration | Public |
-| POST | `/accounts/logout/` | Logout | Authenticated |
-| GET | `/api/stocks/` | List stocks | Public |
-| GET | `/api/stocks/AAPL/` | Stock details | Public |
-| POST | `/api/stocks/AAPL/refresh/` | Manual refresh | Authenticated |
-| GET | `/api/stocks/news/` | Market news | Public |
-| GET | `/api/watchlist/` | User watchlist | Authenticated |
-| POST | `/api/watchlist/` | Add watchlist item | Authenticated |
-| DELETE | `/api/watchlist/1/` | Delete watchlist item | Authenticated |
-
-WebSocket:
+Recommended APIs:
 
 ```text
-ws://127.0.0.1:8000/ws/stocks/
+GET    /api/notifications/
+GET    /api/notifications/unread/
+PATCH  /api/notifications/{id}/read/
+DELETE /api/notifications/{id}/
 ```
 
-Production:
+Every notification endpoint must restrict access to the authenticated user's own notifications.
+
+---
+
+# 20. Market News Integration
+
+Retrieve news from the provider using its company-news or general-news endpoints.
+
+Recommended workflow:
+
+1. Request news from the provider.
+2. Validate the response.
+3. Normalize the news data.
+4. Save records using a unique URL or provider ID.
+5. Return paginated news through DRF.
+6. Refresh news periodically using Celery Beat.
+
+Example API:
 
 ```text
-wss://your-domain.com/ws/stocks/
+GET /api/news/
+GET /api/news/company/AAPL/
 ```
+
+Do not assume that all news endpoints are available on every provider plan.
 
 ---
 
-# 31. HTTP Status Codes
+# 21. Recommended API Endpoints
 
-| Status | Meaning |
-|---|---|
-| 200 | OK |
-| 201 | Created |
-| 204 | No Content |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 409 | Conflict |
-| 429 | Too Many Requests |
-| 500 | Internal Server Error |
-| 502 | Bad Gateway |
-| 503 | Service Unavailable |
+Base URL:
 
-### Important Differences
-
-**400 Bad Request:**
-
-Invalid request data.
-
-**401 Unauthorized:**
-
-Authentication is missing or invalid.
-
-**403 Forbidden:**
-
-The user is not allowed to perform the operation.
-
-**404 Not Found:**
-
-The requested resource does not exist or is not accessible.
-
-**409 Conflict:**
-
-A request conflicts with existing data, such as a duplicate item.
-
-**429 Too Many Requests:**
-
-Rate limit exceeded.
-
-**502 Bad Gateway:**
-
-An upstream service, such as Finnhub, returned an error.
-
----
-
-# 32. Security Implementation
-
-## A. Authentication
-
-Django:
-
-```python
-@login_required
+```text
+/api/
 ```
 
-DRF:
-
-```python
-permission_classes = [IsAuthenticated]
-```
-
-## B. CSRF Protection
-
-HTML forms:
-
-```html
-<form method="post">
-
-    {% csrf_token %}
-
-    <button type="submit">
-        Submit
-    </button>
-
-</form>
-```
-
-JavaScript POST requests using session authentication should include the CSRF token.
-
-## C. Environment Variables
-
-```python
-FINNHUB_API_KEY = os.getenv(
-    "FINNHUB_API_KEY"
-)
-```
-
-Never store API keys in frontend code or public repositories.
-
-## D. User-Specific Data
-
-```python
-Portfolio.objects.get_or_create(
-    user=request.user
-)
-```
-
-Watchlist:
-
-```python
-WatchlistItem.objects.filter(
-    user=request.user
-)
-```
-
-Always filter private records by the authenticated user.
-
-## E. Rate Limiting
-
-Rate limiting can protect expensive endpoints.
-
-Example:
-
-```python
-from django_ratelimit.decorators import ratelimit
-
-
-@ratelimit(
-    key="user_or_ip",
-    rate="60/m",
-    block=True
-)
-def example_view(request):
-    pass
-```
-
-For DRF endpoints, use an appropriate DRF throttling class or custom throttling implementation.
-
-## F. WebSocket Security
-
-- Require authentication.
-- Validate the connection origin.
-- Protect private channel groups.
-- Avoid trusting client-supplied user IDs.
-- Validate incoming messages.
-- Use WSS in production.
-
-## G. XSS Prevention
-
-Avoid:
-
-```javascript
-element.innerHTML = userInput;
-```
-
-Prefer:
-
-```javascript
-element.textContent = userInput;
-```
-
-## H. Database Integrity
-
-Use database constraints for:
-
-- Unique stock symbols.
-- Unique user-stock watchlist pairs.
-- Valid foreign-key relationships.
-
----
-
-# 33. Error Handling
-
-## Finnhub Errors
-
-Possible errors:
-
-- Missing API key.
-- Invalid API key.
-- API access denied.
-- Rate limit exceeded.
-- Network error.
-- Request timeout.
-- Invalid JSON.
-- No stock data available.
-
-## Django Errors
-
-- ValidationError
-- DoesNotExist
-- IntegrityError
-- PermissionDenied
-- Http404
-
-## Celery Errors
-
-- Redis connection failure.
-- Task timeout.
-- External API failure.
-- Duplicate scheduled task.
-- Database failure.
-
-Production applications should use structured logging, error monitoring, retry policies, and appropriate user-facing error messages.
-
-Never expose secret keys, database credentials, or internal exception tracebacks to API clients.
-
----
-
-# 34. Database Migrations
-
-Create migrations:
-
-```bash
-python manage.py makemigrations
-```
-
-Apply migrations:
-
-```bash
-python manage.py migrate
-```
-
-Check migrations:
-
-```bash
-python manage.py showmigrations
-```
-
-Create superuser:
-
-```bash
-python manage.py createsuperuser
-```
-
-Run system checks:
-
-```bash
-python manage.py check
-```
-
----
-
-# 35. Running the Complete Project
-
-Several services must run simultaneously.
-
-## Terminal 1: Redis
-
-```bash
-docker start stock-redis
-```
-
-## Terminal 2: Django ASGI Server
-
-```bash
-python manage.py runserver
-```
-
-For local development, Daphne can also be used explicitly:
-
-```bash
-daphne -p 8000 config.asgi:application
-```
-
-## Terminal 3: Celery Worker
-
-Windows:
-
-```powershell
-celery -A config worker -l info -P solo
-```
-
-Linux/macOS:
-
-```bash
-celery -A config worker -l info
-```
-
-## Terminal 4: Celery Beat
-
-```bash
-celery -A config beat -l info
-```
-
-### Important
-
-- Redis must be running.
-- Django must be configured with ASGI.
-- Celery Worker must be running.
-- Celery Beat must be running.
-- Finnhub API key must be valid.
-- Database migrations must be applied.
-
----
-
-# 36. Testing Strategy
-
-Testing should cover models, APIs, services, authentication, background tasks, and WebSocket communication.
-
-## A. Model Testing
-
-- Stock can be created.
-- Stock symbol is unique.
-- Portfolio belongs to one user.
-- Watchlist prevents duplicates.
-- PriceAlert saves correctly.
-
-## B. API Testing
-
-- Stock list returns JSON.
-- Stock detail returns the correct stock.
-- News endpoint returns articles.
-- Unauthenticated users cannot access private APIs.
-- A user cannot delete another user's watchlist item.
-
-## C. Service Testing
-
-Mock Finnhub responses to test:
-
-- Successful quote.
-- Invalid API key.
-- Rate limit.
-- Timeout.
-- Invalid response.
-- Missing stock data.
-
-## D. Celery Testing
-
-- Stock task executes.
-- Price snapshots are saved.
-- API errors are handled.
-- Alert task triggers correctly.
-- News sync saves articles.
-
-## E. WebSocket Testing
-
-Use Django Channels testing utilities:
-
-```python
-from channels.testing import WebsocketCommunicator
-```
-
-Test:
-
-- Authenticated connection succeeds.
-- Unauthenticated connection is rejected.
-- Group messages are received.
-- Disconnect removes the channel from its group.
-
-## F. Frontend Testing
-
-- Dashboard loads.
-- Stock rows appear.
-- WebSocket connects.
-- Prices update.
-- Connection status changes.
-- Reconnection works.
-- Browser console has no unexpected errors.
-
----
-
-# 37. Common Problems and Solutions
-
-## Problem 1: Redis Connection Refused
-
-Cause:
-- Redis is not running.
-- Redis URL is incorrect.
-
-Solution:
-
-```bash
-docker start stock-redis
-```
-
-Check:
-
-```bash
-docker exec -it stock-redis redis-cli ping
-```
-
-## Problem 2: Finnhub API Key Missing
-
-Check:
-
-```env
-FINNHUB_API_KEY=your_api_key
-```
-
-Verify:
-
-- `.env` exists.
-- `load_dotenv()` is configured.
-- The key is correct.
-- Django and Celery processes have loaded the environment.
-
-Restart processes after changing environment variables.
-
-## Problem 3: WebSocket 404
-
-Check:
-
-- `ASGI_APPLICATION`
-- `config/asgi.py`
-- `apps/stocks/routing.py`
-- WebSocket URL
-- ASGI server
-
-## Problem 4: WebSocket 403
-
-Possible reasons:
-
-- Origin validation failed.
-- Authentication is missing.
-- User is not logged in.
-- Cookie/session was not sent.
-
-## Problem 5: Celery Task Not Running
-
-Check:
-
-- Redis connection.
-- Celery worker.
-- Celery Beat.
-- Task import path.
-- `autodiscover_tasks()`.
-- Task name in Beat schedule.
-
-## Problem 6: Stock Price Not Updating
-
-Check:
-
-- Finnhub token.
-- API quota.
-- Celery worker logs.
-- Stock active status.
-- Celery Beat schedule.
-- Database records.
-
-## Problem 7: Duplicate Watchlist Item
-
-Cause:
-
-The user attempts to add the same stock twice.
-
-Solution:
-
-Use a database `UniqueConstraint` and return a clear validation response.
-
-## Problem 8: WebSocket Connects but Receives No Updates
-
-Check:
-
-- Celery task executes.
-- `group_send()` is called.
-- Consumer event handler is named correctly.
-- Redis channel layer works.
-- Frontend message handler works.
-
-## Problem 9: API Returns 401 or 403
-
-Check:
-
-- Session authentication.
-- Login status.
-- DRF permission classes.
-- CSRF token for session-authenticated POST requests.
-
----
-
-# 38. Performance Optimization
-
-## Database
-
-- Use indexes.
-- Use `select_related()`.
-- Use `prefetch_related()`.
-- Paginate large API responses.
-- Avoid unnecessary database queries.
-
-Example:
-
-```python
-WatchlistItem.objects.filter(
-    user=request.user
-).select_related("stock")
-```
-
-## Redis
-
-Use Redis for:
-
-- Temporary caching.
-- Message brokering.
-- Channel layers.
-
-## Celery
-
-- Limit task concurrency appropriately.
-- Add retries with exponential backoff.
-- Prevent overlapping scheduled tasks.
-- Monitor task failures.
-- Avoid excessive API calls.
-
-## Finnhub
-
-- Respect provider rate limits.
-- Cache data where appropriate.
-- Avoid repeated requests for identical data.
-- Poll only the symbols that need updates.
-- Consider batch scheduling and API quotas.
+## Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register/` | Register user |
+| POST | `/auth/token/` | Login and obtain JWT |
+| POST | `/auth/token/refresh/` | Refresh JWT |
+| GET | `/auth/profile/` | View profile |
+| PATCH | `/auth/profile/` | Update profile |
+| POST | `/auth/logout/` | Logout / token blacklist, if enabled |
+
+## Stocks
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/stocks/` | List stocks |
+| GET | `/stocks/{symbol}/` | Stock details |
+| GET | `/stocks/{symbol}/latest/` | Latest stored price |
+| POST | `/stocks/{symbol}/refresh/` | Request manual refresh |
+| GET | `/stocks/{symbol}/history/` | Historical price data |
+| GET | `/stocks/search/?q=AAPL` | Search stocks |
+
+## Watchlists
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/watchlists/` | View watchlist |
+| POST | `/watchlists/` | Add stock |
+| DELETE | `/watchlists/{id}/` | Remove stock |
+
+## Portfolio
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/portfolio/` | View holdings |
+| POST | `/portfolio/` | Add holding |
+| GET | `/portfolio/{id}/` | Holding details |
+| PATCH | `/portfolio/{id}/` | Update holding |
+| DELETE | `/portfolio/{id}/` | Remove holding |
+| GET | `/portfolio/summary/` | Portfolio summary |
+
+## Alerts
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/alerts/` | List alerts |
+| POST | `/alerts/` | Create alert |
+| PATCH | `/alerts/{id}/` | Update alert |
+| DELETE | `/alerts/{id}/` | Delete alert |
+
+## Notifications
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/notifications/` | List notifications |
+| GET | `/notifications/unread/` | Unread notifications |
+| PATCH | `/notifications/{id}/read/` | Mark as read |
+
+## News
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/news/` | Latest market news |
+| GET | `/news/company/{symbol}/` | Company news |
 
 ## WebSocket
 
-- Avoid unnecessary broadcasts.
-- Use private groups where necessary.
-- Send compact JSON messages.
-- Disconnect inactive clients.
-
-## Stock Price Storage
-
-Saving every polling result indefinitely can grow the database quickly.
-
-Possible improvements:
-
-- Retain recent quote snapshots.
-- Archive old snapshots.
-- Use a separate historical candle table.
-- Add periodic cleanup tasks.
+```text
+ws://localhost:8000/ws/stocks/AAPL/
+```
 
 ---
 
-# 39. Production Deployment
+# 22. API Documentation with Swagger
 
-Before deploying:
+Install:
 
-1. Set `DEBUG=False`.
-2. Use a strong secret key.
-3. Configure PostgreSQL.
-4. Configure Redis securely.
-5. Configure HTTPS and WSS.
-6. Configure trusted hosts and WebSocket origins.
-7. Protect API credentials.
-8. Configure logging.
-9. Configure database backups.
-10. Add automated tests.
-11. Configure static file serving.
-12. Monitor Celery workers.
-13. Monitor Celery Beat.
-14. Configure API rate limits.
-15. Add health checks.
+```bash
+pip install drf-spectacular
+```
 
-## Recommended Production Services
+Configure the schema settings:
 
-| Service | Responsibility |
+```python
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+```
+
+Add URLs:
+
+```python
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+)
+
+urlpatterns += [
+    path(
+        "api/schema/",
+        SpectacularAPIView.as_view(),
+        name="schema"
+    ),
+
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(
+            url_name="schema"
+        ),
+        name="swagger-ui"
+    ),
+]
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/api/docs/
+```
+
+---
+
+# 23. Frontend Development
+
+Recommended frontend pages:
+
+```text
+Home / Dashboard
+Login
+Registration
+Stock List
+Stock Details
+Watchlist
+Portfolio
+Price Alerts
+Notifications
+Market News
+User Profile
+```
+
+## Dashboard Components
+
+- Market overview.
+- Stock price cards.
+- Top gainers.
+- Top losers.
+- Watchlist summary.
+- Portfolio summary.
+- Stock price chart.
+- Latest market news.
+
+## Chart.js Example
+
+```html
+<canvas id="stockChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const context = document
+    .getElementById("stockChart")
+    .getContext("2d");
+
+const stockChart = new Chart(context, {
+    type: "line",
+
+    data: {
+        labels: ["09:00", "10:00", "11:00", "12:00", "13:00"],
+
+        datasets: [{
+            label: "AAPL Price",
+
+            data: [220, 222, 221, 225, 230],
+
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+```
+
+The example uses sample data. In the actual application, load chart data from the historical stock API.
+
+---
+
+# 24. Error Handling
+
+The application should handle errors from:
+
+- Invalid stock symbols.
+- Invalid API requests.
+- Expired JWT tokens.
+- External API failures.
+- Finnhub rate limits.
+- Redis connection failures.
+- Database errors.
+- WebSocket disconnections.
+- Invalid portfolio values.
+- Duplicate watchlist entries.
+- Missing historical data.
+
+Recommended HTTP status codes:
+
+| Status | Meaning |
 |---|---|
-| Nginx | Reverse proxy |
-| Daphne or Uvicorn | ASGI application server |
-| PostgreSQL | Main database |
-| Redis | Broker and channel layer |
-| Celery Worker | Background tasks |
-| Celery Beat | Scheduled tasks |
-| HTTPS Certificate | Secure connections |
+| 200 | Successful request |
+| 201 | Resource created |
+| 204 | Successful deletion |
+| 400 | Invalid request |
+| 401 | Authentication required |
+| 403 | Permission denied |
+| 404 | Resource not found |
+| 429 | Rate limit exceeded |
+| 500 | Internal server error |
+| 503 | External service unavailable |
 
-A production deployment should separate web serving, background workers, scheduling, and infrastructure configuration.
+Never expose API keys, passwords, stack traces, or internal database details in public API responses.
 
 ---
 
-# 40. Git and GitHub
+# 25. Security Best Practices
 
-Initialize repository:
+## Authentication
+
+- Use JWT or secure session authentication.
+- Set reasonable access-token expiration.
+- Use refresh-token rotation and blacklisting where appropriate.
+- Protect private endpoints.
+- Never store plaintext passwords.
+
+## Authorization
+
+- Users can only access their own portfolios.
+- Users can only access their own watchlists.
+- Users can only manage their own alerts.
+- Users can only access their own notifications.
+- Validate WebSocket subscriptions and permissions.
+
+## API Security
+
+- Validate request data.
+- Use DRF permissions.
+- Add rate limiting.
+- Restrict CORS origins.
+- Use HTTPS in production.
+- Protect against SQL injection through Django ORM.
+- Keep Django and dependencies updated.
+
+## Environment Security
+
+- Keep secret keys in environment variables.
+- Never upload `.env` to GitHub.
+- Protect Finnhub API keys.
+- Use secure database credentials.
+- Disable `DEBUG` in production.
+
+---
+
+# 26. Testing
+
+Testing is essential before deployment.
+
+Recommended test categories:
+
+## Unit Tests
+
+- Stock model tests.
+- Portfolio calculation tests.
+- Price alert condition tests.
+- Service validation tests.
+
+## API Tests
+
+- Registration.
+- Login.
+- JWT authentication.
+- Stock listing.
+- Stock search.
+- Watchlist CRUD.
+- Portfolio CRUD.
+- Alert CRUD.
+- Notification permissions.
+
+## Integration Tests
+
+- Finnhub API integration.
+- Celery task execution.
+- Redis communication.
+- WebSocket message delivery.
+- Database persistence.
+
+## Example Model Test
+
+```python
+from django.test import TestCase
+
+from apps.stocks.models import Stock
+
+
+class StockModelTest(TestCase):
+
+    def test_create_stock(self):
+        stock = Stock.objects.create(
+            symbol="AAPL",
+            company_name="Apple Inc."
+        )
+
+        self.assertEqual(stock.symbol, "AAPL")
+        self.assertEqual(stock.company_name, "Apple Inc.")
+```
+
+## Example Portfolio Calculation Test
+
+```python
+from decimal import Decimal
+
+from django.test import SimpleTestCase
+
+
+class PortfolioCalculationTest(SimpleTestCase):
+
+    def test_profit_loss(self):
+        quantity = Decimal("10")
+        buy_price = Decimal("100")
+        current_price = Decimal("120")
+
+        invested = quantity * buy_price
+        current_value = quantity * current_price
+
+        profit_loss = current_value - invested
+
+        self.assertEqual(profit_loss, Decimal("200"))
+```
+
+Run tests:
+
+```bash
+python manage.py test
+```
+
+Mock external Finnhub requests during automated tests so that tests do not depend on live market data or API availability.
+
+---
+
+# 27. Docker Configuration
+
+Docker helps run the application and its supporting services consistently.
+
+## Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## docker-compose.yml
+
+```yaml
+services:
+  web:
+    build: .
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: stock_market_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: celery -A config worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A config beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
+```
+
+The Docker Compose example is a development starting point. Configure a PostgreSQL `DATABASE_URL` that points to the `db` service, add health checks, and configure production secrets and persistence before deployment. Run only one Celery Beat scheduler for a given schedule.
+
+Start services:
+
+```bash
+docker compose up --build
+```
+
+Run migrations:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+---
+
+# 28. Deployment
+
+Possible deployment platforms:
+
+- VPS.
+- AWS.
+- DigitalOcean.
+- Render.
+- Railway.
+- Other ASGI-compatible hosting platforms.
+
+Production deployment requirements:
+
+1. Configure PostgreSQL.
+2. Configure Redis.
+3. Configure environment variables.
+4. Set `DEBUG=False`.
+5. Configure `ALLOWED_HOSTS`.
+6. Configure HTTPS.
+7. Configure static and media files.
+8. Run database migrations.
+9. Start the ASGI server.
+10. Start Celery workers.
+11. Start Celery Beat.
+12. Configure logging and monitoring.
+13. Configure backups.
+14. Monitor API usage and provider limits.
+
+For WebSocket support, ensure the reverse proxy and hosting platform support WebSocket upgrades.
+
+---
+
+# 29. Performance Optimization
+
+Recommended improvements:
+
+- Add database indexes.
+- Use `select_related()` for foreign-key relationships.
+- Use `prefetch_related()` for reverse and many-to-many relationships.
+- Paginate API responses.
+- Cache frequently requested stock data.
+- Avoid unnecessary Finnhub API requests.
+- Use background tasks for slow operations.
+- Use bulk database operations when appropriate.
+- Keep WebSocket messages small.
+- Limit historical chart data by date range and interval.
+- Monitor database query performance.
+
+Example:
+
+```python
+stocks = StockPrice.objects.select_related(
+    "stock"
+).order_by("-created_at")
+```
+
+Redis caching can reduce repeated requests for frequently accessed stock information. Cache expiration should account for market hours and the freshness requirements of the data.
+
+---
+
+# 30. Finnhub API Rate Limits and Reliability
+
+External API limits depend on the provider's current plan and endpoint.
+
+The application should:
+
+- Check the current Finnhub plan limits.
+- Handle HTTP 429 responses.
+- Use exponential backoff.
+- Add request timeouts.
+- Avoid duplicate requests.
+- Cache suitable responses.
+- Log provider errors.
+- Avoid unnecessary polling.
+- Handle market holidays and closed-market periods.
+
+A successful HTTP response does not always mean valid stock data was returned. Validate the response content before saving it.
+
+For realtime market data, evaluate whether Finnhub's WebSocket service is available under the chosen plan. If using Finnhub WebSocket directly, manage its connection, subscription messages, reconnect behavior, and provider limits separately from Django Channels.
+
+---
+
+# 31. Development Roadmap
+
+Build the project step by step.
+
+## Phase 1 – Project Setup
+
+- Create Django project.
+- Create virtual environment.
+- Install dependencies.
+- Configure environment variables.
+- Configure PostgreSQL.
+- Create Django apps.
+
+## Phase 2 – Authentication
+
+- User registration.
+- JWT login.
+- Token refresh.
+- User profile.
+- Permissions.
+
+## Phase 3 – Stock Management
+
+- Create Stock model.
+- Create StockPrice model.
+- Add stock records.
+- Integrate Finnhub API.
+- Save stock quotes.
+- Build stock APIs.
+
+## Phase 4 – Watchlist
+
+- Create Watchlist model.
+- Add stock to watchlist.
+- Remove stock.
+- List user watchlist.
+- Handle duplicate entries.
+
+## Phase 5 – Portfolio
+
+- Create portfolio models.
+- Add holdings.
+- Update holdings.
+- Remove holdings.
+- Calculate investment value.
+- Calculate profit and loss.
+
+## Phase 6 – Background Processing
+
+- Configure Redis.
+- Configure Celery.
+- Create background tasks.
+- Configure Celery Beat.
+- Fetch stock prices automatically.
+
+## Phase 7 – WebSockets
+
+- Install Django Channels.
+- Configure ASGI.
+- Create WebSocket consumer.
+- Create WebSocket routing.
+- Broadcast stock updates.
+- Connect frontend.
+
+## Phase 8 – Historical Data
+
+- Create StockCandle model.
+- Retrieve historical candles.
+- Store historical data.
+- Create history APIs.
+- Build Chart.js charts.
+
+## Phase 9 – Price Alerts
+
+- Create alert model.
+- Create alert APIs.
+- Check alert conditions.
+- Create notifications.
+- Send email notifications.
+
+## Phase 10 – Market News
+
+- Integrate market news provider.
+- Store news.
+- Create news APIs.
+- Build news dashboard.
+
+## Phase 11 – Testing and Optimization
+
+- Write unit tests.
+- Write API tests.
+- Test WebSockets.
+- Test Celery.
+- Optimize database queries.
+- Add caching.
+- Add pagination.
+
+## Phase 12 – Deployment
+
+- Configure Docker.
+- Configure production database.
+- Configure Redis.
+- Deploy Django ASGI application.
+- Deploy Celery workers.
+- Configure HTTPS.
+- Add logging and monitoring.
+
+---
+
+# 32. Git and GitHub
+
+Initialize Git:
 
 ```bash
 git init
+```
+
+Create `.gitignore`:
+
+```gitignore
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+.env
+db.sqlite3
+
+staticfiles/
+media/
+
+.idea/
+.vscode/
+
+.coverage
+htmlcov/
 ```
 
 Add files:
 
 ```bash
 git add .
+git commit -m "Initial project setup"
 ```
 
-Commit:
-
-```bash
-git commit -m "Initial realtime stock tracker project"
-```
-
-Create a GitHub repository and connect it:
+Create GitHub repository and connect:
 
 ```bash
 git remote add origin YOUR_GITHUB_REPOSITORY_URL
-```
-
-Push:
-
-```bash
 git branch -M main
 git push -u origin main
 ```
 
-Never commit:
-
-- `.env`
-- API tokens
-- Database passwords
-- Secret keys
-- Private production credentials
+Never commit real API keys, passwords, or production database credentials.
 
 ---
 
-# 41. Development Roadmap
+# 33. Interview Questions and Answers
 
-## Phase 1: Django Fundamentals
+## Q1. What is Django?
 
-Learn:
+Django is a high-level Python web framework used to build secure and maintainable web applications quickly. It provides ORM, authentication, URL routing, middleware, admin panel, and many built-in features.
 
-- Django project setup.
-- Apps.
-- Models.
-- Views.
-- URLs.
-- Templates.
-- ORM.
-- Authentication.
+## Q2. What is Django REST Framework?
 
-Build:
-- Basic Stock Tracker.
-- Registration and Login.
-- Portfolio CRUD.
+Django REST Framework is a toolkit for building RESTful APIs using Django. It provides serializers, API views, authentication, permissions, pagination, and browsable API support.
 
-## Phase 2: Finnhub Integration
+## Q3. What is Finnhub?
 
-Learn:
+Finnhub is a financial data provider that offers stock market information through REST APIs and WebSocket services, depending on the available plan.
 
-- HTTP requests.
-- JSON parsing.
-- API authentication.
-- Error handling.
-- API rate limits.
-- Service layer.
+## Q4. What is Celery?
 
-Build:
-- Current stock quote.
-- Stock details.
-- Market news.
+Celery is a distributed task queue that executes background tasks outside the normal HTTP request-response cycle.
 
-## Phase 3: Django REST Framework
+## Q5. Why use Celery?
 
-Learn:
+Celery is useful for slow or scheduled operations such as stock price fetching, alert checking, email sending, and news updates.
 
-- Serializers.
-- APIView.
-- GenericAPIView.
-- ModelSerializer.
-- Permissions.
-- Authentication.
-- Pagination.
-- Throttling.
+## Q6. What is Redis?
 
-Build:
-- Stock APIs.
-- Portfolio APIs.
-- Watchlist APIs.
+Redis is an in-memory data store. In this project, Redis can act as the Celery message broker, task result backend, and Django Channels communication layer.
 
-## Phase 4: Database Design
+## Q7. What is Celery Beat?
 
-Learn:
+Celery Beat is a scheduler that periodically sends tasks to Celery workers.
 
-- ForeignKey.
-- OneToOneField.
-- ManyToManyField.
-- UniqueConstraint.
-- Database indexes.
-- Query optimization.
+## Q8. What is Django Channels?
 
-Build:
-- StockPrice history.
-- Portfolio.
-- Watchlist.
-- PriceAlert.
+Django Channels extends Django to support asynchronous protocols, including WebSockets.
 
-## Phase 5: Redis and Celery
+## Q9. What is a WebSocket?
 
-Learn:
+A WebSocket is a persistent, bidirectional communication protocol that allows the client and server to exchange messages without repeatedly opening new HTTP requests.
 
-- Redis.
-- Message brokers.
-- Celery tasks.
-- Celery workers.
-- Celery Beat.
-- Retries.
-- Task monitoring.
+## Q10. What is the difference between HTTP and WebSocket?
 
-Build:
-- Background stock updates.
-- News synchronization.
-- Price alert checks.
+HTTP usually follows a request-response pattern. WebSocket maintains a persistent connection and allows both the client and server to send messages.
 
-## Phase 6: Django Channels
+## Q11. What is JWT?
 
-Learn:
+JWT stands for JSON Web Token. It is a token-based authentication mechanism used to authenticate API requests.
 
-- ASGI.
-- WebSocket.
-- Consumers.
-- Routing.
-- Channel layers.
-- Group broadcasting.
-- WebSocket authentication.
+## Q12. What is Django ORM?
 
-Build:
-- Realtime dashboard.
-- Automatic price updates.
+Django ORM allows developers to interact with databases using Python objects instead of writing raw SQL for every operation.
 
-## Phase 7: Frontend
+## Q13. What is PostgreSQL?
 
-Learn:
+PostgreSQL is an open-source relational database management system known for reliability, data integrity, and advanced SQL features.
 
-- Bootstrap.
-- JavaScript.
-- Fetch API.
-- DOM manipulation.
-- WebSocket client.
-- Chart.js.
+## Q14. Why use PostgreSQL instead of SQLite in production?
 
-Build:
-- Responsive dashboard.
-- Historical chart.
-- Watchlist interface.
-- Alert interface.
+PostgreSQL is generally more suitable for production workloads involving concurrent users, complex queries, transactions, and larger datasets. SQLite is useful for lightweight development and testing.
 
-## Phase 8: Production
+## Q15. What is an API?
 
-Learn:
+An API is an interface that allows different software applications to communicate with each other.
 
-- PostgreSQL.
-- Docker.
-- Nginx.
-- Daphne.
-- Deployment.
-- Logging.
-- Monitoring.
-- Security.
+## Q16. What is a REST API?
 
-Build:
-- Production-ready deployment.
+A REST API is an HTTP-based interface that commonly uses methods such as GET, POST, PUT, PATCH, and DELETE to operate on resources.
+
+## Q17. What is a Serializer?
+
+A serializer converts complex data such as Django model instances into native Python data types that can be rendered as JSON. It can also validate incoming data.
+
+## Q18. What is a ForeignKey?
+
+A ForeignKey represents a many-to-one relationship between database models.
+
+## Q19. What is `select_related()`?
+
+`select_related()` uses SQL joins to retrieve related single-valued objects efficiently, reducing unnecessary database queries.
+
+## Q20. What is `prefetch_related()`?
+
+`prefetch_related()` retrieves related objects in separate queries and joins them in Python. It is useful for reverse foreign-key and many-to-many relationships.
+
+## Q21. How does realtime stock updating work?
+
+The backend retrieves stock prices from Finnhub. After receiving and validating new data, it saves the price and broadcasts an event through Django Channels. Connected frontend clients receive the update through WebSockets.
+
+## Q22. Why use background tasks for stock updates?
+
+Fetching external data can take time and may fail due to network or provider limitations. Background tasks keep these operations separate from normal API requests.
+
+## Q23. How do you handle Finnhub API failures?
+
+Use request timeouts, exception handling, retries with exponential backoff, rate-limit handling, logging, and appropriate fallback behavior.
+
+## Q24. How do you protect user portfolio data?
+
+Use authentication, object-level permission checks, and querysets filtered by the authenticated user. Never trust a user ID supplied by the client to determine ownership.
+
+## Q25. How do you prevent duplicate watchlist entries?
+
+Add a database-level unique constraint on the combination of user and stock. Also handle validation errors gracefully in the API.
+
+## Q26. How do you calculate portfolio profit and loss?
+
+Subtract the total invested amount from the current market value. For multiple purchases, calculate the weighted average purchase price or use a transaction-based accounting model.
+
+## Q27. What is an OHLCV candle?
+
+OHLCV represents Open, High, Low, Close, and Volume. It is commonly used to represent market price movement over a particular time interval.
+
+## Q28. How do you test an external API integration?
+
+Use mocked HTTP responses to test successful responses, invalid data, timeouts, provider errors, and rate-limit responses without depending on the live external service.
 
 ---
 
-# 42. Interview Questions and Answers
-
-## Django Questions
-
-### Q1. What is Django?
-
-Django is a high-level Python web framework used to build secure and maintainable web applications.
-
-### Q2. What is Django ORM?
-
-Django ORM allows developers to interact with relational databases using Python objects instead of writing SQL manually.
-
-### Q3. What is ForeignKey?
-
-ForeignKey creates a many-to-one relationship between two models.
-
-### Q4. What is OneToOneField?
-
-OneToOneField creates a one-to-one relationship between two models.
-
-### Q5. What is ManyToManyField?
-
-ManyToManyField creates a many-to-many relationship between two models.
-
-### Q6. What is get_or_create()?
-
-It retrieves an existing object or creates a new one if it does not exist.
-
-### Q7. What is select_related()?
-
-It uses SQL joins to retrieve related objects efficiently for ForeignKey and OneToOneField relationships.
-
-### Q8. What is prefetch_related()?
-
-It retrieves related objects using additional queries and joins the results in Python. It is useful for ManyToMany and reverse relationships.
-
-## DRF Questions
-
-### Q9. What is Django REST Framework?
-
-DRF is a Django toolkit for building RESTful APIs.
-
-### Q10. What is a serializer?
-
-A serializer converts model instances into JSON-compatible data and validates incoming data.
-
-### Q11. What is APIView?
-
-APIView is a DRF class that provides methods for handling HTTP requests.
-
-### Q12. What is the difference between APIView and GenericAPIView?
-
-APIView provides basic API request handling. GenericAPIView adds common functionality such as queryset, serializer, and lookup configuration.
-
-### Q13. What is IsAuthenticated?
-
-It is a DRF permission class that allows access only to authenticated users.
-
-## API Questions
-
-### Q14. What is an API?
-
-An API is an interface that allows different software systems to communicate.
-
-### Q15. What is JSON?
-
-JSON is a lightweight data interchange format.
-
-### Q16. What is the difference between GET and POST?
-
-GET retrieves information. POST submits data or requests creation of a resource.
-
-### Q17. What is HTTP status code 400?
-
-It indicates that the request contains invalid or unacceptable data.
-
-### Q18. What is rate limiting?
-
-Rate limiting restricts the number of requests allowed within a specified period.
-
-## Celery Questions
-
-### Q19. What is Celery?
-
-Celery is a distributed task queue used for background processing.
-
-### Q20. What is Redis?
-
-Redis is an in-memory data store that can be used as a message broker, cache, and channel layer backend.
-
-### Q21. What is Celery Beat?
-
-Celery Beat schedules recurring tasks.
-
-### Q22. What is the difference between Celery Worker and Celery Beat?
-
-Worker executes tasks. Beat schedules and sends recurring tasks to the broker.
-
-### Q23. Why use Celery in this project?
-
-Celery retrieves stock prices and synchronizes news in the background without blocking normal web requests.
-
-## WebSocket Questions
-
-### Q24. What is WebSocket?
-
-WebSocket is a communication protocol that provides persistent, bidirectional communication between a client and server.
-
-### Q25. What is Django Channels?
-
-Django Channels extends Django to support asynchronous protocols such as WebSocket.
-
-### Q26. What is ASGI?
-
-ASGI stands for Asynchronous Server Gateway Interface. It supports asynchronous Python web applications.
-
-### Q27. What is the difference between HTTP and WebSocket?
-
-HTTP typically follows a request-response model. WebSocket maintains a persistent connection that allows both sides to send messages.
-
-### Q28. What is a Channels Group?
-
-A Channels group allows multiple connected channel instances to receive broadcast events.
-
-## Redis Questions
-
-### Q29. Why is Redis used in this project?
-
-Redis provides message transport for Celery and Channels and can also be used for caching.
-
-### Q30. Is Redis the main database?
-
-No. PostgreSQL is the main persistent database in production. Redis is used for messaging and temporary data.
-
-## Project-Specific Questions
-
-### Q31. How does stock price updating work?
-
-Celery Beat schedules a task. A Celery Worker fetches stock quotes from Finnhub and saves them to PostgreSQL.
-
-### Q32. How does the frontend receive updated prices?
-
-The backend sends events through the Redis channel layer. Django Channels forwards them through WebSocket to the browser.
-
-### Q33. Is this tick-by-tick realtime?
-
-No. The basic implementation periodically fetches quotes through Finnhub REST API. It provides near-real-time polling updates.
-
-### Q34. Why use a service layer?
-
-It separates external API and business logic from views, making the code reusable and easier to maintain.
-
-### Q35. How do you protect the Finnhub API key?
-
-By storing it in environment variables and accessing it only from the backend.
-
-### Q36. How do you prevent duplicate watchlist entries?
-
-By using a database UniqueConstraint on the user and stock fields.
-
-### Q37. How do you protect private user data?
-
-By using authentication, permission classes, and user-filtered querysets.
-
-### Q38. How do you prevent duplicate price alerts?
-
-By using a conditional database update that only triggers an alert if it has not already been triggered.
-
-### Q39. How do you handle Finnhub rate limits?
-
-By respecting provider quotas, reducing unnecessary polling, caching responses, and applying retries with backoff where appropriate.
-
-### Q40. Why use PostgreSQL?
-
-PostgreSQL provides reliable relational data storage, indexing, transactions, and strong database integrity features.
+# 34. Important Technical Improvements
+
+Before considering the project production-ready, address the following:
+
+| Area | Required Improvement |
+|---|---|
+| Authentication | Complete registration, profile, password and token workflows |
+| Authorization | Enforce user ownership for all private resources |
+| Finnhub | Add rate-limit handling, retries and response validation |
+| Stock updates | Use a shared service for fetching and saving quotes |
+| Watchlist | Handle duplicate entries and database constraint errors |
+| Portfolio | Implement complete CRUD and transaction history |
+| Historical data | Store OHLCV candles with proper uniqueness constraints |
+| Alerts | Implement reliable trigger and notification delivery |
+| WebSockets | Validate subscriptions, permissions and reconnect behavior |
+| Celery | Configure retries, monitoring and task failure handling |
+| Database | Add indexes, constraints and query optimization |
+| API | Add pagination, filtering, validation and documentation |
+| Testing | Implement unit, API, integration and WebSocket tests |
+| Deployment | Configure Docker, HTTPS, logging, backups and monitoring |
+
+### Additional Design Recommendations
+
+1. Use `DecimalField` for financial values instead of Python floating-point values.
+2. Store timestamps in UTC and display them in the user's preferred timezone.
+3. Keep historical snapshots separate from the latest stock quote.
+4. Use database constraints to prevent duplicate records.
+5. Use a transaction ledger for accurate portfolio accounting.
+6. Use a shared quote service for both API and Celery workflows.
+7. Do not expose external provider API keys to the frontend.
+8. Use idempotent background tasks where possible.
+9. Monitor API usage and external provider limits.
+10. Keep market-data ingestion separate from user-facing API logic.
 
 ---
 
-# 43. Important Backend Concepts
-
-## HTTP vs WebSocket
-
-| HTTP | WebSocket |
-|---|---|
-| Request-response | Persistent connection |
-| Client initiates requests | Both sides can send messages |
-| Suitable for REST APIs | Suitable for realtime updates |
-| Stateless at protocol level | Maintains a connection |
-
-## Celery vs Django Channels
-
-| Celery | Django Channels |
-|---|---|
-| Background tasks | Realtime communication |
-| Scheduled jobs | WebSocket |
-| External API polling | Browser updates |
-| Email processing | Event broadcasting |
-
-## Celery Worker vs Celery Beat
-
-| Worker | Beat |
-|---|---|
-| Executes tasks | Schedules tasks |
-| Processes queued jobs | Publishes scheduled jobs |
-| Performs background work | Manages recurring execution |
-
-## PostgreSQL vs Redis
-
-| PostgreSQL | Redis |
-|---|---|
-| Persistent relational database | In-memory data store |
-| Stores application records | Stores messages and temporary data |
-| SQL queries | Key-value and data structure operations |
-| Main database | Broker/cache/channel layer |
-
-## Portfolio vs Watchlist
-
-**Portfolio:**
-- Represents stocks a user tracks as part of their portfolio.
-- Can later support quantity, purchase price, and profit/loss.
-
-**Watchlist:**
-- Represents stocks a user wants to monitor.
-- Does not necessarily mean the user owns those stocks.
-
----
-
-# 44. Final Project Checklist
+# 35. Final Project Checklist
 
 ## Project Setup
 
-- [ ] Create Django project.
-- [ ] Create virtual environment.
-- [ ] Install dependencies.
-- [ ] Configure environment variables.
-- [ ] Configure database.
-- [ ] Configure Redis.
+- [ ] Django project created.
+- [ ] Virtual environment configured.
+- [ ] Dependencies installed.
+- [ ] Environment variables configured.
+- [ ] PostgreSQL configured.
+- [ ] Redis configured.
 
 ## Authentication
 
-- [ ] Registration.
-- [ ] Login.
-- [ ] Logout.
-- [ ] Password validation.
-- [ ] Authentication permissions.
+- [ ] User registration.
+- [ ] JWT login.
+- [ ] JWT refresh.
+- [ ] User profile.
+- [ ] Permissions.
 
 ## Stock Management
 
 - [ ] Stock model.
-- [ ] StockPrice model.
-- [ ] Finnhub service.
+- [ ] Stock price model.
+- [ ] Finnhub integration.
 - [ ] Stock list API.
-- [ ] Stock detail API.
-- [ ] Manual price refresh.
-- [ ] Historical price storage.
-
-## Portfolio
-
-- [ ] Portfolio model.
-- [ ] Add stock.
-- [ ] Remove stock.
-- [ ] User-specific portfolio API.
+- [ ] Stock search API.
+- [ ] Latest price API.
+- [ ] Manual refresh API.
 
 ## Watchlist
 
-- [ ] Watchlist model.
-- [ ] Add watchlist item.
-- [ ] Delete watchlist item.
-- [ ] Duplicate prevention.
-- [ ] User-specific access.
+- [ ] Add stock.
+- [ ] Remove stock.
+- [ ] List watchlist.
+- [ ] Prevent duplicates.
 
-## Market Data
+## Portfolio
 
-- [ ] Finnhub quote integration.
-- [ ] Company profile integration.
-- [ ] Market news integration.
-- [ ] Historical candle integration.
-
-## Background Processing
-
-- [ ] Celery configuration.
-- [ ] Redis broker.
-- [ ] Celery worker.
-- [ ] Celery Beat.
-- [ ] Price update task.
-- [ ] News sync task.
-- [ ] Price alert task.
+- [ ] Add holding.
+- [ ] Update holding.
+- [ ] Remove holding.
+- [ ] Portfolio summary.
+- [ ] Profit and loss calculation.
+- [ ] Transaction history.
 
 ## Realtime
 
-- [ ] ASGI configuration.
-- [ ] Channels configuration.
-- [ ] Redis channel layer.
-- [ ] WebSocket consumer.
-- [ ] WebSocket routing.
-- [ ] Browser connection.
-- [ ] Automatic reconnection.
-- [ ] Realtime price updates.
+- [ ] Django Channels installed.
+- [ ] ASGI configured.
+- [ ] Redis Channels layer configured.
+- [ ] WebSocket consumer created.
+- [ ] Stock updates broadcast.
+- [ ] Frontend WebSocket connected.
 
-## Frontend
+## Background Tasks
 
-- [ ] Bootstrap dashboard.
-- [ ] Stock table.
-- [ ] WebSocket status.
-- [ ] Historical chart.
-- [ ] Watchlist interface.
-- [ ] Price alert interface.
-- [ ] Error messages.
+- [ ] Celery configured.
+- [ ] Celery worker running.
+- [ ] Celery Beat configured.
+- [ ] Stock update task implemented.
+- [ ] Retry and error handling implemented.
 
-## Security
+## Historical Data
 
-- [ ] API key protection.
-- [ ] CSRF protection.
-- [ ] Authentication.
-- [ ] Authorization.
-- [ ] Rate limiting.
-- [ ] Input validation.
-- [ ] WebSocket origin validation.
-- [ ] User-specific queries.
+- [ ] OHLCV model created.
+- [ ] Historical API integrated.
+- [ ] Historical data saved.
+- [ ] History API implemented.
+- [ ] Chart.js integrated.
 
-## Production
+## Alerts and Notifications
 
-- [ ] PostgreSQL.
-- [ ] DEBUG=False.
-- [ ] HTTPS/WSS.
+- [ ] Price alert model.
+- [ ] Alert CRUD APIs.
+- [ ] Alert checking task.
+- [ ] Notification model.
+- [ ] In-app notifications.
+- [ ] Email notifications.
+
+## Final Quality
+
+- [ ] Unit tests.
+- [ ] API tests.
+- [ ] WebSocket tests.
+- [ ] Swagger documentation.
 - [ ] Logging.
-- [ ] Monitoring.
-- [ ] Automated tests.
-- [ ] Backups.
-- [ ] Deployment.
+- [ ] Docker configuration.
+- [ ] Production security settings.
+- [ ] Deployment completed.
 
 ---
 
-# 45. Official Documentation
+# 36. Conclusion
 
-## Python and Django
+The Realtime Stock Market project is an advanced Django backend application that combines REST APIs, external financial data integration, background task processing, WebSocket communication, database management, and authentication.
 
-- Python: https://docs.python.org/3/
-- Django: https://docs.djangoproject.com/
+It demonstrates practical backend development skills:
 
-## Django REST Framework
+- Python and Django.
+- Django REST Framework.
+- PostgreSQL and database design.
+- Third-party API integration.
+- Redis and Celery.
+- Django Channels and WebSockets.
+- JWT authentication.
+- Background processing.
+- API testing.
+- Docker and deployment.
 
-- https://www.django-rest-framework.org/
+The project is suitable for an intermediate-to-advanced backend development portfolio when the core features are implemented, tested, documented, and deployed.
 
-## Django Channels
+**Important:** This documentation is a technical implementation guide, not a claim that every feature is already implemented. Complete the models, serializers, views, services, tasks, permissions, tests, and deployment configuration before describing the application as production-ready.
 
-- https://channels.readthedocs.io/
+**Recommended implementation order:**
 
-## Celery
+```text
+Django Setup
+     ↓
+Authentication
+     ↓
+Database Models
+     ↓
+Finnhub Integration
+     ↓
+Stock REST APIs
+     ↓
+Watchlist
+     ↓
+Portfolio
+     ↓
+Redis + Celery
+     ↓
+Django Channels + WebSocket
+     ↓
+Historical Data + Charts
+     ↓
+Price Alerts + Notifications
+     ↓
+Testing + Docker + Deployment
+```
 
-- https://docs.celeryq.dev/
-
-## Redis
-
-- https://redis.io/docs/
-
-## Finnhub
-
-- https://finnhub.io/docs/api
-
-## Bootstrap
-
-- https://getbootstrap.com/docs/
-
-## Chart.js
-
-- https://www.chartjs.org/docs/
-
-## PostgreSQL
-
-- https://www.postgresql.org/docs/
-
-## HTTPX
-
-- https://www.python-httpx.org/
-
----
-
-# 46. Final Project Summary
-
-The Realtime Stock Tracker combines several important backend technologies into one practical application.
-
-### What This Project Demonstrates
-
-1. Django application architecture.
-2. Database modeling and ORM.
-3. User authentication and authorization.
-4. REST API development.
-5. External API integration.
-6. API error handling.
-7. Background task processing.
-8. Scheduled task execution.
-9. Redis message brokering.
-10. WebSocket communication.
-11. Realtime browser updates.
-12. Historical data management.
-13. User-specific portfolio and watchlist.
-14. Price alert processing.
-15. Security and production considerations.
-
-### Project Classification
-
-**Level:** Intermediate to Advanced
-
-**Suitable for:**
-- Python Backend Developer Portfolio
-- Django Developer Portfolio
-- Junior Backend Engineer Interviews
-- Practical REST API Learning
-- Asynchronous Programming Practice
-- Realtime Application Development
-
-### Important Final Note
-
-This README is the complete project design and implementation guide. Not every feature is fully implemented in the code examples above. In particular, portfolio CRUD APIs, historical chart APIs, price-alert CRUD and notification delivery, automated tests, production monitoring, and deployment must be completed and tested separately.
-
-The project should be developed in phases rather than implementing all technologies simultaneously.
-
-**Recommended development order:**
-
-Django Basics → Authentication → Database Models → Finnhub API → DRF → Portfolio → Watchlist → Celery → Redis → Channels → WebSocket → Historical Charts → Price Alerts → Testing → Deployment.
-
-The goal is not simply to make the application work. The goal is to understand why each technology is used, how the components communicate, and how to build a maintainable backend system.
+**Final Goal:** Build a complete, secure, maintainable, and deployable realtime stock market application using Python and Django.
