@@ -300,7 +300,7 @@
         `${protocol}//${window.location.host}/ws/chat/general/`
     );
 
-    chatSocket.onopen = function () {
+    chatSocket.onopen = function (event) {
         console.log("WebSocket connected");
     };
 
