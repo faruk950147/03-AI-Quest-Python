@@ -146,7 +146,7 @@
 
                                 <small id="connection-status" class="text-light mt-2 d-block">
                                     <i class="bi bi-circle-fill"></i>
-                                    Online
+                                    Offline
                                 </small>
 
                             </div>
@@ -302,8 +302,8 @@
     const connection_status = document.getElementById("connection-status");
 
     chatSocket.onopen = function (event) {
-        console.log("Connected to chat room");
-        connection_status.textContent = "Chat Connected";
+        console.log("Online");
+        connection_status.textContent = "Online";
         connection_status.className = "text-success mt-2 d-block";
     };
 
@@ -313,16 +313,16 @@
     };
 
     chatSocket.onerror = function (error) {
-        console.error("Chat error:", error);
+        console.error("Connection error:", error);
         connection_status.textContent = "Connection error";
         connection_status.className = "text-danger mt-2 d-block";
     };
 
     chatSocket.onclose = function (event) {
-        console.log("Chat disconnected");
+        console.log("Offline");
         console.log("Close code:", event.code);
         console.log("Close reason:", event.reason);
-        connection_status.textContent = "Disconnected";
+        connection_status.textContent = "Offline";
         connection_status.className = "text-danger mt-2 d-block";
     };
 
