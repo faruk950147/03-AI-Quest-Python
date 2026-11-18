@@ -292,136 +292,31 @@
 
 <!-- WebSocket JavaScript -->
 <script>
-
-    // Room name
-    const roomName = "general";
-
-    // WebSocket protocol
     const protocol = window.location.protocol === "https:"
-        ? "wss://"
-        : "ws://";
+        ? "wss:"
+        : "ws:";
 
-    // WebSocket connection
     const chatSocket = new WebSocket(
-        protocol + window.location.host +
-        "/ws/chat/" + roomName + "/"
+        `${protocol}//${window.location.host}/ws/chat/general/`
     );
 
-    // HTML elements
-    const message_input = document.getElementById("message-input");
-    const send_button = document.getElementById("send-button");
-    const chat_messages = document.getElementById("chat-messages");
-    const connection_status = document.getElementById("connection-status");
-
-
-    // WebSocket connected
     chatSocket.onopen = function () {
-
-        console.log("Connected to chat room");
-
-        connection_status.textContent = "Connected";
-        connection_status.className = "text-success mt-2 d-block";
-
+        console.log("WebSocket connected");
     };
 
-
-    // Receive message
     chatSocket.onmessage = function (event) {
-
         const data = JSON.parse(event.data);
-
-        // Message wrapper
-        const messageWrapper = document.createElement("div");
-        messageWrapper.className = "d-flex mb-4";
-
-        // Message box
-        const messageElement = document.createElement("div");
-        messageElement.className =
-            "bg-secondary text-white rounded p-3 shadow-sm";
-
-        // Message text
-        const messageText = document.createElement("p");
-        messageText.className = "mb-1";
-        messageText.textContent = data.message;
-
-        // Append message
-        messageElement.appendChild(messageText);
-        messageWrapper.appendChild(messageElement);
-
-        chat_messages.appendChild(messageWrapper);
-
-        // Auto scroll
-        chat_messages.scrollTop = chat_messages.scrollHeight;
-
+        console.log("Message:", data.message);
     };
 
-
-    // Send message function
-    function sendMessage() {
-
-        const message = message_input.value.trim();
-
-        if (!message) {
-            return;
-        }
-
-        if (chatSocket.readyState === WebSocket.OPEN) {
-
-            chatSocket.send(JSON.stringify({
-                "message": message
-            }));
-
-            message_input.value = "";
-
-        } else {
-
-            console.log("WebSocket is not connected");
-
-        }
-
-    }
-
-
-    // Send button click
-    send_button.addEventListener("click", function () {
-
-        sendMessage();
-
-    });
-
-
-    // Send message using Enter key
-    message_input.addEventListener("keydown", function (event) {
-
-        if (event.key === "Enter") {
-
-            event.preventDefault();
-            sendMessage();
-
-        }
-
-    });
-
-
-    // WebSocket error
     chatSocket.onerror = function (error) {
-
-        console.log("Chat error:", error);
-
-        connection_status.textContent = "Connection error";
-        connection_status.className = "text-danger mt-2 d-block";
-
+        console.error("Chat error:", error);
     };
 
-
-    // WebSocket disconnected
-    chatSocket.onclose = function () {
-
+    chatSocket.onclose = function (event) {
         console.log("Chat disconnected");
-
-        connection_status.textContent = "Disconnected";
-        connection_status.className = "text-danger mt-2 d-block";
-
+        console.log("Close code:", event.code);
+        console.log("Close reason:", event.reason);
     };
 
 </script>
