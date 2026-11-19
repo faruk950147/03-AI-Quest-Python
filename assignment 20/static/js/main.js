@@ -33,6 +33,11 @@ chatSocket.onmessage = function (event) {
 };
 
 
+chatSocket.send(JSON.stringify({
+    "message": "Hello"
+}));
+
+
 // WebSocket Error
 chatSocket.onerror = function (error) {
     console.error("WebSocket Error:", error);
