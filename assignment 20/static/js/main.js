@@ -8,7 +8,6 @@ const chatSocket = new WebSocket(
 // DOM Elements
 const message_input = document.getElementById("message-input");
 const send_button = document.getElementById("send-button");
-const chat_messages = document.getElementById("chat-messages");
 const connection_status = document.getElementById("connection-status");
 
 // Initial State
@@ -25,18 +24,12 @@ chatSocket.onopen = function () {
     send_button.disabled = false;
 };
 
-
 // Receive WebSocket Messages
 chatSocket.onmessage = function (event) {
     const data = JSON.parse(event.data);
+
     console.log("Received:", data);
 };
-
-
-chatSocket.send(JSON.stringify({
-    "message": "Hello"
-}));
-
 
 // WebSocket Error
 chatSocket.onerror = function (error) {
@@ -45,7 +38,6 @@ chatSocket.onerror = function (error) {
     connection_status.textContent = "Connection Error";
     connection_status.className = "text-danger mt-2 d-block";
 };
-
 
 // WebSocket Disconnected
 chatSocket.onclose = function (event) {
@@ -59,7 +51,19 @@ chatSocket.onclose = function (event) {
     send_button.disabled = true;
 };
 
+// Send Message
+send_button.addEventListener("click", function () {
+    const message = message_input.value.trim();
 
+    if (!message) return;
 
+    chatSocket.send(JSON.stringify({
+        message: message
+    }));
+
+    console.log("Sent:", message);
+
+    message_input.value = "";
+});
 
 
