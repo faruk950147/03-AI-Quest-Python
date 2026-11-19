@@ -6,6 +6,7 @@ const chatSocket = new WebSocket(
 );
 
 // DOM Elements
+const message_form = document.getElementById("message-form");
 const message_input = document.getElementById("message-input");
 const send_button = document.getElementById("send-button");
 const connection_status = document.getElementById("connection-status");
@@ -52,7 +53,7 @@ chatSocket.onclose = function (event) {
 };
 
 // Send Message
-send_button.addEventListener("click", function (e) {
+message_form.addEventListener("submit", function (e) {
     e.preventDefault()
     const message = message_input.value.trim();
 
