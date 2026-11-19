@@ -139,7 +139,74 @@
 
             <!-- Chat Messages -->
             <div id="chat-messages"
-                 class="flex-grow-1 p-4 overflow-auto">
+                class="flex-grow-1 p-4 overflow-auto">
+
+                {% for message in messages %}
+
+                    {% if message.user_id == request.user.id %}
+
+                        <!-- Sender Message -->
+                        <div class="d-flex justify-content-end mb-3">
+
+                            <div class="bg-primary text-white rounded-3 p-3"
+                                style="max-width: 75%; min-width: 100px;">
+
+                                <div class="d-flex align-items-center mb-2">
+
+                                    <strong class="text-light mr-2">
+                                        You
+                                    </strong>
+
+                                    <small class="text-light ml-2">
+                                        {{ message.created_at|date:"h:i A" }}
+                                    </small>
+
+                                </div>
+                                <div class="text-break">
+                                    {{ message.content }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <!-- Receiver Message -->
+                        <div class="d-flex justify-content-start mb-3">
+
+                            <div class="bg-secondary text-white rounded-3 p-3"
+                                style="max-width: 75%; min-width: 100px;">
+
+                                <div class="d-flex align-items-center gap-3 mb-2">
+
+                                    <strong class="text-info mr-2">
+                                        {{ message.user.username }}
+                                    </strong>
+
+                                    <small class="text-light ml-2">
+                                        {{ message.created_at|date:"h:i A" }}
+                                    </small>
+
+                                </div>
+
+                                <div class="text-break">
+                                    {{ message.content }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                {% empty %}
+
+                    <div class="text-center text-secondary mt-5">
+                        No messages yet. Start a conversation!
+                    </div>
+
+                {% endfor %}
 
             </div>
 

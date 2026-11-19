@@ -24,11 +24,7 @@ class ChatConsumer(AsyncConsumer):
 
         # Check authentication
         if not user.is_authenticated:
-            await self.send(
-                {
-                    "type": "websocket.close",
-                }
-            )
+            await self.send({"type": "websocket.close"})
             return
 
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -38,30 +34,23 @@ class ChatConsumer(AsyncConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         # Accept connection
-        await self.send(
-            {
-                "type": "websocket.accept",
-            }
-        )
+        await self.send({"type": "websocket.accept"})
 
         # Get chat history
         history = await self.get_chat_history()
 
-        await self.send(
-            {
-                "type": "websocket.send",
-                "text": json.dumps({"type": "chat_history", "messages": history}),
-            }
-        )
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps({
+                "type": "chat_history", "messages": history
+            }),
+        })
 
     # Receive WebSocket message
     async def websocket_receive(self, event):
-
         try:
             user = self.scope["user"]
-
             data = json.loads(event.get("text") or "{}")
-
             message = data.get("message", "")
 
             if not isinstance(message, str) or not message.strip():
@@ -71,11 +60,17 @@ class ChatConsumer(AsyncConsumer):
             message = message.strip()
 
             # Save message
-            saved_message = await self.save_message(user.id, self.room_name, message)
+            saved_message = await self.save_message(
+                user.id, 
+                self.room_name, message
+            )
 
             # Send message to room group
             await self.channel_layer.group_send(
-                self.room_group_name, {"type": "chat.message", "message": saved_message}
+                self.room_group_name, {
+                    "type": "chat.message", 
+                    "message": saved_message
+                }
             )
 
         except json.JSONDecodeError:
@@ -84,13 +79,11 @@ class ChatConsumer(AsyncConsumer):
     # Receive group message
     async def chat_message(self, event):
 
-        await self.send(
-            {
-                "type": "websocket.send",
-                "text": json.dumps(
-                    {"type": "chat_message", "message": event["message"]}
-                ),
-            }
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps(
+                {"type": "chat_message", "message": event["message"]}
+            )}
         )
 
     # Get chat history
@@ -99,8 +92,7 @@ class ChatConsumer(AsyncConsumer):
 
         messages = Messages.last_5_messages(self.room_name)
 
-        return [
-            {
+        return [{
                 "id": msg.id,
                 "username": msg.user.username,
                 "room_name": msg.room_name,
@@ -129,12 +121,10 @@ class ChatConsumer(AsyncConsumer):
     # Send error
     async def send_error(self, error):
 
-        await self.send(
-            {
-                "type": "websocket.send",
-                "text": json.dumps({"type": "error", "error": error}),
-            }
-        )
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps({"type": "error", "error": error}),
+        })
 
     # Disconnect WebSocket
     async def websocket_disconnect(self, event):
