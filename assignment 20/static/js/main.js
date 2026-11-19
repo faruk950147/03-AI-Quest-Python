@@ -52,10 +52,9 @@ chatSocket.onclose = function (event) {
 };
 
 // Send Message
-send_button.addEventListener("click", function () {
+send_button.addEventListener("click", function (e) {
+    e.preventDefault()
     const message = message_input.value.trim();
-
-    if (!message) return;
 
     chatSocket.send(JSON.stringify({
         message: message
