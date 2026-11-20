@@ -7,12 +7,14 @@
 
 <main class="container-fluid vh-100 p-3">
 
-    <div class="row bg-secondary rounded shadow h-100 overflow-hidden">
+    <!-- Main Container -->
+    <div class="row bg-secondary rounded-4 shadow h-100 overflow-hidden">
 
         <!-- Sidebar -->
-        <div class="col-md-4 col-lg-3 border-end border-dark p-0 d-flex flex-column">
+        <div class="col-md-4 col-lg-3 border-end border-dark p-0 d-flex flex-column h-100 min-vh-0">
 
-            <div class="p-4 bg-secondary">
+            <!-- Sidebar Header -->
+            <div class="p-4 bg-secondary flex-shrink-0">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
 
@@ -21,65 +23,78 @@
                         Chat Room
                     </h4>
 
-                    <button class="btn btn-dark rounded-circle">
+                    <button type="button" class="btn btn-dark rounded-circle">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
 
                 </div>
 
+                <!-- Search -->
                 <input
                     type="text"
-                    class="form-control bg-dark text-white border-0 rounded-pill"
+                    class="form-control bg-dark text-white border-0 rounded-pill px-3 py-2"
                     placeholder="Search conversations..."
                 >
 
             </div>
 
             <!-- Friend List -->
-            <div class="flex-grow-1 overflow-auto">
+            <div class="flex-grow-1 overflow-auto min-vh-0 p-2">
 
+                <!-- Friend 1 -->
                 <a href="#"
-                   class="friend-item d-flex align-items-center p-3 text-decoration-none text-white bg-primary">
+                   class="d-flex align-items-center p-3 text-decoration-none text-white bg-primary rounded-4 mb-2">
 
                     <div class="rounded-circle bg-light text-primary fw-bold p-3 me-3">
                         SA
                     </div>
 
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1 overflow-hidden">
                         <h6 class="fw-bold mb-1">Sarah Ahmed</h6>
-                        <small>Hey! How are you?</small>
+
+                        <small class="text-white-50 text-truncate d-block">
+                            Hey! How are you?
+                        </small>
                     </div>
 
                     <small>10:30</small>
 
                 </a>
 
+                <!-- Friend 2 -->
                 <a href="#"
-                   class="friend-item d-flex align-items-center p-3 text-decoration-none text-white">
+                   class="d-flex align-items-center p-3 text-decoration-none text-white rounded-4 mb-2">
 
                     <div class="rounded-circle bg-dark fw-bold p-3 me-3">
                         JS
                     </div>
 
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1 overflow-hidden">
                         <h6 class="fw-bold mb-1">John Smith</h6>
-                        <small>See you tomorrow!</small>
+
+                        <small class="text-white-50 text-truncate d-block">
+                            See you tomorrow!
+                        </small>
                     </div>
 
                     <small>09:45</small>
 
                 </a>
 
+                <!-- Friend 3 -->
                 <a href="#"
-                   class="friend-item d-flex align-items-center p-3 text-decoration-none text-white">
+                   class="d-flex align-items-center p-3 text-decoration-none text-white rounded-4 mb-2">
 
                     <div class="rounded-circle bg-danger fw-bold p-3 me-3">
                         EW
                     </div>
 
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1 overflow-hidden">
                         <h6 class="fw-bold mb-1">Emma Wilson</h6>
-                        <small>Thanks for your help.</small>
+
+                        <small class="text-white-50 text-truncate d-block">
+                            Thanks for your help.
+                        </small>
                     </div>
 
                     <small>Yesterday</small>
@@ -92,10 +107,10 @@
 
 
         <!-- Chat Area -->
-        <div class="col-md-8 col-lg-9 p-0 d-flex flex-column bg-dark">
+        <div class="col-md-8 col-lg-9 p-0 d-flex flex-column bg-dark h-100 min-vh-0">
 
             <!-- Chat Header -->
-            <div class="border-bottom border-secondary bg-secondary p-3">
+            <div class="border-bottom border-secondary bg-secondary p-3 flex-shrink-0">
 
                 <div class="d-flex justify-content-between align-items-center">
 
@@ -111,8 +126,7 @@
                                 General Chat
                             </h5>
 
-                            <small id="connection-status"
-                                   class="text-warning d-block">
+                            <small id="connection-status" class="text-warning d-block">
                                 Connecting...
                             </small>
 
@@ -120,13 +134,13 @@
 
                     </div>
 
-                    <div>
+                    <div class="d-flex gap-2">
 
-                        <button class="btn btn-dark rounded-circle">
+                        <button type="button" class="btn btn-dark rounded-circle">
                             <i class="bi bi-telephone"></i>
                         </button>
 
-                        <button class="btn btn-dark rounded-circle">
+                        <button type="button" class="btn btn-dark rounded-circle">
                             <i class="bi bi-camera-video"></i>
                         </button>
 
@@ -139,7 +153,7 @@
 
             <!-- Chat Messages -->
             <div id="chat-messages"
-                class="flex-grow-1 p-4 overflow-auto">
+                 class="flex-grow-1 p-4 overflow-auto min-vh-0">
 
                 {% for message in messages %}
 
@@ -148,20 +162,21 @@
                         <!-- Sender Message -->
                         <div class="d-flex justify-content-end mb-3">
 
-                            <div class="bg-primary text-white rounded-3 p-3"
-                                style="max-width: 75%; min-width: 100px;">
+                            <div class="bg-primary text-white rounded-4 p-3"
+                                 style="max-width: 75%; min-width: 100px;">
 
-                                <div class="d-flex align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2">
 
-                                    <strong class="text-light mr-2">
+                                    <strong class="text-light">
                                         You
                                     </strong>
 
-                                    <small class="text-light ml-2">
+                                    <small class="text-white-50">
                                         {{ message.created_at|date:"h:i A" }}
                                     </small>
 
                                 </div>
+
                                 <div class="text-break">
                                     {{ message.content }}
                                 </div>
@@ -175,16 +190,16 @@
                         <!-- Receiver Message -->
                         <div class="d-flex justify-content-start mb-3">
 
-                            <div class="bg-secondary text-white rounded-3 p-3"
-                                style="max-width: 75%; min-width: 100px;">
+                            <div class="bg-secondary text-white rounded-4 p-3"
+                                 style="max-width: 75%; min-width: 100px;">
 
-                                <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2">
 
-                                    <strong class="text-info mr-2">
+                                    <strong class="text-info">
                                         {{ message.user.username }}
                                     </strong>
 
-                                    <small class="text-light ml-2">
+                                    <small class="text-white-50">
                                         {{ message.created_at|date:"h:i A" }}
                                     </small>
 
@@ -212,15 +227,14 @@
 
 
             <!-- Message Footer -->
-            <div class="bg-secondary border-top border-dark p-3">
+            <div class="bg-secondary border-top border-dark p-3 flex-shrink-0">
 
-                <form id="form"
-                      class="d-flex align-items-center gap-2">
+                <form id="form" class="d-flex align-items-center gap-2">
 
                     <input
                         type="text"
                         id="message-input"
-                        class="form-control bg-dark text-white border-0 rounded-pill"
+                        class="form-control bg-dark text-white border-0 rounded-pill px-4 py-3"
                         placeholder="Type your message..."
                         autocomplete="off"
                         maxlength="2000"
@@ -229,7 +243,7 @@
                     <button
                         type="submit"
                         id="send-button"
-                        class="btn btn-primary rounded-circle"
+                        class="btn btn-primary rounded-circle p-3 flex-shrink-0"
                         disabled
                     >
 
@@ -246,5 +260,10 @@
     </div>
 
 </main>
+
+
+<script>
+    const CURRENT_USER_ID = {{ request.user.id }};
+</script>
 
 {% endblock content %}

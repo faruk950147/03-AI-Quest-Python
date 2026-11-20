@@ -6,7 +6,7 @@ from chat.models import Messages
 
 class HomeView(View):
     def get(self, request):
-        messages = Messages.objects.select_related("user").order_by("-id")[:5]
+        messages = Messages.objects.select_related("user").order_by("id")[:5]
 
         context = {
             "messages": messages,

@@ -15,14 +15,14 @@ class Messages(models.Model):
     class Meta:
         db_table = "chat_messages"
         verbose_name_plural = "messages"
-        ordering = ["-id"]
+        ordering = ["id"]
 
     @classmethod
     def last_5_messages(cls, room_name):
         return (
             cls.objects.filter(room_name=room_name)
             .select_related("user")
-            .order_by("-id")[:5]
+            .order_by("id")[:5]
         )
 
     def __str__(self):
