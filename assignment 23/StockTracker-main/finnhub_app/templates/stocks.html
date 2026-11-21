@@ -1,0 +1,337 @@
+
+{% extends 'home.html' %}
+
+{% block content %}
+
+<style>
+    .logout-container {
+        margin-top: 40px;
+    }
+
+    #stock-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+    }
+
+    #stock-table th,
+    #stock-table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: center;
+    }
+
+    #stock-table th {
+        background: #f2f2f2;
+        color: black;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 20px;
+    }
+
+    #add-stock-form {
+        margin-bottom: 25px;
+    }
+
+    .message {
+        margin: 15px 0;
+        padding: 10px;
+    }
+
+    .success {
+        color: green;
+    }
+
+    .error {
+        color: red;
+    }
+
+    button {
+        cursor: pointer;
+        padding: 8px 15px;
+    }
+</style>
+
+<div class="header-bar">
+    <h1>Stock Tracker</h1>
+</div>
+
+<div class="card-body">
+
+    <form id="add-stock-form">
+        {% csrf_token %}
+
+        <label for="symbol">Stock Symbol:</label>
+
+        <input
+            type="text"
+            id="symbol"
+            name="symbol"
+            placeholder="Example: AAPL"
+            required
+        >
+
+        <button type="submit">Add Stock</button>
+    </form>
+
+    <button type="button" id="refresh-button">
+        Refresh Prices
+    </button>
+
+    <div id="message"></div>
+
+    <div id="no-stocks-message" class="no-data">
+        No stocks in portfolio.
+    </div>
+
+    <table id="stock-table" style="display:none;">
+
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="stock-table-body"></tbody>
+
+    </table>
+
+    <script>
+        const csrfToken = document.querySelector(
+            '[name=csrfmiddlewaretoken]'
+        ).value;
+
+        const messageBox = document.getElementById('message');
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = 'message ' + type;
+        }
+
+        // Load portfolio data
+        async function updateDashboard() {
+
+            try {
+
+                const response = await fetch('/api/stock-data/');
+
+                if (!response.ok) {
+                    throw new Error('Failed to load stock data.');
+                }
+
+                const data = await response.json();
+
+                const table = document.getElementById('stock-table');
+                const tbody = document.getElementById('stock-table-body');
+
+                const noStocksMessage = document.getElementById(
+                    'no-stocks-message'
+                );
+
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    noStocksMessage.style.display = 'block';
+                    table.style.display = 'none';
+                    return;
+                }
+
+                noStocksMessage.style.display = 'none';
+                table.style.display = 'table';
+
+                data.forEach(stock => {
+
+                    const row = document.createElement('tr');
+
+                    const symbolCell = document.createElement('td');
+                    symbolCell.textContent = stock.symbol;
+
+                    const priceCell = document.createElement('td');
+                    priceCell.textContent = stock.price;
+
+                    const actionCell = document.createElement('td');
+
+                    const deleteButton = document.createElement('button');
+
+                    deleteButton.textContent = 'Delete';
+
+                    deleteButton.addEventListener('click', () => {
+                        deleteStock(stock.symbol);
+                    });
+
+                    actionCell.appendChild(deleteButton);
+
+                    row.appendChild(symbolCell);
+                    row.appendChild(priceCell);
+                    row.appendChild(actionCell);
+
+                    tbody.appendChild(row);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(error.message, 'error');
+
+            }
+        }
+
+
+        // Add stock
+        document.getElementById('add-stock-form')
+            .addEventListener('submit', async function(event) {
+
+                event.preventDefault();
+
+                const symbol = document.getElementById('symbol')
+                    .value.trim().toUpperCase();
+
+                if (!symbol) {
+                    showMessage('Enter a stock symbol.', 'error');
+                    return;
+                }
+
+                try {
+
+                    const response = await fetch('/stock-data/', {
+
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        },
+
+                        body: new URLSearchParams({
+                            symbol: symbol
+                        })
+
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Failed to add stock.');
+                    }
+
+                    showMessage(data.message, 'success');
+
+                    document.getElementById('symbol').value = '';
+
+                    await updateDashboard();
+
+                } catch (error) {
+
+                    showMessage(error.message, 'error');
+
+                }
+
+            });
+
+
+        // Delete stock
+        async function deleteStock(symbol) {
+
+            try {
+
+                const response = await fetch('/delete-stock/', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+
+                    body: new URLSearchParams({
+                        symbol: symbol
+                    })
+
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Delete failed.');
+                }
+
+                showMessage(data.message, 'success');
+
+                await updateDashboard();
+
+            } catch (error) {
+
+                showMessage(error.message, 'error');
+
+            }
+        }
+
+
+        // Refresh prices from Finnhub
+        document.getElementById('refresh-button')
+            .addEventListener('click', async function() {
+
+                try {
+
+                    const response = await fetch(
+                        '/refresh-stock-prices/',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrfToken
+                            }
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error('Price refresh failed.');
+                    }
+
+                    await updateDashboard();
+
+                    showMessage(
+                        `${data.updated.length} stock prices updated.`,
+                        'success'
+                    );
+
+                } catch (error) {
+
+                    showMessage(error.message, 'error');
+
+                }
+
+            });
+
+
+        // Initial dashboard load
+        updateDashboard();
+
+        // Refresh database display every 60 seconds
+        setInterval(updateDashboard, 60000);
+
+    </script>
+
+
+    <div class="logout-container">
+
+        <form method="POST" action="{% url 'logout' %}">
+
+            {% csrf_token %}
+
+            <button type="submit">Logout</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock content %}
