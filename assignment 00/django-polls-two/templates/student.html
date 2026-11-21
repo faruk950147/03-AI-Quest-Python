@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Students{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Students</h1>
+
+    <ul>
+        {% for student in students %}
+            <li>
+                <a class="text-decoration-none text-light" href="{% url 'student:students' student.pk %}">
+                    {{ student.name }}
+                </a>
+                - Age: {{ student.age }}
+                - Department: {{ student.department.name }}
+            </li>
+        {% empty %}
+            <li>No students available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

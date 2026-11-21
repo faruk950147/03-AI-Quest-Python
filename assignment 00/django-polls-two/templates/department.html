@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Departments</h1>
+
+    <ul>
+        {% for department in departments %}
+            <li>
+                <a class="text-decoration-none text-light" href="{% url 'student:departments' department.pk %}">
+                    {{ department.name }}
+                </a>
+                - Seats: {{ department.seat }}
+            </li>
+        {% empty %}
+            <li>No departments available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

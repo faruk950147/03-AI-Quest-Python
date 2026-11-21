@@ -1,0 +1,7 @@
+asgiref==3.12.1
+Django==6.1.2
+django-environ==0.14.0
+sqlparse==0.6.0
+tzdata==2026.5
+psycopg2-binary>=2.9.10
+waitress

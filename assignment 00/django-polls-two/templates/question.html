@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Question Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Question Details</h1>
+
+    <h3 class="text-light">{{ question.question_text }}</h3>
+
+    <h4>Choices</h4>
+
+    {% if question.choices.all %}
+        <form method="post" action="{% url 'student:voting' question.pk %}">
+            {% csrf_token %}
+
+            {% for choice in question.choices.all %}
+                <div class="form-check mb-2">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="choice"
+                        id="choice{{ choice.pk }}"
+                        value="{{ choice.pk }}"
+                        required
+                    >
+
+                    <label class="form-check-label" for="choice{{ choice.pk }}">
+                        {{ choice.choice_text }} - {{ choice.votes }} votes
+                    </label>
+                </div>
+            {% empty %}
+                <p>No choices available for this question.</p>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success mt-3">
+                Submit
+            </button>
+        </form>
+    {% else %}
+        <p>No choices available for this question.</p>
+    {% endif %}
+
+    <div class="mt-3">
+        <a class="text-decoration-none text-light" href="{% url 'student:home' %}">Back to Home</a>
+    </div>
+</div>
+{% endblock %}
