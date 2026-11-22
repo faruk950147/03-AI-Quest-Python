@@ -1,193 +1,485 @@
-# HTMX Complete Notes
-## Beginner to Advanced | বাংলা Tutorial
+# Django HTMX – Complete Notes (বাংলায়)
+
+## Table of Contents
+
+1. What is HTMX?
+2. Django vs Django + HTMX
+3. Installation
+4. Django Configuration
+5. What is request.htmx?
+6. HTMX Workflow
+7. Important HTMX Attributes
+8. Django HTMX Template Tags
+9. Practical Project – Live Search
+10. Django HTMX CRUD
+11. Advanced django-htmx Features
+12. Advanced HTMX Attributes
+13. Best Practices
+14. Common Errors & Solutions
+15. Interview Questions & Answers
+16. Practical Project Ideas
+17. Learning Roadmap
+18. Official Documentation
 
 ---
 
 # 1. What is HTMX?
 
-HTMX হলো একটি lightweight JavaScript library, যার মাধ্যমে HTML attributes ব্যবহার করে AJAX requests, dynamic content updates এবং server interactions করা যায়।
+HTMX is a JavaScript library that allows developers to create dynamic and interactive web applications using HTML attributes.
 
-সহজ ভাষায়:
+It allows HTML elements to make HTTP requests directly to the server and update specific parts of a webpage without reloading the entire page.
 
-HTMX ব্যবহার করে JavaScript না লিখেও ওয়েবসাইটের নির্দিষ্ট অংশ update করা যায়, পুরো page reload ছাড়াই।
+### Main Features
 
-### HTMX কেন ব্যবহার করব?
+- AJAX requests without writing custom JavaScript.
+- Dynamic HTML updates.
+- Live search.
+- Dynamic form submission.
+- Delete without page reload.
+- Dynamic pagination.
+- Infinite scrolling.
+- Modal popup.
+- Dynamic filtering.
+- Server-side rendering.
 
-- Full page reload ছাড়াই content update করা যায়।
-- JavaScript code কম লিখতে হয়।
-- Backend-driven web application তৈরি করা সহজ।
-- Django, Flask, FastAPI ইত্যাদির সঙ্গে ব্যবহার করা যায়।
-- HTML দিয়েই AJAX request করা যায়।
+### Django vs Django + HTMX
 
-### HTMX CDN
+| Traditional Django | Django + HTMX |
+|---|---|
+| Full page reload | Partial page update |
+| More JavaScript may be needed | HTML attributes handle interactions |
+| AJAX manually implemented | AJAX becomes easier |
+| Full template response | Partial template response |
+
+# 2. Installation
+
+### Step 1: Create Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+Activate virtual environment.
+
+Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Linux / macOS:
+
+```bash
+source venv/bin/activate
+```
+
+### Step 2: Install django-htmx
+
+```bash
+pip install django-htmx
+```
+
+### Step 3: Verify Installation
+
+```bash
+pip show django-htmx
+```
+
+### Step 4: Install HTMX JavaScript
+
+Add HTMX to your Django base template:
 
 ```html
 <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 ```
 
----
+### Important Difference
 
-# 2. How HTMX Works
+There are two separate components:
 
-HTMX মূলত HTML attributes ব্যবহার করে server-এ HTTP request পাঠায়।
+1. `django-htmx`: Python package for Django integration.
+2. `htmx`: JavaScript library for browser-side interactions.
 
-Workflow:
+# 3. Django Project Configuration
 
-1. User button click করে।
-2. HTMX HTTP request পাঠায়।
-3. Backend request process করে।
-4. Backend HTML response পাঠায়।
-5. HTMX নির্দিষ্ট HTML element update করে।
+Create Django project:
 
-Example:
+```bash
+django-admin startproject config
 
-```html
-<button hx-get="/hello/" hx-target="#result">
-    Click Me
-</button>
+cd config
 
-<div id="result">
-    Original Content
-</div>
+python manage.py startapp core
 ```
 
-Django response:
+### settings.py
+
+Add applications:
+
+```python
+INSTALLED_APPS = [
+    # Default Django apps
+
+    "django_htmx",
+    "core",
+]
+```
+
+Add middleware:
+
+```python
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+
+    "django_htmx.middleware.HtmxMiddleware",
+
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+]
+```
+
+### Why HtmxMiddleware?
+
+`HtmxMiddleware` attaches an `htmx` object to Django's request object.
+
+After configuring middleware, you can access:
+
+```python
+request.htmx
+```
+
+# 4. What is request.htmx?
+
+`request.htmx` is one of the most important features of django-htmx.
+
+It helps determine whether an incoming request was made by HTMX.
+
+### Example
+
+```python
+from django.shortcuts import render
+
+def home(request):
+
+    if request.htmx:
+        return render(
+            request,
+            "partials/content.html"
+        )
+
+    return render(
+        request,
+        "home.html"
+    )
+```
+
+### Explanation
+
+- `request.htmx` returns an HTMX-specific object when the request contains the appropriate HTMX header.
+- It returns `None` when the request is not an HTMX request.
+- You can use it to return full pages or partial HTML.
+
+### Important Properties
+
+```python
+request.htmx.boosted
+
+request.htmx.current_url
+
+request.htmx.history_restore_request
+
+request.htmx.prompt
+
+request.htmx.target
+
+request.htmx.trigger
+
+request.htmx.trigger_name
+```
+
+### Example
+
+```python
+def dashboard(request):
+
+    if request.htmx:
+        print("HTMX Request")
+
+        print(request.htmx.target)
+        print(request.htmx.trigger)
+
+    return render(request, "dashboard.html")
+```
+
+# 5. How HTMX Works
+
+HTMX workflow:
+
+1. User performs an action.
+2. HTMX sends an HTTP request.
+3. Django receives the request.
+4. Django executes business logic.
+5. Django returns HTML.
+6. HTMX updates the targeted HTML element.
+
+### Workflow Diagram
+
+```text
+User Action
+    |
+    v
+HTMX Request
+    |
+    v
+Django View
+    |
+    v
+Business Logic
+    |
+    v
+Database Query
+    |
+    v
+HTML Response
+    |
+    v
+HTMX DOM Update
+```
+
+# 6. Important HTMX Attributes
+
+| Attribute | Description |
+|---|---|
+| hx-get | Sends GET request |
+| hx-post | Sends POST request |
+| hx-put | Sends PUT request |
+| hx-patch | Sends PATCH request |
+| hx-delete | Sends DELETE request |
+| hx-target | Selects target element |
+| hx-swap | Controls HTML replacement |
+| hx-trigger | Defines request trigger |
+| hx-select | Selects response HTML |
+| hx-indicator | Shows loading indicator |
+| hx-confirm | Shows confirmation popup |
+| hx-vals | Sends additional values |
+| hx-include | Includes other input values |
+| hx-headers | Sends custom headers |
+| hx-push-url | Updates browser history |
+| hx-boost | Converts links/forms into HTMX requests |
+| hx-sync | Synchronizes requests |
+| hx-disabled-elt | Disables elements during requests |
+| hx-swap-oob | Updates elements outside the main target |
+
+## 6.1 hx-get
+
+Sends an HTTP GET request.
+
+HTML:
+
+```html
+<button hx-get="/hello/">
+    Click Me
+</button>
+```
+
+Django View:
 
 ```python
 from django.http import HttpResponse
 
 def hello(request):
-    return HttpResponse("<h2>Hello from Django!</h2>")
+
+    return HttpResponse(
+        "<h2>Hello Django HTMX!</h2>"
+    )
 ```
 
-Button click করলে `#result` element-এর content পরিবর্তন হবে।
+URL:
 
----
+```python
+from django.urls import path
+from . import views
 
-# 3. Important HTMX Attributes
-
-## 3.1 hx-get
-
-GET request পাঠায়।
-
-```html
-<button hx-get="/users/">
-    Load Users
-</button>
+urlpatterns = [
+    path(
+        "hello/",
+        views.hello,
+        name="hello"
+    ),
+]
 ```
 
-## 3.2 hx-post
+## 6.2 hx-post
 
-POST request পাঠায়।
+Sends an HTTP POST request.
 
-```html
-<button hx-post="/save/">
-    Save Data
-</button>
-```
-
-## 3.3 hx-put
-
-PUT request পাঠায়।
+HTML:
 
 ```html
-<button hx-put="/update/">
-    Update
-</button>
-```
+<form
+    hx-post="/submit/"
+    hx-target="#result">
 
-## 3.4 hx-patch
+    {% csrf_token %}
 
-PATCH request পাঠায়।
+    <input
+        type="text"
+        name="username"
+        placeholder="Username"
+    >
 
-```html
-<button hx-patch="/update-name/">
-    Update Name
-</button>
-```
+    <button type="submit">
+        Submit
+    </button>
 
-## 3.5 hx-delete
-
-DELETE request পাঠায়।
-
-```html
-<button hx-delete="/delete/">
-    Delete
-</button>
-```
-
-## 3.6 hx-target
-
-Server response কোন HTML element-এ বসবে তা নির্ধারণ করে।
-
-```html
-<button hx-get="/users/" hx-target="#result">
-    Load
-</button>
+</form>
 
 <div id="result"></div>
 ```
 
-## 3.7 hx-swap
+Django View:
 
-কীভাবে response HTML-এর মধ্যে বসবে তা নির্ধারণ করে।
+```python
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
-Important values:
+@require_POST
+def submit(request):
 
-| Value | কাজ |
+    username = request.POST.get("username")
+
+    return HttpResponse(
+        f"Welcome {username}"
+    )
+```
+
+## 6.3 hx-target
+
+Defines where the server response should be inserted.
+
+```html
+<button
+    hx-get="/hello/"
+    hx-target="#content">
+
+    Load Content
+
+</button>
+
+<div id="content">
+    Original Content
+</div>
+```
+
+Here, the `#content` element will be updated.
+
+## 6.4 hx-swap
+
+Controls how the response is inserted into the target element.
+
+| Value | Description |
 |---|---|
-| innerHTML | ভিতরের content replace |
-| outerHTML | সম্পূর্ণ element replace |
-| beforebegin | Element-এর আগে |
-| afterbegin | Element-এর ভিতরে শুরুতে |
-| beforeend | Element-এর ভিতরে শেষে |
-| afterend | Element-এর পরে |
-| delete | Target element delete |
-| none | Response swap করবে না |
+| innerHTML | Replaces inner HTML |
+| outerHTML | Replaces entire element |
+| beforebegin | Inserts before target |
+| afterbegin | Inserts as first child |
+| beforeend | Inserts as last child |
+| afterend | Inserts after target |
+| textContent | Replaces text content |
+| delete | Deletes target |
+| none | Does not swap response |
 
 Example:
 
 ```html
 <button
-    hx-get="/message/"
-    hx-target="#result"
+    hx-get="/hello/"
+    hx-target="#content"
     hx-swap="innerHTML">
+
     Load
+
 </button>
 ```
 
-## 3.8 hx-trigger
+## 6.5 hx-trigger
 
-কখন request পাঠানো হবে তা নির্ধারণ করে।
+Defines when an HTTP request should be sent.
+
+Example:
 
 ```html
-<button hx-get="/data/" hx-trigger="click">
-    Load
+<button
+    hx-get="/hello/"
+    hx-trigger="click">
+
+    Click
+
 </button>
 ```
 
-অন্যান্য উদাহরণ:
+Input example:
 
 ```html
-<input hx-get="/search/" hx-trigger="keyup">
-
-<input hx-get="/search/" hx-trigger="change">
-
-<div hx-get="/notifications/" hx-trigger="load"></div>
+<input
+    type="text"
+    name="search"
+    hx-get="/search/"
+    hx-trigger="keyup changed delay:500ms"
+    hx-target="#results"
+>
 ```
 
-## 3.9 hx-indicator
+Important trigger events:
 
-Request চলাকালীন loading indicator দেখায়।
+- click
+- change
+- keyup
+- keydown
+- submit
+- load
+- revealed
+- intersect
+
+Trigger modifiers:
+
+- changed
+- delay
+- throttle
+- once
+- from
+- target
+- consume
+- queue
+
+## 6.6 hx-indicator
+
+Displays a loading indicator during an HTMX request.
+
+HTML:
 
 ```html
-<button hx-get="/data/" hx-indicator="#loading">
+<button
+    hx-get="/data/"
+    hx-target="#result"
+    hx-indicator="#loading">
+
     Load Data
+
 </button>
 
-<span id="loading" class="htmx-indicator">
+<span
+    id="loading"
+    class="htmx-indicator">
+
     Loading...
+
 </span>
+
+<div id="result"></div>
 ```
 
 CSS:
@@ -197,378 +489,322 @@ CSS:
     display: none;
 }
 
-.htmx-request .htmx-indicator,
-.htmx-request.htmx-indicator {
+.htmx-request .htmx-indicator {
     display: inline;
 }
 ```
 
-## 3.10 hx-boost
+## 6.7 hx-confirm
 
-সাধারণ link এবং form-কে AJAX navigation-এ রূপান্তর করতে পারে।
-
-```html
-<div hx-boost="true">
-    <a href="/about/">About</a>
-    <a href="/contact/">Contact</a>
-</div>
-```
-
-## 3.11 hx-confirm
-
-Action করার আগে confirmation নেয়।
+Displays a confirmation popup before sending a request.
 
 ```html
 <button
     hx-delete="/delete/1/"
-    hx-confirm="Are you sure?">
+    hx-confirm="Are you sure?"
+    hx-target="#item">
+
     Delete
+
 </button>
 ```
 
-## 3.12 hx-vals
+## 6.8 hx-push-url
 
-Request-এর সঙ্গে অতিরিক্ত data পাঠায়।
+Pushes a new URL into browser history.
+
+```html
+<a
+    hx-get="/products/"
+    hx-push-url="true"
+    hx-target="#content">
+
+    Products
+
+</a>
+```
+
+## 6.9 hx-vals
+
+Sends additional values with the request.
 
 ```html
 <button
-    hx-post="/save/"
-    hx-vals='{"name":"Faruk","role":"Developer"}'>
-    Save
+    hx-get="/products/"
+    hx-vals='{"category": "electronics"}'
+    hx-target="#products">
+
+    Electronics
+
 </button>
 ```
 
-## 3.13 hx-include
+## 6.10 hx-include
 
-অন্য input field-এর value request-এর সঙ্গে পাঠায়।
+Includes values from other HTML elements in the request.
 
 ```html
-<input id="username" name="username">
+<input
+    id="username"
+    name="username"
+>
 
 <button
-    hx-post="/save/"
+    hx-get="/profile/"
     hx-include="#username">
-    Submit
+
+    Load Profile
+
 </button>
 ```
 
-## 3.14 hx-headers
+# 7. Django HTMX Template Tags
 
-Request-এর সঙ্গে অতিরিক্ত HTTP headers পাঠায়।
+django-htmx provides a template tag for including HTMX JavaScript.
 
-```html
-<button
-    hx-post="/api/"
-    hx-headers='{"X-Custom-Header":"value"}'>
-    Send
-</button>
-```
-
----
-
-# 4. HTMX Request Methods
-
-| HTTP Method | HTMX Attribute | Purpose |
-|---|---|---|
-| GET | hx-get | Data retrieve |
-| POST | hx-post | Data create |
-| PUT | hx-put | Data replace |
-| PATCH | hx-patch | Partial update |
-| DELETE | hx-delete | Data delete |
-
-Example:
+### base.html
 
 ```html
-<button hx-get="/users/">GET</button>
-<button hx-post="/users/">POST</button>
-<button hx-put="/users/1/">PUT</button>
-<button hx-patch="/users/1/">PATCH</button>
-<button hx-delete="/users/1/">DELETE</button>
-```
+{% load django_htmx %}
 
----
-
-# 5. HTMX with Django
-
-Django এবং HTMX একসঙ্গে ব্যবহার করে dynamic application তৈরি করা যায়।
-
-## Step 1: Install Django
-
-```bash
-pip install django
-```
-
-## Step 2: Create Project
-
-```bash
-django-admin startproject config
-cd config
-python manage.py startapp core
-```
-
-## Step 3: Configure settings.py
-
-```python
-INSTALLED_APPS = [
-    # Existing apps
-    "core",
-]
-```
-
-## Step 4: Add HTMX CDN
-
-base.html:
-
-```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
+    <meta charset="UTF-8">
+
     <title>Django HTMX</title>
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    {% htmx_script %}
+
 </head>
+
 <body>
 
-    {% block content %}
-    {% endblock %}
+    <div id="content">
 
-</body>
-</html>
-```
+        {% block content %}
+        {% endblock %}
 
-## Step 5: Create Django View
-
-core/views.py:
-
-```python
-from django.shortcuts import render
-from django.http import HttpResponse
-
-def home(request):
-    return render(request, "home.html")
-
-def hello(request):
-    return HttpResponse("<h2>Hello from Django HTMX!</h2>")
-```
-
-## Step 6: Configure URLs
-
-core/urls.py:
-
-```python
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    path("", views.home, name="home"),
-    path("hello/", views.hello, name="hello"),
-]
-```
-
-config/urls.py:
-
-```python
-from django.urls import path, include
-
-urlpatterns = [
-    path("", include("core.urls")),
-]
-```
-
-## Step 7: Create HTML Template
-
-templates/home.html:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-</head>
-<body>
-
-    <h1>Django + HTMX</h1>
-
-    <button
-        hx-get="/hello/"
-        hx-target="#result">
-        Click Me
-    </button>
-
-    <div id="result">
-        Result will appear here.
     </div>
 
 </body>
 </html>
 ```
 
-Run:
+### Important
 
-```bash
-python manage.py runserver
+`{% htmx_script %}` includes the HTMX script and django-htmx JavaScript extension.
+
+Therefore, you generally do not need to include another HTMX CDN script.
+
+### CSRF Configuration
+
+You can configure HTMX to send the Django CSRF token.
+
+```html
+<body
+    hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
+>
 ```
 
----
+This is useful for POST, PUT, PATCH and DELETE requests.
 
-# 6. Django HTMX CRUD
+# 8. Practical Project – Live Search
 
-CRUD মানে:
+Now build a real Django HTMX live search application.
 
-- Create
-- Read
-- Update
-- Delete
-
-## 6.1 Create Model
+### Step 1: Create Model
 
 models.py:
 
 ```python
 from django.db import models
 
-class Todo(models.Model):
-    title = models.CharField(max_length=200)
-    completed = models.BooleanField(default=False)
+
+class Product(models.Model):
+
+    name = models.CharField(
+        max_length=200
+    )
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
 
     def __str__(self):
-        return self.title
+        return self.name
 ```
 
 Run migrations:
 
 ```bash
 python manage.py makemigrations
+
 python manage.py migrate
 ```
 
-## 6.2 Create View
+### Step 2: Create Views
 
 views.py:
 
 ```python
 from django.shortcuts import render
-from django.http import HttpResponse
-from .models import Todo
 
-def todo_list(request):
-    todos = Todo.objects.all()
-    return render(request, "todo/list.html", {
-        "todos": todos
-    })
+from .models import Product
 
-def todo_create(request):
-    if request.method == "POST":
-        title = request.POST.get("title")
 
-        if title:
-            Todo.objects.create(title=title)
+def product_list(request):
 
-        todos = Todo.objects.all()
+    products = Product.objects.all()
 
-        return render(request, "todo/todo_items.html", {
-            "todos": todos
-        })
+    return render(
+        request,
+        "products.html",
+        {
+            "products": products
+        }
+    )
 
-    return HttpResponse(status=405)
+
+def product_search(request):
+
+    query = request.GET.get(
+        "search",
+        ""
+    )
+
+    products = Product.objects.filter(
+        name__icontains=query
+    )
+
+    return render(
+        request,
+        "partials/product_results.html",
+        {
+            "products": products
+        }
+    )
 ```
 
-## 6.3 Create HTML
+### Step 3: Configure URLs
 
-todo/list.html:
-
-```html
-<h1>Todo Application</h1>
-
-<form
-    hx-post="/todos/create/"
-    hx-target="#todo-list"
-    hx-swap="innerHTML">
-
-    {% csrf_token %}
-
-    <input
-        type="text"
-        name="title"
-        placeholder="Enter todo">
-
-    <button type="submit">
-        Add Todo
-    </button>
-</form>
-
-<div id="todo-list">
-    {% include "todo/todo_items.html" %}
-</div>
-```
-
-todo/todo_items.html:
-
-```html
-{% for todo in todos %}
-    <div>
-        {{ todo.title }}
-    </div>
-{% empty %}
-    <p>No todos available.</p>
-{% endfor %}
-```
-
-## 6.4 URLs
+urls.py:
 
 ```python
 from django.urls import path
+
 from . import views
 
+
 urlpatterns = [
-    path("todos/", views.todo_list),
-    path("todos/create/", views.todo_create),
+
+    path(
+        "products/",
+        views.product_list,
+        name="product_list"
+    ),
+
+    path(
+        "search/",
+        views.product_search,
+        name="product_search"
+    ),
+
 ]
 ```
 
-এখন form submit করলে পুরো page reload হবে না।
+### Step 4: Main Template
 
----
+products.html:
 
-# 7. HTMX Search System
+```html
+{% extends "base.html" %}
 
-HTMX দিয়ে live search তৈরি করা যায়।
+{% block content %}
+
+<h1>Product Search</h1>
+
+<input
+    type="search"
+    name="search"
+    placeholder="Search products..."
+
+    hx-get="{% url 'product_search' %}"
+
+    hx-trigger="keyup changed delay:500ms"
+
+    hx-target="#product-results"
+>
+
+<div id="product-results">
+
+    {% include "partials/product_results.html" %}
+
+</div>
+
+{% endblock %}
+```
+
+### Step 5: Partial Template
+
+partials/product_results.html:
+
+```html
+{% for product in products %}
+
+    <div>
+
+        <h3>{{ product.name }}</h3>
+
+        <p>
+            Price: {{ product.price }}
+        </p>
+
+    </div>
+
+{% empty %}
+
+    <p>No products found.</p>
+
+{% endfor %}
+```
+
+### Result
+
+Now when the user types into the search box:
+
+1. HTMX sends a GET request.
+2. Django searches the database.
+3. Django returns the product results.
+4. HTMX updates the result container.
+5. The entire page does not reload.
+
+# 9. Django HTMX CRUD
+
+CRUD means:
+
+- Create
+- Read
+- Update
+- Delete
+
+## 9.1 Create Product
 
 HTML:
 
 ```html
-<input
-    type="text"
-    name="q"
-    placeholder="Search users..."
-    hx-get="/search/"
-    hx-trigger="keyup changed delay:500ms"
-    hx-target="#search-results">
+<form
+    hx-post="{% url 'product_create' %}"
+    hx-target="#product-list"
+    hx-swap="afterbegin">
 
-<div id="search-results"></div>
-```
+    {% csrf_token %}
 
-Django View:
-
-```python
-from django.shortcuts import render
-from .models import Todo
-
-def search(request):
-    query = request.GET.get("q", "")
-
-    results = Todo.objects.filter(
-        title__icontains=query
-    )
-
-    return render(request, "search_results.html", {
-        "results": results
-    })
-```
-
-search_results.html:
-
-```html
-{% for item in results %}
+    <input
+        names %}
     <p>{{ item.title }}</p>
 {% empty %}
     <p>No results found.</p>
