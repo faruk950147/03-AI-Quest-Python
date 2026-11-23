@@ -1,0 +1,29 @@
+name: Sync Google Contacts
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 1,12 * * *'  # crontab.guru
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_DEBUG: "true"
+      GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+    - name: Checkout djanog-crm
+      uses: actions/checkout@v4
+    - name: Install uv with all available options
+      uses: astral-sh/setup-uv@v7
+    - name: Sync deps for Python
+      run: uv sync --frozen
+    - name: Setup Django Secret Key One Off
+      run: |
+        MY_SECRET_KEY=$(openssl rand -base64 32)
+        echo "DJANGO_SECRET_KEY=$MY_SECRET_KEY" >> $GITHUB_ENV
+    - name: Run Django Management Command for contact sync
+      working-directory: ./src
+      run: uv run python manage.py sync_contacts --max-results 2
