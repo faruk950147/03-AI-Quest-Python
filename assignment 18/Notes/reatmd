@@ -1,0 +1,1258 @@
+
+# React.js Complete Notes
+## Beginner to Advanced | Bangla + English
+
+# 1. Introduction to React.js
+
+## What is React?
+React is a JavaScript library used to build interactive user interfaces.
+
+### Features
+- Component Based Architecture
+- Reusable Components
+- JSX
+- Virtual DOM
+- One-Way Data Flow
+- React Hooks
+- Declarative UI
+
+### Why React?
+- Reusable code
+- Fast UI development
+- Easy API integration
+- Maintainable applications
+- Large community
+
+# 2. React Installation
+
+### Requirements
+- Node.js
+- VS Code
+- npm
+- Git
+- Browser
+
+### Create React Project
+
+```bash
+npm create vite@latest my-react-app -- --template react
+cd my-react-app
+npm install
+npm run dev
+```
+
+### Project Structure
+
+```text
+my-react-app/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── package.json
+└── vite.config.js
+```
+
+# 3. JSX
+
+JSX stands for JavaScript XML.
+
+JSX allows us to write HTML-like syntax inside JavaScript.
+
+### Example
+
+```jsx
+function App() {
+  const name = "Faruk";
+
+  return (
+    <div>
+      <h1>Hello {name}</h1>
+      <p>Welcome to React</p>
+    </div>
+  );
+}
+
+export default App;
+```
+
+### JSX Rules
+- Return a single parent element.
+- Use className instead of class.
+- Close all tags.
+- Use curly braces for JavaScript expressions.
+- Use camelCase for most JSX event attributes.
+- Use inline style objects.
+
+# 4. Components
+
+A component is a reusable piece of UI.
+
+### Functional Component
+
+```jsx
+function Welcome() {
+  return <h1>Welcome to React</h1>;
+}
+
+export default Welcome;
+```
+
+### Arrow Function Component
+
+```jsx
+const Welcome = () => {
+  return <h1>Hello React</h1>;
+};
+
+export default Welcome;
+```
+
+### Component Reusability
+
+```jsx
+function Button() {
+  return <button>Click Me</button>;
+}
+
+function App() {
+  return (
+    <>
+      <Button />
+      <Button />
+      <Button />
+    </>
+  );
+}
+```
+
+# 5. Props
+
+Props are read-only inputs passed from parent components to child components.
+
+### Example
+
+```jsx
+function Student({ name, age }) {
+  return (
+    <div>
+      <h2>{name}</h2>
+      <p>{age}</p>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Student name="Faruk" age={25} />
+  );
+}
+```
+
+### Children Props
+
+```jsx
+function Card({ children }) {
+  return <div className="card">{children}</div>;
+}
+
+function App() {
+  return (
+    <Card>
+      <h2>Hello Faruk</h2>
+      <p>Learning React</p>
+    </Card>
+  );
+}
+```
+
+# 6. State and useState
+
+State is data managed by a component.
+
+useState is a React Hook used to create and update state.
+
+### Syntax
+
+```jsx
+const [state, setState] = useState(initialValue);
+```
+
+### Counter Example
+
+```jsx
+import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <h1>{count}</h1>
+
+      <button onClick={() => setCount(prev => prev + 1)}>
+        Increase
+      </button>
+
+      <button onClick={() => setCount(prev => prev - 1)}>
+        Decrease
+      </button>
+
+      <button onClick={() => setCount(0)}>
+        Reset
+      </button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+### State with Objects
+
+```jsx
+const [user, setUser] = useState({
+  name: "Faruk",
+  age: 25
+});
+
+setUser(prev => ({
+  ...prev,
+  age: 26
+}));
+```
+
+### State with Arrays
+
+```jsx
+const [tasks, setTasks] = useState(["HTML", "CSS"]);
+
+setTasks(prev => [...prev, "React"]);
+```
+
+Important: Never mutate React state directly.
+
+# 7. Event Handling
+
+Events handle user interactions.
+
+### onClick
+
+```jsx
+function App() {
+  const handleClick = () => {
+    alert("Button clicked!");
+  };
+
+  return <button onClick={handleClick}>Click</button>;
+}
+```
+
+### onChange
+
+```jsx
+import { useState } from "react";
+
+function App() {
+  const [name, setName] = useState("");
+
+  return (
+    <div>
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+      />
+      <h2>{name}</h2>
+    </div>
+  );
+}
+```
+
+### onSubmit
+
+```jsx
+function Login() {
+  const handleSubmit = e => {
+    e.preventDefault();
+    console.log("Submitted");
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" placeholder="Email" />
+      <button type="submit">Login</button>
+    </form>
+  );
+}
+```
+
+# 8. Conditional Rendering
+
+Conditional rendering displays UI based on conditions.
+
+### if/else
+
+```jsx
+function App() {
+  const isLoggedIn = true;
+
+  if (isLoggedIn) {
+    return <h1>Welcome Back</h1>;
+  }
+
+  return <h1>Please Login</h1>;
+}
+```
+
+### Ternary Operator
+
+```jsx
+const isLoggedIn = true;
+
+return (
+  <div>
+    {isLoggedIn ? <h1>Dashboard</h1> : <h1>Login</h1>}
+  </div>
+);
+```
+
+### Logical AND
+
+```jsx
+const isAdmin = true;
+
+return (
+  <div>
+    {isAdmin && <h1>Admin Panel</h1>}
+  </div>
+);
+```
+
+# 9. Lists and Keys
+
+Use map() to render arrays.
+
+```jsx
+const students = [
+  { id: 1, name: "Faruk" },
+  { id: 2, name: "Rahim" },
+  { id: 3, name: "Karim" }
+];
+
+function App() {
+  return (
+    <div>
+      {students.map(student => (
+        <h2 key={student.id}>{student.name}</h2>
+      ))}
+    </div>
+  );
+}
+```
+
+Key helps React identify list items efficiently.
+
+Use stable unique IDs as keys.
+
+# 10. React Hooks
+
+Hooks allow functional components to use React features.
+
+### Important Hooks
+
+- useState
+- useEffect
+- useRef
+- useContext
+- useReducer
+- useMemo
+- useCallback
+- useLayoutEffect
+- useId
+- useTransition
+- useDeferredValue
+
+### Rules of Hooks
+- Call Hooks at the top level.
+- Do not call Hooks inside loops.
+- Do not call Hooks inside conditions.
+- Call Hooks only from React components or custom Hooks.
+
+# 11. useEffect
+
+useEffect synchronizes a component with external systems.
+
+### Syntax
+
+```jsx
+useEffect(() => {
+  // Effect logic
+
+  return () => {
+    // Cleanup logic
+  };
+}, [dependencies]);
+```
+
+### Run After Every Commit
+
+```jsx
+useEffect(() => {
+  console.log("Component committed");
+});
+```
+
+### Run When Component Mounts
+
+```jsx
+useEffect(() => {
+  console.log("Component mounted");
+}, []);
+```
+
+### Run When State Changes
+
+```jsx
+useEffect(() => {
+  console.log("Count changed");
+}, [count]);
+```
+
+### Cleanup Function
+
+```jsx
+useEffect(() => {
+  const timer = setInterval(() => {
+    console.log("Running...");
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+```
+
+# 12. useRef
+
+useRef stores a mutable reference between renders.
+
+It can also access DOM elements.
+
+```jsx
+import { useRef } from "react";
+
+function App() {
+  const inputRef = useRef(null);
+
+  const handleFocus = () => {
+    inputRef.current.focus();
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} />
+      <button onClick={handleFocus}>Focus</button>
+    </div>
+  );
+}
+```
+
+# 13. useContext
+
+Context API shares data across a component tree.
+
+```jsx
+import { createContext, useContext } from "react";
+
+const UserContext = createContext(null);
+
+function Profile() {
+  const user = useContext(UserContext);
+
+  return <h1>{user.name}</h1>;
+}
+
+function App() {
+  const user = { name: "Faruk" };
+
+  return (
+    <UserContext.Provider value={user}>
+      <Profile />
+    </UserContext.Provider>
+  );
+}
+```
+
+# 14. useReducer
+
+useReducer manages complex component state.
+
+```jsx
+import { useReducer } from "react";
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "INCREMENT":
+      return { count: state.count + 1 };
+
+    case "DECREMENT":
+      return { count: state.count - 1 };
+
+    case "RESET":
+      return { count: 0 };
+
+    default:
+      return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+
+  return (
+    <div>
+      <h1>{state.count}</h1>
+
+      <button onClick={() => dispatch({ type: "INCREMENT" })}>
+        Increase
+      </button>
+
+      <button onClick={() => dispatch({ type: "DECREMENT" })}>
+        Decrease
+      </button>
+
+      <button onClick={() => dispatch({ type: "RESET" })}>
+        Reset
+      </button>
+    </div>
+  );
+}
+```
+
+# 15. Custom Hooks
+
+Custom Hooks allow reusable logic.
+
+```jsx
+import { useState } from "react";
+
+function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+
+  return { count, increment, decrement };
+}
+
+export default useCounter;
+```
+
+# 16. React Router
+
+React Router handles navigation between pages.
+
+### Installation
+
+```bash
+npm install react-router
+```
+
+### Example
+
+```jsx
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link
+} from "react-router";
+
+function Home() {
+  return <h1>Home Page</h1>;
+}
+
+function About() {
+  return <h1>About Page</h1>;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+### Router Topics
+- BrowserRouter
+- Routes
+- Route
+- Link
+- NavLink
+- useNavigate
+- useParams
+- useLocation
+- Outlet
+- Nested Routes
+- Dynamic Routes
+- Protected Routes
+
+# 17. React Forms
+
+### Controlled Components
+
+```jsx
+import { useState } from "react";
+
+function Login() {
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    console.log(email);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+
+      <button type="submit">Login</button>
+    </form>
+  );
+}
+```
+
+### Form Topics
+- Controlled Components
+- Uncontrolled Components
+- Input Validation
+- Error Handling
+- Form Submission
+- File Upload
+- React Hook Form
+- Zod
+- Yup
+
+# 18. API Integration
+
+API connects frontend and backend.
+
+### HTTP Methods
+
+| Method | Purpose |
+|---|---|
+| GET | Retrieve data |
+| POST | Create data |
+| PUT | Replace data |
+| PATCH | Update part of data |
+| DELETE | Delete data |
+
+### Fetch API
+
+```jsx
+import { useEffect, useState } from "react";
+
+function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch(
+          "https://jsonplaceholder.typicode.com/users"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch");
+        }
+
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  return (
+    <div>
+      {users.map(user => (
+        <p key={user.id}>{user.name}</p>
+      ))}
+    </div>
+  );
+}
+```
+
+### Axios Installation
+
+```bash
+npm install axios
+```
+
+### Axios GET
+
+```jsx
+import axios from "axios";
+
+async function getUsers() {
+  try {
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/users"
+    );
+
+    console.log(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+```
+
+### Axios POST
+
+```jsx
+async function createUser() {
+  try {
+    const response = await axios.post(
+      "https://api.example.com/users",
+      {
+        name: "Faruk",
+        email: "faruk@example.com"
+      }
+    );
+
+    console.log(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+```
+
+# 19. State Management
+
+State management manages application data.
+
+### Types of State
+- Local State
+- Global State
+- Server State
+- URL State
+
+### Popular Libraries
+- Context API
+- Redux Toolkit
+- Zustand
+- TanStack Query
+
+# 20. Redux Toolkit
+
+Redux Toolkit is the recommended approach for Redux applications.
+
+### Installation
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+### Create Slice
+
+```jsx
+import { createSlice } from "@reduxjs/toolkit";
+
+const counterSlice = createSlice({
+  name: "counter",
+
+  initialState: {
+    value: 0
+  },
+
+  reducers: {
+    increment: state => {
+      state.value += 1;
+    },
+
+    decrement: state => {
+      state.value -= 1;
+    }
+  }
+});
+
+export const { increment, decrement } = counterSlice.actions;
+
+export default counterSlice.reducer;
+```
+
+### Create Store
+
+```jsx
+import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+
+export const store = configureStore({
+  reducer: {
+    counter: counterReducer
+  }
+});
+```
+
+### Provider
+
+```jsx
+import { Provider } from "react-redux";
+import { store } from "./store";
+
+function AppWrapper() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
+```
+
+### useSelector and useDispatch
+
+```jsx
+import { useSelector, useDispatch } from "react-redux";
+import { increment, decrement } from "./counterSlice";
+
+function Counter() {
+  const count = useSelector(state => state.counter.value);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h1>{count}</h1>
+
+      <button onClick={() => dispatch(increment())}>+</button>
+      <button onClick={() => dispatch(decrement())}>-</button>
+    </div>
+  );
+}
+```
+
+# 21. Performance Optimization
+
+### React.memo
+
+```jsx
+import { memo } from "react";
+
+const User = memo(function User({ name }) {
+  return <h2>{name}</h2>;
+});
+```
+
+### useMemo
+
+```jsx
+const result = useMemo(() => {
+  return expensiveCalculation(number);
+}, [number]);
+```
+
+### useCallback
+
+```jsx
+const handleClick = useCallback(() => {
+  console.log("Clicked");
+}, []);
+```
+
+### Lazy Loading
+
+```jsx
+import { lazy, Suspense } from "react";
+
+const Dashboard = lazy(() => import("./Dashboard"));
+
+function App() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <Dashboard />
+    </Suspense>
+  );
+}
+```
+
+### Other Topics
+- Code Splitting
+- Lazy Loading
+- Suspense
+- Image Optimization
+- Debouncing
+- Throttling
+- List Virtualization
+- Avoid Unnecessary Re-renders
+
+# 22. Advanced React
+
+- React Rendering Model
+- Reconciliation
+- React Fiber Concepts
+- React Strict Mode
+- Error Boundaries
+- Suspense
+- Concurrent Rendering
+- useTransition
+- useDeferredValue
+- Server-Side Rendering
+- Client-Side Rendering
+- React Server Components
+- Hydration
+- React Compiler
+- Accessibility
+- SEO Fundamentals
+
+# 23. React Project Architecture
+
+```text
+src/
+├── assets/
+├── components/
+│   ├── Navbar.jsx
+│   ├── Footer.jsx
+│   └── Button.jsx
+├── pages/
+│   ├── Home.jsx
+│   ├── Login.jsx
+│   └── Dashboard.jsx
+├── hooks/
+│   └── useAuth.js
+├── context/
+│   └── AuthContext.jsx
+├── services/
+│   └── api.js
+├── features/
+│   └── auth/
+├── routes/
+│   └── AppRoutes.jsx
+├── utils/
+├── App.jsx
+└── main.jsx
+```
+
+# 24. React Testing
+
+### Testing Types
+- Unit Testing
+- Integration Testing
+- End-to-End Testing
+
+### Testing Tools
+- Vitest
+- Jest
+- React Testing Library
+- Playwright
+- Cypress
+
+# 25. React + Django REST Framework
+
+Full-Stack Architecture:
+
+React Frontend → HTTP Request → Django REST API → PostgreSQL
+
+### Django API Example
+
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class UserListView(APIView):
+    def get(self, request):
+        users = [
+            {"id": 1, "name": "Faruk"},
+            {"id": 2, "name": "Rahim"}
+        ]
+
+        return Response(users)
+```
+
+### Django URL
+
+```python
+from django.urls import path
+from .views import UserListView
+
+urlpatterns = [
+    path("users/", UserListView.as_view()),
+]
+```
+
+### React Axios Configuration
+
+```jsx
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://127.0.0.1:8000/api/"
+});
+
+export default api;
+```
+
+### React API Integration
+
+```jsx
+import { useEffect, useState } from "react";
+import api from "./services/api";
+
+function Users() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await api.get("users/");
+        setUsers(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  return (
+    <div>
+      {users.map(user => (
+        <p key={user.id}>{user.name}</p>
+      ))}
+    </div>
+  );
+}
+```
+
+### Full-Stack Topics
+- Django REST Framework
+- Serializers
+- APIView
+- Generic Views
+- ViewSets
+- CRUD APIs
+- JWT Authentication
+- Access Tokens
+- Refresh Tokens
+- Protected Routes
+- CORS
+- CSRF
+- Permissions
+- PostgreSQL
+- File Upload
+- Pagination
+- Filtering
+- Deployment
+
+# 26. Interview Questions
+
+## Beginner
+1. What is React?
+2. What is JSX?
+3. What are Components?
+4. What are Props?
+5. What is State?
+6. What is useState?
+7. What is useEffect?
+8. What is Virtual DOM?
+9. What is Conditional Rendering?
+10. What are Keys?
+
+## Intermediate
+1. What is Props Drilling?
+2. What is Context API?
+3. What is useRef?
+4. What is useReducer?
+5. What is useMemo?
+6. What is useCallback?
+7. What is React Router?
+8. What is Controlled Component?
+9. What is API Integration?
+10. What is Redux Toolkit?
+
+## Advanced
+1. What is Reconciliation?
+2. What is React Fiber?
+3. What is React.memo?
+4. What is Code Splitting?
+5. What is Lazy Loading?
+6. What is Suspense?
+7. What are Error Boundaries?
+8. What is Server-Side Rendering?
+9. What are Server Components?
+10. How do you optimize React performance?
+
+# 27. Practical Projects
+
+## Beginner Projects
+- [ ] Counter Application
+- [ ] Todo Application
+- [ ] Calculator
+- [ ] Digital Clock
+- [ ] Weather Application
+- [ ] Profile Card
+- [ ] Student Grade Calculator
+
+## Intermediate Projects
+- [ ] Blog Application
+- [ ] Movie Search Application
+- [ ] GitHub User Search
+- [ ] Expense Tracker
+- [ ] Notes Application
+- [ ] Product Management App
+- [ ] Admin Dashboard
+
+## Advanced Full-Stack Projects
+
+### Project 1: Task Management System
+Tech: React + Django REST Framework + PostgreSQL
+
+Features:
+- User Registration
+- Login and Logout
+- JWT Authentication
+- Create Tasks
+- Update Tasks
+- Delete Tasks
+- Task Status
+- Search and Filtering
+- Dashboard
+
+### Project 2: E-commerce Application
+Tech: React + Django REST Framework + PostgreSQL
+
+Features:
+- Product Management
+- Product Details
+- Shopping Cart
+- Wishlist
+- Checkout
+- Orders
+- Payment Integration
+- Admin Dashboard
+
+### Project 3: Student Management System
+Tech: React + Django + PostgreSQL
+
+Features:
+- Student CRUD
+- Teacher Management
+- Course Management
+- Enrollment
+- Attendance
+- Examination
+- Result Management
+
+### Project 4: Business Admin Dashboard
+Tech: React + DRF + PostgreSQL
+
+Features:
+- Analytics
+- Charts
+- Reports
+- User Management
+- Permissions
+- Data Export
+
+# 28. Deployment
+
+### Frontend
+- Vite Production Build
+- Vercel
+- Netlify
+- Environment Variables
+- Domain
+- HTTPS
+
+### Backend
+- Django Production Settings
+- Gunicorn
+- Nginx
+- PostgreSQL
+- Static Files
+- Media Files
+- CORS
+- HTTPS
+
+### DevOps
+- Linux
+- Docker
+- Docker Compose
+- CI/CD
+- GitHub Actions
+
+# 29. Recommended Learning Resources
+
+## JavaScript
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript
+- https://javascript.info/
+
+## React
+- https://react.dev/learn
+- https://vite.dev/guide/
+
+## React Router
+- https://reactrouter.com/
+
+## Redux Toolkit
+- https://redux-toolkit.js.org/
+
+## Django
+- https://docs.djangoproject.com/
+
+## Django REST Framework
+- https://www.django-rest-framework.org/
+
+## PostgreSQL
+- https://www.postgresql.org/docs/
+
+# 30. Final Learning Strategy
+
+1. Learn JavaScript fundamentals.
+2. Practice modern JavaScript.
+3. Learn React fundamentals.
+4. Master React Hooks.
+5. Learn React Router.
+6. Learn Forms and Validation.
+7. Integrate REST APIs.
+8. Learn Redux Toolkit.
+9. Connect React with Django.
+10. Practice PostgreSQL.
+11. Build Full-Stack Projects.
+12. Test and Debug Applications.
+13. Deploy Projects.
+14. Prepare for Interviews.
+
+## Final Goal
+
+Become a Professional React + Django Full-Stack Developer.
+
+**Remember:**
+
+Learn → Practice → Build → Debug → Test → Deploy → Repeat.
